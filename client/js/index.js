@@ -22,6 +22,8 @@ let myMap = L.map('map-container', {
     layers: [googleSky, ngvsTile]
 })
 
+let searchMarker = L.marker([0,0], {"opacity" : 0.0}).addTo(myMap);
+
 let baseMaps = {
     "GoogleSky" : googleSky,
     "NGVSTile" : ngvsTile
@@ -32,10 +34,41 @@ L.control.layers(null,baseMaps, {
 }).addTo(myMap)
 
 
-function searchSubmit(event) {
-    console.log("submitted form");
-    event.preventDefault();
+
+function toLatLng(coordinates) {
+    let dec = coordinates['Dec']
+    let ra = coordinates['RA'];
+    if (ra > 180) { ra = 180 - ra};
+    return L.latLng([dec,ra]);
 }
 
+function moveSearchMarker(coordinates) {
+    searchMarker.setLatLng(toLatLng(coordinates))
+    searchMarker.setOpacity(1.0);
+}
+
+function clearSearchMarker() {
+    searchMarker.setOpacity(0.0);
+}
+
+const objectSearchReset = document.getElementById('object-clear')
+objectSearchReset.addEventListener('click', () => clearSearchMarker());
+
+// Searches for object or coordinate pair
 const objectSearchForm = document.getElementById('object-search-form');
-objectSearchForm.addEventListener('submit', searchSubmit);
+objectSearchForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const formData = new FormData(objectSearchForm);
+    objectSearchForm.reset();
+
+    fetch('http://127.0.0.1:5000/coordinates' , {
+        method: 'post',
+        body: formData
+    }).then((response) => {
+        return response.json();  
+    }).then((json) => {
+        moveSearchMarker(json);
+    }).catch((error) => {
+        console.log(error);
+    })
+});

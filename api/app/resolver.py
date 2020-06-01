@@ -48,7 +48,7 @@ def get_coordinate(target_name):
         coord['RA'] = float(f['RA'])
         coord['Dec'] = float(f['Dec'])
     except Exception as ex:
-        logger.error("Failed trying to pares: {}".format(result))
+        logger.error("Failed trying to parse: {}".format(result))
         logger.error(str(ex))
         return None
 
