@@ -5,11 +5,13 @@ const googleSky = L.tileLayer("https://mw1.google.com/mw-planetary/sky/skytiles_
 const ngvsTile = L.tileLayer("https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/data/pub/GSKY/M.{x}.{y}.{z}.png")
   
 document.addEventListener('DOMContentLoaded', function() {
-var elems = document.querySelectorAll('.collapsible');
-var instances = M.Collapsible.init(elems, {
-    accordion: true
-});
-M.updateTextFields();
+    let collapsibleElements = document.querySelectorAll('.collapsible');
+    let collapsibleInstances = M.Collapsible.init(collapsibleElements);
+    
+    populateQueryList();
+
+    M.updateTextFields();
+    
 });
 
 let tileLayers = L.layerGroup([googleSky, ngvsTile])
@@ -34,7 +36,6 @@ L.control.layers(null,baseMaps, {
 }).addTo(myMap)
 
 
-
 function toLatLng(coordinates) {
     let dec = coordinates['Dec']
     let ra = coordinates['RA'];
@@ -50,6 +51,7 @@ function moveSearchMarker(coordinates) {
 function clearSearchMarker() {
     searchMarker.setOpacity(0.0);
 }
+
 
 const objectSearchReset = document.getElementById('object-clear')
 objectSearchReset.addEventListener('click', () => clearSearchMarker());
@@ -72,3 +74,21 @@ objectSearchForm.addEventListener('submit', (e) => {
         console.log(error);
     })
 });
+
+// Retrieves list of catalog names and populates the select list
+function populateQueryList() {
+    fetch('http://127.0.0.1:5000/catalogs')
+        .then(response => response.json())
+        .then((catalogList) => {
+            for (let catalog of catalogList) {
+                let selectForm = document.getElementById('catalog-select');
+                let optionElement = document.createElement("option");
+                optionElement.setAttribute("value", catalog)
+                optionElement.innerHtml = catalog;
+                selectForm.appendChild(optionElement)
+            }
+        }).then(() => {
+            let catalogSelect = document.getElementById('catalog-select');
+            let catalogSelectInstance = M.FormSelect.init(catalogSelect);
+        });
+}

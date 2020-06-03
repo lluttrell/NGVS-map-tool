@@ -1,5 +1,6 @@
 import os
 
+
 class Config(object):
     """
     This class holds some default parameters needed elsewhere.
