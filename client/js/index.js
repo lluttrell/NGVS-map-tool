@@ -84,7 +84,7 @@ function populateQueryList() {
                 let selectForm = document.getElementById('catalog-select');
                 let optionElement = document.createElement("option");
                 optionElement.setAttribute("value", catalog)
-                optionElement.innerHtml = catalog;
+                optionElement.innerHTML = catalog;
                 selectForm.appendChild(optionElement)
             }
         }).then(() => {
