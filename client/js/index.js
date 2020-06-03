@@ -9,7 +9,8 @@ document.addEventListener('DOMContentLoaded', function() {
     let collapsibleInstances = M.Collapsible.init(collapsibleElements);
     
     populateQueryList();
-
+    let tabElement = document.getElementById('query-tab');
+    let tabElementInstance = M.Tabs.init(tabElement);
     M.updateTextFields();
     
 });
@@ -52,7 +53,6 @@ function clearSearchMarker() {
     searchMarker.setOpacity(0.0);
 }
 
-
 const objectSearchReset = document.getElementById('object-clear')
 objectSearchReset.addEventListener('click', () => clearSearchMarker());
 
@@ -91,4 +91,15 @@ function populateQueryList() {
             let catalogSelect = document.getElementById('catalog-select');
             let catalogSelectInstance = M.FormSelect.init(catalogSelect);
         });
+}
+
+// Plots clusters on map (prototyping)
+function getObjectLocations(catalogName) {
+    fetch(`http://127.0.0.1:5000/catalogs/${catalogName}/query`)
+        .then(response => response.json())
+        .then((object) => {
+            for (let [key,value] of Object.entries(object)) {
+                console.log(`${key} : ${value}`);
+            }
+        })
 }

@@ -2,12 +2,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/browse/leaflet.markercluster@1.4.1/dist/MarkerCluster.Default.css">
+    <link rel="stylesheet" href="https://unpkg.com/browse/leaflet.markercluster@1.4.1/dist/MarkerCluster.css">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link rel="stylesheet" href="/css/main.css"/>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css"
     integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ=="
     crossorigin=""/>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+    <script src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js"
+    integrity="sha512-gZwIG9x3wUXg2hdXF6+rVkLF/0Vi9U8D2Ntg4Ga5I5BZpVkVxlJWbSQtXPSiUTtC0TjtGOmxa1AJPuV0CPthew=="
+    crossorigin=""></script>
+    <script src="https://unpkg.com/browse/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"></script>
     <title>NGVS Map</title>
    
 </head>
@@ -38,11 +47,23 @@
           <div class="collapsible-header"><i class="material-icons">place</i>Query</div>
           <div class="collapsible-body" id="query-body">
             <div class="row">
-              <div class="input-field">
+              <div class="input-field col s12">
                 <select id="catalog-select">
                   <option value="" disabled selected>Select Catalog</option>
                 </select>
                 <label for="catalog-select">Catalog</label>
+              </div>
+              <div class="col s12">
+                <ul class="tabs" id="query-tab">
+                  <li class="tab col s6"><a href="#select">Select</a></li>
+                  <li class="tab col s6"><a href="#adql">ADQL</a></li>
+                </ul>
+              </div>
+              <div class="col s12" id="select">
+                <p>SELECT STUFF HERE</p>
+              </div>
+              <div class="col s12" id="adql">
+                <p>ADQL stuff</p>
               </div>
             </div>
           </div>
@@ -71,10 +92,8 @@
     <div class="col s7 m8 l9" id="map-container"></div>
   </div>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
-  <script src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js"
-  integrity="sha512-gZwIG9x3wUXg2hdXF6+rVkLF/0Vi9U8D2Ntg4Ga5I5BZpVkVxlJWbSQtXPSiUTtC0TjtGOmxa1AJPuV0CPthew=="
-  crossorigin=""></script>
+
+
   <script src="/js/index.js"></script>
 </body>
 </html>
