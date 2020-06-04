@@ -98,8 +98,14 @@ function getObjectLocations(catalogName) {
     fetch(`http://127.0.0.1:5000/catalogs/${catalogName}/query`)
         .then(response => response.json())
         .then((object) => {
-            for (let [key,value] of Object.entries(object)) {
-                console.log(`${key} : ${value}`);
+            let markers = L.markerClusterGroup();
+            for (let [name,coordinates] of Object.entries(object)) {
+                markers.addLayer(L.marker(coordinates, {
+                    title: name
+                }));
             }
+            markers.addTo(myMap);
         })
 }
+
+// Retrieves all information about a single object

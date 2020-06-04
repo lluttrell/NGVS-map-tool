@@ -10,3 +10,11 @@ html, body {
 #map-container {
     height: 100%;
 }
+
+.leaflet-fade-anim .leaflet-tile {
+    will-change: unset;
+  }
+  
+.leaflet-zoom-anim .leaflet-zoom-animated {
+will-change: unset;
+}

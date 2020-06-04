@@ -71,7 +71,22 @@ def query_catalog(catalog_name):
     query_string = f'SELECT {id_column_name}, principleRA, principleDec FROM {catalog_name}'
     with NamedTemporaryFile(mode='r+') as temp_file:
         client.query(query_string, output_file=temp_file.name, response_format='csv', data_only=True)
-        return {row[0]: (row[1], row[2]) for row in csv.reader(temp_file)}
+        rows = csv.reader(temp_file)
+        next(rows)
+        return {row[0]: [row[2], row[1]] for row in rows}
+
+
+@app.route('/catalogs/<catalog_name>/query_object/<object_id>')
+def query_all_for_object(catalog_name, object_id):
+    id_column_name = get_table_schema_names(catalog_name)[0]
+    query_string = f"SELECT * FROM {catalog_name} WHERE {id_column_name} = '{object_id}'"
+    print(query_string)
+    with NamedTemporaryFile(mode='r+') as temp_file:
+        client.query(query_string, output_file=temp_file.name, response_format='csv', data_only=True)
+        data = list(csv.reader(temp_file))
+        keys = data[0]
+        values = data[1]
+        return dict(zip(keys, values))
 
 
 def get_table_schema_names(table_name, principle_only=False):
