@@ -100,12 +100,22 @@ function getObjectLocations(catalogName) {
         .then((object) => {
             let markers = L.markerClusterGroup();
             for (let [name,coordinates] of Object.entries(object)) {
-                markers.addLayer(L.marker(coordinates, {
+                let myMarker = L.marker(coordinates, {
                     title: name
-                }));
+                }).on('click', () => displayObjectInformation(catalogName,name));
+                markers.addLayer(myMarker);
             }
             markers.addTo(myMap);
         })
 }
 
 // Retrieves all information about a single object
+function displayObjectInformation(catalogName, objectID) {
+    fetch(`http://127.0.0.1:5000/catalogs/${catalogName}/query_object/${objectID}`)
+        .then(response => response.json())
+        .then(objectInformation => {
+            for(let [key,value] of Object.entries(objectInformation)) {
+                console.log(`${key}:${value}`)
+            }
+        })
+}
