@@ -22,8 +22,14 @@ let myMap = L.map('map-container', {
     zoom: DEFAULT_ZOOM,
     minZoom: 5,
     maxZoom: 14,
-    layers: [googleSky, ngvsTile]
+    selectArea: true,
+    layers: [googleSky, ngvsTile],
+    renderer: L.canvas()
 })
+
+myMap.on('areaselected', (e) => {
+    console.log(e.bounds.toBBoxString()); // lon, lat, lon, lat
+  });
 
 let searchMarker = L.marker([0,0], {"opacity" : 0.0}).addTo(myMap);
 
@@ -106,6 +112,38 @@ function getObjectLocations(catalogName) {
                 markers.addLayer(myMarker);
             }
             markers.addTo(myMap);
+        })
+}
+
+//Plots circles on a map
+function getObjectCircles(catalogName) {
+    fetch(`http://127.0.0.1:5000/catalogs/${catalogName}/query`)
+        .then(response => response.json())
+        .then((object) => {
+            for (let [name,coordinates] of Object.entries(object)) {
+                let myMarker = L.circleMarker(coordinates, {
+                    radius: 0.5,
+                    weight: 0.5}).on('click', () => displayObjectInformation(catalogName,name));
+                myMarker.addTo(myMap);
+            }
+        })
+}
+
+//Plots circles on a map
+function getObjectHeat(catalogName) {
+    fetch(`http://127.0.0.1:5000/catalogs/${catalogName}/query`)
+        .then(response => response.json())
+        .then((object) => {
+            locations = []
+            for (let [name,coordinates] of Object.entries(object)) {
+                locations.push(coordinates)
+            }
+            let heat = L.heatLayer(locations, {
+                radius: 5,
+                blur: 5,
+                minOpacity: 25
+            }).addTo(myMap)
+
         })
 }
 
