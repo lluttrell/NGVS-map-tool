@@ -100,3 +100,29 @@ def get_table_schema_names(table_name, principle_only=False):
     if principle_only:
         return [t[0] for t in table_schema if "principle" in t[0].lower()]
     return [t[0] for t in table_schema]
+
+
+def parse_selection_string(selection_string, attribute_name):
+    """
+    Takes a string of comma separated numbers or number ranges (separated by "-")
+    and an attribute name, and returns SQL conditions for use in a where clause. Throws
+    out any invalid
+    :param selection_string:
+    :param attribute_name:
+    :return:
+    """
+
+    # split string into discreet numbers and ranges. Strip leading and trailing whitespace
+    tokens = [[y.strip() for y in x.split("-")] for x in selection_string.split(",")]
+    # remove any empty elements
+    tokens = [x for x in tokens if x != [""]]
+    singles = [f"{attribute_name} = {x[0]}" for x in tokens if len(x) == 1]
+    ranged = [f"({attribute_name} >= {x[0]} AND {attribute_name} <= {x[1]})" for x in tokens if len(x) == 2]
+    single_and_ranged = singles + ranged
+    parsed_string = ""
+    for i, x in enumerate(single_and_ranged):
+        parsed_string += x
+        if i < len(single_and_ranged)-1:
+            parsed_string += " OR "
+    return parsed_string
+
