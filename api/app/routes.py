@@ -1,7 +1,7 @@
 import json
 import csv
-import io
-from tempfile import TemporaryFile, NamedTemporaryFile
+import re
+from tempfile import NamedTemporaryFile
 
 from flask import make_response, request
 
@@ -102,27 +102,43 @@ def get_table_schema_names(table_name, principle_only=False):
     return [t[0] for t in table_schema]
 
 
-def parse_selection_string(selection_string, attribute_name):
+def parse_selection_to_conditions(selection_string, attribute_name):
     """
-    Takes a string of comma separated numbers or number ranges (separated by "-")
-    and an attribute name, and returns SQL conditions for use in a where clause. Throws
-    out any invalid
-    :param selection_string:
-    :param attribute_name:
-    :return:
+    Takes a string representing conditions and the attribute to which the conditions belong
+    and returns SQL conditions for use in an SQL where clause.
+    :param selection_string: raw string in an acceptable format
+    :param attribute_name: attribute to which selections belong to
+    :return: string to be used in where clause of an sql statement
     """
 
-    # split string into discreet numbers and ranges. Strip leading and trailing whitespace
-    tokens = [[y.strip() for y in x.split("-")] for x in selection_string.split(",")]
-    # remove any empty elements
-    tokens = [x for x in tokens if x != [""]]
-    singles = [f"{attribute_name} = {x[0]}" for x in tokens if len(x) == 1]
-    ranged = [f"({attribute_name} >= {x[0]} AND {attribute_name} <= {x[1]})" for x in tokens if len(x) == 2]
-    single_and_ranged = singles + ranged
-    parsed_string = ""
-    for i, x in enumerate(single_and_ranged):
-        parsed_string += x
-        if i < len(single_and_ranged)-1:
-            parsed_string += " OR "
-    return parsed_string
+    # strip all whitespace from string
+    stripped_string = re.sub(r"\s+", "", selection_string)
 
+    # split input string on commas and remove any empty elements
+    tokens = [x for x in stripped_string.split(",") if x != [""]]
+
+    # extract certain tokens based on simple regex matches
+    ranges = [x for x in tokens if re.search("-", x)]
+    lt = [x for x in tokens if re.search("<(?!=)", x)]
+    lte = [x for x in tokens if re.search("<=", x)]
+    gt = [x for x in tokens if re.search(">(?!=)", x)]
+    gte = [x for x in tokens if re.search(">=", x)]
+    singles = [x for x in tokens if not re.search("[-<>=]", x)]
+
+    # create new array from previously extracted arrays, and reformat into sql syntax
+    constructed_array = []
+    constructed_array += [f"{attribute_name} = {x}" for x in singles]
+    constructed_array += [f"({attribute_name} >= {x.split('-')[0]} AND {attribute_name} <= {x.split('-')[1]})" for x in ranges]
+    constructed_array += [f"{attribute_name} < {x.split('<')[1]}" for x in lt]
+    constructed_array += [f"{attribute_name} <= {x.split('<=')[1]}" for x in lte]
+    constructed_array += [f"{attribute_name} > {x.split('>')[1]}" for x in gt]
+    constructed_array += [f"{attribute_name} >= {x.split('>=')[1]}" for x in gte]
+
+    # join arrays together into a single string
+    return_string = ""
+    for index, element in enumerate(constructed_array):
+        return_string += element
+        if index < len(constructed_array) - 1:
+            return_string += " OR "
+
+    return return_string

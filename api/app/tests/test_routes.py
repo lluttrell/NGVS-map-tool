@@ -1,41 +1,31 @@
-from app.routes import parse_selection_string
+import pytest
+
+from app.routes import parse_selection_to_conditions
 
 
-def test_parse_selection_string():
-    attribute_name = "atr"
+class TestParseSelectionToConditions:
 
-    #test greater than
-    string = ">4,3<"
-    assert parse_selection_string(string, attribute_name) == "atr < 3.14"
+    def test_single_value(self):
+        assert parse_selection_to_conditions("3", "atr") == "atr = 3"
+        assert parse_selection_to_conditions("4 ", "atr") == "atr = 4"
+        assert parse_selection_to_conditions("3.1415", "atr") == "atr = 3.1415"
 
-    # test less than
-    string = "2>,<3"
-    assert parse_selection_string(string, attribute_name) == "atr = 3.14"
+    def test_less_than(self):
+        assert parse_selection_to_conditions("<3", "atr") == "atr < 3"
 
-    #test single value
-    string = "3.14"
-    assert parse_selection_string(string, attribute_name) == "atr = 3.14"
+    def test_greater_than(self):
+        assert parse_selection_to_conditions(">3", "atr") == "atr > 3"
 
-    # test basic string with no dash
-    string = "1,2,3"
-    assert parse_selection_string(string,attribute_name) == "atr = 1 OR atr = 2 OR atr = 3"
+    def test_less_than_equals(self):
+        assert parse_selection_to_conditions("<= 3", "atr") == "atr <= 3"
 
-    # test basic string with white space and no dash
-    string = "1\t,2 ,3.2342"
-    assert parse_selection_string(string, attribute_name) == "atr = 1 OR atr = 2 OR atr = 3.2342"
+    def test_greater_than_equals(self):
+        assert parse_selection_to_conditions(">= 3", "atr") == "atr >= 3"
 
-    #test complex string
-    string = "1,2-4,3-5"
-    assert parse_selection_string(string, attribute_name) == "atr = 1 OR (atr >= 2 AND atr <= 4) OR (atr >= 3 AND atr <= 5)"
+    def test_multiple_values(self):
+        assert parse_selection_to_conditions("1,2,3", "atr") == "atr = 1 OR atr = 2 OR atr = 3"
+        assert parse_selection_to_conditions("1 ,2,3.14", "atr") == "atr = 1 OR atr = 2 OR atr = 3.14"
 
-    #test invalid strings
-    string = "1,2-4-6,3-5,"
-    assert parse_selection_string(string, attribute_name) == "atr = 1 OR (atr >= 3 AND atr <= 5)"
-
-    # test invalid strings
-    string = ""
-    assert parse_selection_string(string, attribute_name) == ""
-
-    # test invalid strings
-    string = "2-"
-    assert parse_selection_string(string, attribute_name) == ""
+    def test_ranges(self):
+        assert parse_selection_to_conditions("2-4", "atr") == "(atr >= 2 AND atr <= 4)"
+        assert parse_selection_to_conditions("1,2-4 ", "atr") == "atr = 1 OR (atr >= 2 AND atr <= 4)"
