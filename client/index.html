@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.Default.css">
     <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.css">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    <link rel="stylesheet" href="/css/main.css"/>
+    <link rel="stylesheet" href="css/main.css"/>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css"
     integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ=="
     crossorigin=""/>
@@ -21,79 +21,59 @@
    
 </head>
 <body>
-  <div class="row" id="main-row">
-    <div class="col s5 m4 l3 no-padding">
-      <ul class="collapsible">
-        <li class="active">
-          <div class="collapsible-header"><i class="material-icons">search</i>Search</div>
-          <div class="collapsible-body">
-            <form id="object-search-form" enctype="multipart/form-data" autocomplete="off">
-              <div class="row">
-                <div class="input-field col s12">
-                  <input id="search_string" name="search_string" type="search">
-                  <label class="active" for="search_string">Name/Coordinates</label>
-                </div>
-                <div class="input-field col s6">
-                  <button type="submit" name="form-button" value="submit" class="btn">Submit</button>
-                </div>
-                <div class="input-field col s6">
-                  <button type="submit" name="form-button" value="clear" class="btn red lighten-2" id="object-clear">Clear</button>
-                </div>
-              </div>
-            </form>  
-          </div>
-        </li>
-        <li>
-          <div class="collapsible-header"><i class="material-icons">place</i>Query</div>
-          <div class="collapsible-body" id="query-body">
-            <div class="row">
-              <div class="input-field col s12">
-                <select id="catalog-select">
-                  <option value="" disabled selected>Select Catalog</option>
-                </select>
-                <label for="catalog-select">Catalog</label>
-              </div>
-              <div class="col s12">
-                <ul class="tabs" id="query-tab">
-                  <li class="tab col s6"><a href="#select">Select</a></li>
-                  <li class="tab col s6"><a href="#adql">ADQL</a></li>
-                </ul>
-              </div>
-              <div class="col s12" id="select">
-                <p>SELECT STUFF HERE</p>
-              </div>
-              <div class="col s12" id="adql">
-                <p>ADQL stuff</p>
-              </div>
+  <header>
+    <ul class="sidenav sidenav-fixed nav-mobile">
+      <li class="search">
+        <div class="search-wrapper">
+          <form class="input-field" id="search-form" enctype="multipart/form-data" autocomplete="off">
+            <i class="material-icons prefix">search</i>
+            <input class="col s4" id="search-input" name="search_string" placeholder="Object/Location Search" type="search">
+          </form>
+        </div>
+      </li>
+      <li class="no-padding">
+        <ul class="collapsible collapsible-accordion">
+          <li>
+            <div class="collapsible-header"><i class="material-icons">place</i>Query</div>
+            <div class="collapsible-body" id="query-body">
+              <select id="catalog-select">
+                <option value="" disabled selected>Select Catalog</option>
+              </select>
+              <ul class="tabs" id="query-tab">
+                <li class="tab col s6"><a href="#select">Select</a></li>
+                <li class="tab col s6"><a href="#adql">ADQL</a></li>
+              </ul>
             </div>
-          </div>
-        </li>
-        <li>
-          <div class="collapsible-header"><i class="material-icons">color_lens</i>Adjust</div>
-          <div class="collapsible-body">
-            <form id="image-adjust-form">
-              <p class="range-field">
-                <input type="range" id="saturation" min="0" max="100"/>
-                <label for="saturation">Saturation</label>
-              </p>  
-              <p class="range-field">
-                <input type="range" id="contrast" min="0" max="100"/>
-                <label for="contrast">Contrast</label>
-              </p>  
-              <p class="range-field">
-                <input type="range" id="brightness" min="0" max="100"/>
-                <label for="brightness">Brightness</label>
-              </p>  
-            </form>
-          </div>
-        </li>
-      </ul>
-    </div>
-    <div class="col s7 m8 l9" id="map-container"></div>
-  </div>
-
-  <script src="/js/Map.SelectArea.min.js"></script>
-  <script src="/js/leaflet-heat.js"></script>
-  <script src="/js/index.js"></script>
+          </li>
+          <li>
+            <div class="collapsible-header"><i class="material-icons">color_lens</i>Adjust</div>
+            <div class="collapsible-body">
+              <form id="image-adjust-form">
+                <p class="range-field">
+                  <input type="range" id="saturation" min="0" max="100"/>
+                  <label for="saturation">Saturation</label>
+                </p>  
+                <p class="range-field">
+                  <input type="range" id="contrast" min="0" max="100"/>
+                  <label for="contrast">Contrast</label>
+                </p>  
+                <p class="range-field">
+                  <input type="range" id="brightness" min="0" max="100"/>
+                  <label for="brightness">Brightness</label>
+                </p>  
+              </form>
+            </div>
+          </li>
+        </ul>
+      </li>
+    </ul>
+  </header>  
+  <main>
+    <div id="map-container"></div>
+  </main>
+    
+  <script src="js/Map.SelectArea.min.js"></script>
+  <script src="js/leaflet-heat.js"></script>
+  <script src="js/index.js"></script>
 </body>
 </html>

@@ -10,11 +10,6 @@ from app.cadc import tap_client as client
 from app.resolver import get_coordinate
 
 
-@app.route('/')
-def hello_world():
-    return 'hello world'
-
-
 @app.route('/coordinates', methods=['POST'])
 def coordinates():
     """
@@ -29,7 +24,7 @@ def coordinates():
         return make_response('Search failed', 400)
 
 
-@app.route('/catalogs/', methods=['GET'])
+@app.route('/catalogs/names', methods=['GET'])
 def get_catalog_names():
     """
     Endpoint for retrieving all catalog names
@@ -37,6 +32,18 @@ def get_catalog_names():
     """
     return json.dumps(app.config['CATALOG_LIST'])
 
+
+@app.route('/catalogs/')
+def get_catalogs_objects():
+    """
+    Endpoint for retrieving all information about catalogs
+    :return:
+    """
+    catalog_list = []
+    for catalog in app.config['CATALOG_LIST']:
+        catalog_obj = {'name': catalog, 'principleColumns': get_table_schema_names(catalog, principle_only=True)}
+        catalog_list.append(catalog_obj)
+    return json.dumps(catalog_list)
 
 @app.route('/catalogs/<catalog_name>/principle_columns')
 def get_principle_column_names(catalog_name):

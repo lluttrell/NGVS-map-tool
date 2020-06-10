@@ -8,11 +8,12 @@ document.addEventListener('DOMContentLoaded', function() {
     let collapsibleElements = document.querySelectorAll('.collapsible');
     let collapsibleInstances = M.Collapsible.init(collapsibleElements);
     
-    populateQueryList();
     let tabElement = document.getElementById('query-tab');
     let tabElementInstance = M.Tabs.init(tabElement);
+
+    var elems = document.querySelectorAll('.sidenav');
+    var instances = M.Sidenav.init(elems, options);
     M.updateTextFields();
-    
 });
 
 let tileLayers = L.layerGroup([googleSky, ngvsTile])
@@ -50,25 +51,22 @@ function toLatLng(coordinates) {
     return L.latLng([dec,ra]);
 }
 
-function moveSearchMarker(coordinates) {
+const moveSearchMarker = (coordinates) => {
     searchMarker.setLatLng(toLatLng(coordinates))
     searchMarker.setOpacity(1.0);
 }
 
-function clearSearchMarker() {
+const clearSearchMarker = () => {
     searchMarker.setOpacity(0.0);
 }
 
-const objectSearchReset = document.getElementById('object-clear')
-objectSearchReset.addEventListener('click', () => clearSearchMarker());
 
 // Searches for object or coordinate pair
-const objectSearchForm = document.getElementById('object-search-form');
+const objectSearchForm = document.getElementById('search-form');
 objectSearchForm.addEventListener('submit', (e) => {
     e.preventDefault();
     const formData = new FormData(objectSearchForm);
     objectSearchForm.reset();
-
     fetch('http://127.0.0.1:5000/coordinates' , {
         method: 'post',
         body: formData
@@ -77,13 +75,20 @@ objectSearchForm.addEventListener('submit', (e) => {
     }).then((json) => {
         moveSearchMarker(json);
     }).catch((error) => {
-        console.log(error);
+        clearSearchMarker();
     })
 });
 
+// Retrieves list of catalogs
+async function getCatalogs() {
+    const response = await fetch('http://127.0.0.1:5000/coordinates')
+    return response.json()
+}
+
+
 // Retrieves list of catalog names and populates the select list
 function populateQueryList() {
-    fetch('http://127.0.0.1:5000/catalogs')
+    getCatalogs()
         .then(response => response.json())
         .then((catalogList) => {
             for (let catalog of catalogList) {
@@ -100,7 +105,7 @@ function populateQueryList() {
 }
 
 // Plots clusters on map (prototyping)
-function getObjectLocations(catalogName) {
+const getObjectLocations = (catalogName) => {
     fetch(`http://127.0.0.1:5000/catalogs/${catalogName}/query`)
         .then(response => response.json())
         .then((object) => {
