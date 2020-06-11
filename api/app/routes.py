@@ -79,7 +79,6 @@ def query_catalog(catalog_name):
 
     query_string = f'SELECT {id_column_name}, principleRA, principleDec FROM {catalog_name}'
     parameter_filters = request.form.to_dict(flat=True)
-    print(parameter_filters)
     has_constraints = False
     where_clause = ' WHERE '
     for key in parameter_filters:
@@ -89,8 +88,23 @@ def query_catalog(catalog_name):
     if has_constraints:
         query_string += where_clause[:-4]
 
-    print(query_string)
+    with NamedTemporaryFile(mode='r+') as temp_file:
+        client.query(query_string, output_file=temp_file.name, response_format='csv', data_only=True)
+        rows = csv.reader(temp_file)
+        next(rows)
+        return {row[0]: [row[2], row[1]] for row in rows}
 
+@app.route('/catalogs/<catalog_name>/query', methods=['GET'])
+def query_catalog_all(catalog_name):
+    """
+    Endpoint for retrieving object name and location from tables. Filters for parameters can be
+    sent in the request body in json form. eg { "principleRA" : "187-189", "principleDec" : "<12" }
+    :param catalog_name: catalog to query from
+    :return: json object with object name as key and coordinates as value
+    """
+    id_column_name = get_table_schema_names(catalog_name)[0]
+
+    query_string = f'SELECT {id_column_name}, principleRA, principleDec FROM {catalog_name}'
     with NamedTemporaryFile(mode='r+') as temp_file:
         client.query(query_string, output_file=temp_file.name, response_format='csv', data_only=True)
         rows = csv.reader(temp_file)
@@ -102,7 +116,6 @@ def query_catalog(catalog_name):
 def query_all_for_object(catalog_name, object_id):
     id_column_name = get_table_schema_names(catalog_name)[0]
     query_string = f"SELECT * FROM {catalog_name} WHERE {id_column_name} = '{object_id}'"
-    print(query_string)
     with NamedTemporaryFile(mode='r+') as temp_file:
         client.query(query_string, output_file=temp_file.name, response_format='csv', data_only=True)
         data = list(csv.reader(temp_file))

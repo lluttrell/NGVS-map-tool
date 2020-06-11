@@ -107,6 +107,7 @@ const createCatalogQueryMenu = async () => {
 
     for (catalog of catalogList) {
         // add catalog names to select input
+        const catalogName = catalog.name
         let optionElement = document.createElement('option');
         optionElement.setAttribute('value', catalog.name);
         optionElement.innerHTML = catalog.name;
@@ -118,7 +119,7 @@ const createCatalogQueryMenu = async () => {
         refineForm.addEventListener('submit', (event) => {
             const formData = new FormData(refineForm);
             event.preventDefault();
-            fetch(`http://127.0.0.1:5000/catalogs/${catalog.name}/query`, {
+            fetch(`http://127.0.0.1:5000/catalogs/${catalogName}/query`, {
                 method: 'post',
                 body: formData
             })
@@ -128,7 +129,7 @@ const createCatalogQueryMenu = async () => {
                 for (let [name,coordinates] of Object.entries(object)) {
                     let myMarker = L.marker(coordinates, {
                         title: name
-                    }).on('click', () => displayObjectInformation(catalog.name,name));
+                    }).on('click', () => displayObjectInformation(catalogName,name));
                     markers.addLayer(myMarker);
                 }
                 markers.addTo(myMap);
@@ -187,9 +188,9 @@ function getObjectCircles(catalogName) {
         .then(response => response.json())
         .then((object) => {
             for (let [name,coordinates] of Object.entries(object)) {
-                let myMarker = L.circleMarker(coordinates, {
-                    radius: 0.5,
-                    weight: 0.5}).on('click', () => displayObjectInformation(catalogName,name));
+                let myMarker = L.circle(coordinates, {
+                    radius: 500,
+                    weight: 1}).on('click', () => displayObjectInformation(catalogName,name));
                 myMarker.addTo(myMap);
             }
         })
