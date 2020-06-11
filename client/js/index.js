@@ -3,16 +3,17 @@ const DEFAULT_ZOOM = 6
   
 const googleSky = L.tileLayer("https://mw1.google.com/mw-planetary/sky/skytiles_v1/{x}_{y}_{z}.jpg")
 const ngvsTile = L.tileLayer("https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/data/pub/GSKY/M.{x}.{y}.{z}.png")
-  
-document.addEventListener('DOMContentLoaded', function() {
-    let collapsibleElements = document.querySelectorAll('.collapsible');
-    let collapsibleInstances = M.Collapsible.init(collapsibleElements);
-    
-    let tabElement = document.getElementById('query-tab');
-    let tabElementInstance = M.Tabs.init(tabElement);
 
+let currentCatalog = ''
+
+document.addEventListener('DOMContentLoaded', async function() {
+    await createCatalogQueryMenu();
+    let collapsibleElements = document.querySelectorAll('.collapsible');
+    M.Collapsible.init(collapsibleElements);
+    let tabElement = document.getElementById('query-tab');
+    M.Tabs.init(tabElement);
     var elems = document.querySelectorAll('.sidenav');
-    var instances = M.Sidenav.init(elems, options);
+    M.Sidenav.init(elems);
     M.updateTextFields();
 });
 
@@ -44,7 +45,7 @@ L.control.layers(null,baseMaps, {
 }).addTo(myMap)
 
 
-function toLatLng(coordinates) {
+const toLatLng = (coordinates) => {
     let dec = coordinates['Dec']
     let ra = coordinates['RA'];
     if (ra > 180) { ra = 180 - ra};
@@ -52,7 +53,7 @@ function toLatLng(coordinates) {
 }
 
 const moveSearchMarker = (coordinates) => {
-    searchMarker.setLatLng(toLatLng(coordinates))
+    searchMarker.setLatLng(toLatLng(coordinates));
     searchMarker.setOpacity(1.0);
 }
 
@@ -79,29 +80,63 @@ objectSearchForm.addEventListener('submit', (e) => {
     })
 });
 
-// Retrieves list of catalogs
-async function getCatalogs() {
-    const response = await fetch('http://127.0.0.1:5000/coordinates')
-    return response.json()
+
+const changeCatalog = () => {
+    let selectMenu = document.getElementById('query-tab-select-menu');
+    let currentCatalogName = selectMenu.value
+    let divs = document.getElementsByClassName('refine-area');
+    for (div of divs) {
+        div.classList.add("hide");
+        if (div.id === `${currentCatalogName}-form`) {
+            div.classList.remove("hide");
+        }
+    }
 }
 
+const createCatalogQueryMenu = async () => {
+    const catalogList = await downloadCatalogInformation();
+    const selectMenu = document.getElementById('query-tab-select-menu');
+    const queryTabBody = document.getElementById('query-tab-body');
+    selectMenu.addEventListener('change', changeCatalog);
+    for (catalog of catalogList) {
+        // add catalog names to select input
+        let optionElement = document.createElement('option');
+        optionElement.setAttribute('value', catalog.name);
+        optionElement.innerHTML = catalog.name;
+        selectMenu.appendChild(optionElement);
+        // display parameters
+        let displayDiv = document.createElement('div');
+        displayDiv.setAttribute('id',`${catalog.name}-form`);
+        displayDiv.setAttribute('class','refine-area hide');
+        for (principleColumn of catalog.principleColumns) {
+            let input = document.createElement('input');
+            input.setAttribute('name', principleColumn);
+            input.setAttribute('placeholder',principleColumn)
+            displayDiv.appendChild(input);
+        }
+        let submitButton = document.createElement('button');
+        submitButton.innerText = "submit";
+        submitButton.classList.add("btn")
+        let downloadButton = document.createElement('button');
+        downloadButton.innerText = "download";
+        downloadButton.classList.add("btn")
+        let clearButton = document.createElement('button');
+        clearButton.innerText = "clear";
+        clearButton.classList.add("btn")
+        displayDiv.appendChild(submitButton)
+        displayDiv.appendChild(downloadButton)
+        displayDiv.appendChild(clearButton)
+        queryTabBody.appendChild(displayDiv);
+        
 
-// Retrieves list of catalog names and populates the select list
-function populateQueryList() {
-    getCatalogs()
-        .then(response => response.json())
-        .then((catalogList) => {
-            for (let catalog of catalogList) {
-                let selectForm = document.getElementById('catalog-select');
-                let optionElement = document.createElement("option");
-                optionElement.setAttribute("value", catalog)
-                optionElement.innerHTML = catalog;
-                selectForm.appendChild(optionElement)
-            }
-        }).then(() => {
-            let catalogSelect = document.getElementById('catalog-select');
-            let catalogSelectInstance = M.FormSelect.init(catalogSelect);
-        });
+    }
+    M.FormSelect.init(selectMenu);
+
+}
+
+const downloadCatalogInformation = async () => {
+    const response = await fetch('http://127.0.0.1:5000/catalogs')
+    return response.json();
 }
 
 // Plots clusters on map (prototyping)

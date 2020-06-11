@@ -25,24 +25,22 @@
     <ul class="sidenav sidenav-fixed nav-mobile">
       <li class="search">
         <div class="search-wrapper">
-          <form class="input-field" id="search-form" enctype="multipart/form-data" autocomplete="off">
+          <form class="input-field container" id="search-form" enctype="multipart/form-data" autocomplete="off">
             <i class="material-icons prefix">search</i>
-            <input class="col s4" id="search-input" name="search_string" placeholder="Object/Location Search" type="search">
+            <input class="" name="search_string" placeholder="Object/Location Search" type="search">
           </form>
         </div>
       </li>
-      <li class="no-padding">
+      <li class="no padding">
         <ul class="collapsible collapsible-accordion">
           <li>
             <div class="collapsible-header"><i class="material-icons">place</i>Query</div>
-            <div class="collapsible-body" id="query-body">
-              <select id="catalog-select">
+            <div class="collapsible-body" id="query-tab-body">
+              <select id="query-tab-select-menu">
                 <option value="" disabled selected>Select Catalog</option>
               </select>
-              <ul class="tabs" id="query-tab">
-                <li class="tab col s6"><a href="#select">Select</a></li>
-                <li class="tab col s6"><a href="#adql">ADQL</a></li>
-              </ul>
+              <div id="refine-form">
+              </div>
             </div>
           </li>
           <li>
