@@ -84,7 +84,7 @@ objectSearchForm.addEventListener('submit', (e) => {
 const changeCatalog = () => {
     let selectMenu = document.getElementById('query-tab-select-menu');
     let currentCatalogName = selectMenu.value
-    let divs = document.getElementsByClassName('refine-area');
+    let divs = document.getElementsByClassName('refine-form');
     for (div of divs) {
         div.classList.add("hide");
         if (div.id === `${currentCatalogName}-form`) {
@@ -93,11 +93,18 @@ const changeCatalog = () => {
     }
 }
 
+const applyQuery = (event) => {
+    event.preventDefault();
+}
+
 const createCatalogQueryMenu = async () => {
     const catalogList = await downloadCatalogInformation();
+    
     const selectMenu = document.getElementById('query-tab-select-menu');
     const queryTabBody = document.getElementById('query-tab-body');
+
     selectMenu.addEventListener('change', changeCatalog);
+
     for (catalog of catalogList) {
         // add catalog names to select input
         let optionElement = document.createElement('option');
@@ -105,33 +112,52 @@ const createCatalogQueryMenu = async () => {
         optionElement.innerHTML = catalog.name;
         selectMenu.appendChild(optionElement);
         // display parameters
-        let displayDiv = document.createElement('div');
-        displayDiv.setAttribute('id',`${catalog.name}-form`);
-        displayDiv.setAttribute('class','refine-area hide');
+        let refineForm = document.createElement('form');
+        refineForm.setAttribute('id',`${catalog.name}-form`);
+        refineForm.setAttribute('class','refine-form hide');
+        refineForm.addEventListener('submit', (event) => {
+            const formData = new FormData(refineForm);
+            event.preventDefault();
+            fetch(`http://127.0.0.1:5000/catalogs/${catalog.name}/query`, {
+                method: 'post',
+                body: formData
+            })
+            .then(response => response.json())
+            .then((object) => {
+                let markers = L.markerClusterGroup();
+                for (let [name,coordinates] of Object.entries(object)) {
+                    let myMarker = L.marker(coordinates, {
+                        title: name
+                    }).on('click', () => displayObjectInformation(catalog.name,name));
+                    markers.addLayer(myMarker);
+                }
+                markers.addTo(myMap);
+            })
+        })
         for (principleColumn of catalog.principleColumns) {
             let input = document.createElement('input');
             input.setAttribute('name', principleColumn);
             input.setAttribute('placeholder',principleColumn)
-            displayDiv.appendChild(input);
+            refineForm.appendChild(input);
         }
+        // add buttons to form
         let submitButton = document.createElement('button');
-        submitButton.innerText = "submit";
-        submitButton.classList.add("btn")
+        submitButton.innerText = "apply";
+        submitButton.classList.add("btn");
+        submitButton.setAttribute('name','apply');
         let downloadButton = document.createElement('button');
         downloadButton.innerText = "download";
         downloadButton.classList.add("btn")
         let clearButton = document.createElement('button');
         clearButton.innerText = "clear";
         clearButton.classList.add("btn")
-        displayDiv.appendChild(submitButton)
-        displayDiv.appendChild(downloadButton)
-        displayDiv.appendChild(clearButton)
-        queryTabBody.appendChild(displayDiv);
-        
+        refineForm.appendChild(submitButton)
+        refineForm.appendChild(downloadButton)
+        refineForm.appendChild(clearButton)
 
+        queryTabBody.appendChild(refineForm);
     }
     M.FormSelect.init(selectMenu);
-
 }
 
 const downloadCatalogInformation = async () => {

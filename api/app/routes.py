@@ -45,6 +45,7 @@ def get_catalogs_objects():
         catalog_list.append(catalog_obj)
     return json.dumps(catalog_list)
 
+
 @app.route('/catalogs/<catalog_name>/principle_columns')
 def get_principle_column_names(catalog_name):
     """
@@ -65,17 +66,31 @@ def get_column_names(catalog_name):
     return json.dumps(get_table_schema_names(catalog_name))
 
 
-@app.route('/catalogs/<catalog_name>/query')
+@app.route('/catalogs/<catalog_name>/query', methods=['POST'])
 def query_catalog(catalog_name):
     """
-    Endpoint for retrieving object name and location
-    :param catalog_name:
+    Endpoint for retrieving object name and location from tables. Filters for parameters can be
+    sent in the request body in json form. eg { "principleRA" : "187-189", "principleDec" : "<12" }
+    :param catalog_name: catalog to query from
     :return: json object with object name as key and coordinates as value
     """
     # TODO: verify first column in table is the identifier, will need to change this line if not.
     id_column_name = get_table_schema_names(catalog_name)[0]
-    # TODO: currently queries entire catalog, filters will need to be added
+
     query_string = f'SELECT {id_column_name}, principleRA, principleDec FROM {catalog_name}'
+    parameter_filters = request.form.to_dict(flat=True)
+    print(parameter_filters)
+    has_constraints = False
+    where_clause = ' WHERE '
+    for key in parameter_filters:
+        if parameter_filters[key] != '':
+            has_constraints = True
+            where_clause += f'({parse_selection_to_conditions(parameter_filters[key],key)}) AND '
+    if has_constraints:
+        query_string += where_clause[:-4]
+
+    print(query_string)
+
     with NamedTemporaryFile(mode='r+') as temp_file:
         client.query(query_string, output_file=temp_file.name, response_format='csv', data_only=True)
         rows = csv.reader(temp_file)
@@ -125,17 +140,17 @@ def parse_selection_to_conditions(selection_string, attribute_name):
     tokens = [x for x in stripped_string.split(",") if x != [""]]
 
     # extract certain tokens based on simple regex matches
-    ranges = [x for x in tokens if re.search("-", x)]
+    ranges = [x for x in tokens if re.search("to", x)]
     lt = [x for x in tokens if re.search("<(?!=)", x)]
     lte = [x for x in tokens if re.search("<=", x)]
     gt = [x for x in tokens if re.search(">(?!=)", x)]
     gte = [x for x in tokens if re.search(">=", x)]
-    singles = [x for x in tokens if not re.search("[-<>=]", x)]
+    singles = [x for x in tokens if not re.search("[to<>=]", x)]
 
     # create new array from previously extracted arrays, and reformat into sql syntax
     constructed_array = []
     constructed_array += [f"{attribute_name} = {x}" for x in singles]
-    constructed_array += [f"({attribute_name} >= {x.split('-')[0]} AND {attribute_name} <= {x.split('-')[1]})" for x in ranges]
+    constructed_array += [f"({attribute_name} >= {x.split('to')[0]} AND {attribute_name} <= {x.split('to')[1]})" for x in ranges]
     constructed_array += [f"{attribute_name} < {x.split('<')[1]}" for x in lt]
     constructed_array += [f"{attribute_name} <= {x.split('<=')[1]}" for x in lte]
     constructed_array += [f"{attribute_name} > {x.split('>')[1]}" for x in gt]
