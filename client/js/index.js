@@ -108,10 +108,6 @@ const changeCatalog = () => {
     }
 }
 
-const applyQuery = (event) => {
-    event.preventDefault();
-}
-
 
 // TODO: Refactor this beast
 const createCatalogQueryMenu = async () => {
@@ -150,24 +146,13 @@ const createCatalogQueryMenu = async () => {
             })
             .then(response => response.json())
             .then((object) => {
-                let markers = L.markerClusterGroup({
-                    iconCreateFunction: function(cluster) {
-                        let childCount = cluster.getChildCount();
-                        return new L.DivIcon({
-                            html: `<div style="color: black; background-color: ${color} !important"><span>${childCount}</span></div>`,
-                            className: 'marker-cluster',
-                            iconSize: new L.Point(40, 40)
-                        });
-                    }
-                });
                 for (let [name,coordinates] of Object.entries(object)) {
-                    let myMarker = L.marker(coordinates, {
-                        title: name,
-                        icon: createMarkerIcon(color)
-                    }).on('click', () => displayObjectInformation(catalogName,name));
-                    markers.addLayer(myMarker);
+                    let myMarker = L.circle(coordinates, {
+                        radius: 500,
+                        color: color,
+                        weight: 1}).on('click', () => displayObjectInformation(catalogName,name));
+                    myMarker.addTo(myMap);
                 }
-                markers.addTo(myMap);
             })
         })
         for (principleColumn of catalog.principleColumns) {
@@ -199,53 +184,6 @@ const createCatalogQueryMenu = async () => {
 const downloadCatalogInformation = async () => {
     const response = await fetch('http://127.0.0.1:5000/catalogs')
     return response.json();
-}
-
-// Plots clusters on map (prototyping)
-const getObjectLocations = (catalogName) => {
-    fetch(`http://127.0.0.1:5000/catalogs/${catalogName}/query`)
-        .then(response => response.json())
-        .then((object) => {
-            let markers = L.markerClusterGroup();
-            for (let [name,coordinates] of Object.entries(object)) {
-                let myMarker = L.marker(coordinates, {
-                    title: name
-                }).on('click', () => displayObjectInformation(catalogName,name));
-                markers.addLayer(myMarker);
-            }
-        })
-}
-
-//Plots circles on a map
-function getObjectCircles(catalogName) {
-    fetch(`http://127.0.0.1:5000/catalogs/${catalogName}/query`)
-        .then(response => response.json())
-        .then((object) => {
-            for (let [name,coordinates] of Object.entries(object)) {
-                let myMarker = L.circle(coordinates, {
-                    radius: 500,
-                    weight: 1}).on('click', () => displayObjectInformation(catalogName,name));
-                myMarker.addTo(myMap);
-            }
-        })
-}
-
-//Plots circles on a map
-function getObjectHeat(catalogName) {
-    fetch(`http://127.0.0.1:5000/catalogs/${catalogName}/query`)
-        .then(response => response.json())
-        .then((object) => {
-            locations = []
-            for (let [name,coordinates] of Object.entries(object)) {
-                locations.push(coordinates)
-            }
-            let heat = L.heatLayer(locations, {
-                radius: 5,
-                blur: 5,
-                minOpacity: 25
-            }).addTo(myMap)
-
-        })
 }
 
 // Retrieves all information about a single object
