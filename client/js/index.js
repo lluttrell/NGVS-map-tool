@@ -1,6 +1,7 @@
 const DEFAULT_MAP_LOCATION = [10.425,-7.037387]
 const DEFAULT_ZOOM = 6
-  
+const COLORS = ['green','blue','red', 'yellow'] 
+
 const googleSky = L.tileLayer("https://mw1.google.com/mw-planetary/sky/skytiles_v1/{x}_{y}_{z}.jpg")
 const ngvsTile = L.tileLayer("https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/data/pub/GSKY/M.{x}.{y}.{z}.png")
 
@@ -33,7 +34,21 @@ myMap.on('areaselected', (e) => {
     console.log(e.bounds.toBBoxString()); // lon, lat, lon, lat
   });
 
-let searchMarker = L.marker([0,0], {"opacity" : 0.0}).addTo(myMap);
+const createMarkerIcon = (color) => {
+    return new L.Icon({
+        iconUrl: `https://cdn.rawgit.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-${color}.png`,
+        shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+        iconSize: [25, 41],
+        iconAnchor: [12, 41],
+        popupAnchor: [1, -34],
+        shadowSize: [41, 41]
+    });
+}
+
+
+let searchMarker = L.marker([0,0], {
+    "opacity" : 0.0,
+    "icon": createMarkerIcon('yellow')}).addTo(myMap);
 
 let baseMaps = {
     "GoogleSky" : googleSky,
@@ -97,15 +112,25 @@ const applyQuery = (event) => {
     event.preventDefault();
 }
 
+
+// TODO: Refactor this beast
 const createCatalogQueryMenu = async () => {
     const catalogList = await downloadCatalogInformation();
-    
     const selectMenu = document.getElementById('query-tab-select-menu');
     const queryTabBody = document.getElementById('query-tab-body');
 
+    let defaultSelect = document.createElement('option');
+    defaultSelect.setAttribute('disabled',true);
+    defaultSelect.setAttribute('selected', true)
+    defaultSelect.setAttribute('value','')
+    defaultSelect.innerText = 'Select Catalog';
+    selectMenu.appendChild(defaultSelect);
     selectMenu.addEventListener('change', changeCatalog);
 
+    let counter = 0;
     for (catalog of catalogList) {
+        const color = COLORS[counter];
+        counter++;
         // add catalog names to select input
         const catalogName = catalog.name
         let optionElement = document.createElement('option');
@@ -125,10 +150,20 @@ const createCatalogQueryMenu = async () => {
             })
             .then(response => response.json())
             .then((object) => {
-                let markers = L.markerClusterGroup();
+                let markers = L.markerClusterGroup({
+                    iconCreateFunction: function(cluster) {
+                        let childCount = cluster.getChildCount();
+                        return new L.DivIcon({
+                            html: `<div style="color: black; background-color: ${color} !important"><span>${childCount}</span></div>`,
+                            className: 'marker-cluster',
+                            iconSize: new L.Point(40, 40)
+                        });
+                    }
+                });
                 for (let [name,coordinates] of Object.entries(object)) {
                     let myMarker = L.marker(coordinates, {
-                        title: name
+                        title: name,
+                        icon: createMarkerIcon(color)
                     }).on('click', () => displayObjectInformation(catalogName,name));
                     markers.addLayer(myMarker);
                 }
@@ -178,7 +213,6 @@ const getObjectLocations = (catalogName) => {
                 }).on('click', () => displayObjectInformation(catalogName,name));
                 markers.addLayer(myMarker);
             }
-            markers.addTo(myMap);
         })
 }
 

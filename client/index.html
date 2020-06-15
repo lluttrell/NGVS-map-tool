@@ -37,14 +37,13 @@
             <div class="collapsible-header"><i class="material-icons">place</i>Query</div>
             <div class="collapsible-body" id="query-tab-body">
               <select id="query-tab-select-menu">
-                <option value="" disabled selected>Select Catalog</option>
               </select>
             </div>
           </li>
           <li>
             <div class="collapsible-header"><i class="material-icons">color_lens</i>Adjust</div>
             <div class="collapsible-body">
-              <form id="image-adjust-form">
+              <form id="image-adjust-form" autocomplete="off">
                 <p class="range-field">
                   <input type="range" id="saturation" min="0" max="100"/>
                   <label for="saturation">Saturation</label>
