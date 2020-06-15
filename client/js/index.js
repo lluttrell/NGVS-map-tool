@@ -208,12 +208,26 @@ const downloadCatalogInformation = async () => {
 }
 
 // Retrieves all information about a single object
-function displayObjectInformation(catalogName, objectID) {
+const displayObjectInformation = (catalogName, objectID) => {
     fetch(`http://127.0.0.1:5000/catalogs/${catalogName}/query_object/${objectID}`)
         .then(response => response.json())
         .then(objectInformation => {
+            let elem = document.getElementById('object-modal')
+            document.getElementById('modal-object-name').innerText = objectID;
+            const instance = M.Modal.init(elem, {dismissible: true});
+
+            const tableBody = document.getElementById('object-table-body')
             for(let [key,value] of Object.entries(objectInformation)) {
                 console.log(`${key}:${value}`)
+                const row = document.createElement('tr');
+                const property = document.createElement('th');
+                property.innerHTML = key;
+                const propertyValue = document.createElement('th');
+                propertyValue.innerHTML = value;
+                row.appendChild(property);
+                row.appendChild(propertyValue);
+                tableBody.appendChild(row);
             }
+            instance.open();
         })
 }
