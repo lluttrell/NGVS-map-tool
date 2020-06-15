@@ -1,6 +1,6 @@
 const DEFAULT_MAP_LOCATION = [10.425,-7.037387]
 const DEFAULT_ZOOM = 6
-const COLORS = ['green','blue','red', 'yellow'] 
+const COLORS = ['green','blue','red', 'yellow','orange','teal','purple'] 
 
 const googleSky = L.tileLayer("https://mw1.google.com/mw-planetary/sky/skytiles_v1/{x}_{y}_{z}.jpg")
 const ngvsTile = L.tileLayer("https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/data/pub/GSKY/M.{x}.{y}.{z}.png")
@@ -9,6 +9,7 @@ let currentCatalog = ''
 
 document.addEventListener('DOMContentLoaded', async function() {
     await createCatalogQueryMenu();
+    await createFilterOverlays();
     let collapsibleElements = document.querySelectorAll('.collapsible');
     M.Collapsible.init(collapsibleElements);
     let tabElement = document.getElementById('query-tab');
@@ -106,6 +107,26 @@ const changeCatalog = () => {
             div.classList.remove("hide");
         }
     }
+}
+
+const createFilterOverlays = async () => {
+    fetch('http://127.0.0.1:5000/overlays')
+        .then(results => results.json())
+        .then(filters => {
+            let i = 0
+            
+            let layersControl = L.control.layers()
+            for (const [key,value] of Object.entries(filters)) {
+                let latlngs = value;
+                let layers = L.layerGroup();
+                const color = COLORS[i];
+                i++;
+                const polygon = L.polygon(latlngs, {color: color, fillOpacity: 0.0})
+                polygon.addTo(layers)
+                layersControl.addOverlay(layers,key);
+            }
+            layersControl.addTo(myMap)
+        })
 }
 
 

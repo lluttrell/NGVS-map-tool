@@ -1,5 +1,6 @@
 import json
 import csv
+import os
 import re
 from tempfile import NamedTemporaryFile
 
@@ -74,9 +75,8 @@ def query_catalog(catalog_name):
     :param catalog_name: catalog to query from
     :return: json object with object name as key and coordinates as value
     """
-    # TODO: verify first column in table is the identifier, will need to change this line if not.
-    id_column_name = get_table_schema_names(catalog_name)[0]
 
+    id_column_name = get_table_schema_names(catalog_name)[0]
     query_string = f'SELECT {id_column_name}, principleRA, principleDec FROM {catalog_name}'
     parameter_filters = request.form.to_dict(flat=True)
     has_constraints = False
@@ -94,23 +94,6 @@ def query_catalog(catalog_name):
         next(rows)
         return {row[0]: [row[2], row[1]] for row in rows}
 
-@app.route('/catalogs/<catalog_name>/query', methods=['GET'])
-def query_catalog_all(catalog_name):
-    """
-    Endpoint for retrieving object name and location from tables. Filters for parameters can be
-    sent in the request body in json form. eg { "principleRA" : "187-189", "principleDec" : "<12" }
-    :param catalog_name: catalog to query from
-    :return: json object with object name as key and coordinates as value
-    """
-    id_column_name = get_table_schema_names(catalog_name)[0]
-
-    query_string = f'SELECT {id_column_name}, principleRA, principleDec FROM {catalog_name}'
-    with NamedTemporaryFile(mode='r+') as temp_file:
-        client.query(query_string, output_file=temp_file.name, response_format='csv', data_only=True)
-        rows = csv.reader(temp_file)
-        next(rows)
-        return {row[0]: [row[2], row[1]] for row in rows}
-
 
 @app.route('/catalogs/<catalog_name>/query_object/<object_id>')
 def query_all_for_object(catalog_name, object_id):
@@ -122,6 +105,30 @@ def query_all_for_object(catalog_name, object_id):
         keys = data[0]
         values = data[1]
         return dict(zip(keys, values))
+
+
+@app.route('/overlays')
+def get_overlays():
+    """
+    Endpoint for filter overlays. Returns a json object with list of square paths for
+    each filter category.
+    :return: json object with field outlines
+    """
+    my_dict = {}
+    with open('api/app/static/list.csv', newline='') as csvfile:
+        reader = csv.reader(csvfile, delimiter=',')
+        next(reader)
+        for row in reader:
+            outlines = [[row[0], row[1]],
+                        [row[2], row[3]],
+                        [row[4], row[5]],
+                        [row[6], row[7]]]
+            wavelength = row[8]
+            if wavelength not in my_dict:
+                my_dict[wavelength] = [outlines]
+            else:
+                my_dict[wavelength].append(outlines)
+    return json.dumps(my_dict)
 
 
 def get_table_schema_names(table_name, principle_only=False):
