@@ -4,8 +4,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
-    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.Default.css">
-    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.css">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link rel="stylesheet" href="css/main.css"/>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css"
@@ -16,22 +14,21 @@
     <script src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js"
     integrity="sha512-gZwIG9x3wUXg2hdXF6+rVkLF/0Vi9U8D2Ntg4Ga5I5BZpVkVxlJWbSQtXPSiUTtC0TjtGOmxa1AJPuV0CPthew=="
     crossorigin=""></script>
-    <script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"></script>
     <title>NGVS Map</title>
-   
 </head>
 <body>
   <header>
     <ul class="sidenav sidenav-fixed nav-mobile">
+      <div class="container">
       <li class="search">
         <div class="search-wrapper">
-          <form class="input-field container" id="search-form" enctype="multipart/form-data" autocomplete="off">
+          <form class="input-field" id="search-form" enctype="multipart/form-data" autocomplete="off">
             <i class="material-icons prefix">search</i>
             <input class="" name="search_string" placeholder="Object/Location Search" type="search">
           </form>
         </div>
       </li>
-      <li class="no padding container">
+      <li>
         <ul class="collapsible collapsible-accordion">
           <li>
             <div class="collapsible-header"><i class="material-icons">place</i>Query</div>
@@ -61,6 +58,7 @@
           </li>
         </ul>
       </li>
+    </div>
     </ul>
   </header>  
   <main>

@@ -32,8 +32,13 @@ let myMap = L.map('map-container', {
 })
 
 myMap.on('areaselected', (e) => {
-    console.log(e.bounds.toBBoxString()); // lon, lat, lon, lat
+    selectionBounds = e.bounds.toBBoxString();
+    downloadSelection(selectionBounds);
   });
+
+const downloadSelection = (bounds) => {
+    alert(`this should popup with available fits files for ${bounds}`)
+}
 
 const createMarkerIcon = (color) => {
     return new L.Icon({
@@ -157,7 +162,7 @@ const createCatalogQueryMenu = async () => {
         // display parameters
         let refineForm = document.createElement('form');
         refineForm.setAttribute('id',`${catalog.name}-form`);
-        refineForm.setAttribute('class','refine-form hide');
+        refineForm.setAttribute('class','refine-form hide row');
         refineForm.addEventListener('submit', (event) => {
             const formData = new FormData(refineForm);
             event.preventDefault();
@@ -169,7 +174,7 @@ const createCatalogQueryMenu = async () => {
             .then((object) => {
                 for (let [name,coordinates] of Object.entries(object)) {
                     let myMarker = L.circle(coordinates, {
-                        radius: 500,
+                        radius: 100,
                         color: color,
                         weight: 1}).on('click', () => displayObjectInformation(catalogName,name));
                     myMarker.addTo(myMap);
@@ -177,29 +182,40 @@ const createCatalogQueryMenu = async () => {
             })
         })
         for (principleColumn of catalog.principleColumns) {
+            let inputField = document.createElement('div');
+            inputField.setAttribute('class','input-field col s6');
             let input = document.createElement('input');
             input.setAttribute('name', principleColumn);
-            input.setAttribute('placeholder',principleColumn)
-            refineForm.appendChild(input);
+            input.setAttribute('type','text');
+            input.setAttribute('id',`${catalogName}-${principleColumn}`);
+            let label = document.createElement('label');
+            label.setAttribute('for',`${catalogName}-${principleColumn}`);
+            label.innerHTML = `${principleColumn.slice(9)}`;
+            inputField.appendChild(label);
+            inputField.appendChild(input);
+            refineForm.appendChild(inputField);
         }
         // add buttons to form
+        let buttonDiv = document.createElement('div');
+        buttonDiv.setAttribute('class','col s12');
         let submitButton = document.createElement('button');
         submitButton.innerText = "apply";
-        submitButton.classList.add("btn");
+        submitButton.setAttribute('class',"btn-small");
         submitButton.setAttribute('name','apply');
         let downloadButton = document.createElement('button');
         downloadButton.innerText = "download";
-        downloadButton.classList.add("btn")
+        downloadButton.setAttribute('class','btn-small orange lighten-2')
         let clearButton = document.createElement('button');
         clearButton.innerText = "clear";
-        clearButton.classList.add("btn")
-        refineForm.appendChild(submitButton)
-        refineForm.appendChild(downloadButton)
-        refineForm.appendChild(clearButton)
-
+        clearButton.setAttribute('class','btn-small red lighten-3')
+        buttonDiv.appendChild(submitButton)
+        buttonDiv.appendChild(downloadButton)
+        buttonDiv.appendChild(clearButton)
+        refineForm.appendChild(buttonDiv);
         queryTabBody.appendChild(refineForm);
     }
     M.FormSelect.init(selectMenu);
+    M.updateTextFields();
 }
 
 const downloadCatalogInformation = async () => {
@@ -218,7 +234,6 @@ const displayObjectInformation = (catalogName, objectID) => {
 
             const tableBody = document.getElementById('object-table-body')
             for(let [key,value] of Object.entries(objectInformation)) {
-                console.log(`${key}:${value}`)
                 const row = document.createElement('tr');
                 const property = document.createElement('th');
                 property.innerHTML = key;

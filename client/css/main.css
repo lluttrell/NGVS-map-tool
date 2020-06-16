@@ -19,6 +19,10 @@ header, main, footer {
     height: 100%;
 }
 
+.container {
+    width: 95%
+}
+
 .leaflet-fade-anim .leaflet-tile {
     will-change: unset;
   }
