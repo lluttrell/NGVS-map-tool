@@ -1,25 +1,21 @@
 const DEFAULT_MAP_LOCATION = [10.425,-7.037387]
 const DEFAULT_ZOOM = 6
-const COLORS = ['lightgreen','blue','red', 'yellow','orange','teal','purple'] 
+const COLORS = ['yellow','red','blue','orange','teal','purple','lightgreen'] 
 
-const googleSky = L.tileLayer("https://mw1.google.com/mw-planetary/sky/skytiles_v1/{x}_{y}_{z}.jpg")
-const ngvsTile = L.tileLayer("https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/data/pub/GSKY/M.{x}.{y}.{z}.png")
-
-let currentCatalog = ''
+const GOOGLE_SKY_URL = L.tileLayer("https://mw1.google.com/mw-planetary/sky/skytiles_v1/{x}_{y}_{z}.jpg")
+const NGVS_TILE_URL = L.tileLayer("https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/data/pub/GSKY/M.{x}.{y}.{z}.png")
 
 document.addEventListener('DOMContentLoaded', async function() {
     await createCatalogQueryMenu();
     await createFilterOverlays();
-    let collapsibleElements = document.querySelectorAll('.collapsible');
-    M.Collapsible.init(collapsibleElements);
-    let tabElement = document.getElementById('query-tab');
-    M.Tabs.init(tabElement);
-    var elems = document.querySelectorAll('.sidenav');
-    M.Sidenav.init(elems);
+    M.Collapsible.init(document.querySelectorAll('.collapsible'));
+    M.Tabs.init(document.getElementById('query-tab'));
+    M.Sidenav.init(document.querySelectorAll('.sidenav'));
     M.updateTextFields();
 });
 
-let tileLayers = L.layerGroup([googleSky, ngvsTile])
+let tileLayers = L.layerGroup([GOOGLE_SKY_URL, NGVS_TILE_URL])
+let queryLayers = L.layerGroup();
 
 let myMap = L.map('map-container', {
     center: DEFAULT_MAP_LOCATION,
@@ -27,7 +23,7 @@ let myMap = L.map('map-container', {
     minZoom: 5,
     maxZoom: 14,
     selectArea: true,
-    layers: [googleSky, ngvsTile],
+    layers: [GOOGLE_SKY_URL, NGVS_TILE_URL],
     renderer: L.canvas()
 })
 
@@ -51,20 +47,20 @@ const createMarkerIcon = (color) => {
     });
 }
 
-
 let searchMarker = L.marker([0,0], {
     "opacity" : 0.0,
     "icon": createMarkerIcon('yellow')}).addTo(myMap);
 
 let baseMaps = {
-    "GoogleSky" : googleSky,
-    "NGVSTile" : ngvsTile
+    "GoogleSky" : GOOGLE_SKY_URL,
+    "NGVSTile" : NGVS_TILE_URL
 }
 
-L.control.layers(null,baseMaps, {
+let mainLayerControl = L.control.layers(null,baseMaps, {
     collapsed : false
-}).addTo(myMap)
+})
 
+mainLayerControl.addTo(myMap)
 
 const toLatLng = (coordinates) => {
     let dec = coordinates['Dec']
@@ -82,6 +78,46 @@ const clearSearchMarker = () => {
     searchMarker.setOpacity(0.0);
 }
 
+const decimal_ra_formatter = (num) => {
+    if(num < 0) { num = (num*-1)+180;} 
+    return L.Util.formatNum(num, 3);
+};
+
+const decimal_dec_formatter = (num) => {
+    return L.Util.formatNum(num, 3);
+};
+
+const dms_formatter = (num) => {
+    var deg = Math.floor(num) ;
+    var frac = Math.abs(num - deg);
+    var min = Math.floor(frac * 60);
+    var sec = Math.floor(frac * 3600 - min * 60 );
+    var fsec = Math.floor((frac * 3600 - min * 60 - sec ) * 10) ;
+    return ("00" + deg).slice(-2) + ":" + ("00" + min).slice(-2) + ":" + ( "00" + sec).slice(-2) + "." + fsec;
+};
+
+const hms_formatter = (num) => {
+    if(num < 0) { num = (num*-1)+180;}
+    var hour = Math.floor(num / 15);
+    var minute = Math.floor((num/15 - hour)*60);
+    var sec = Math.floor(hour * 3600 - minute * 60 );
+    var fsec = Math.floor(( hour * 3600 - minute * 60 - sec ) * 100) ;
+    return ("00" + hour).slice(-2) + ":" + ("00" + minute).slice(-2) + ":" + ("00" + sec).slice(-2) + "." + fsec;
+}
+
+L.control.mousePosition({
+    position: 'bottomright',
+    separator: ' | ',
+    lngFormatter: decimal_ra_formatter,
+    latFormatter: decimal_dec_formatter
+}).addTo(myMap);
+
+L.control.mousePosition({
+    position: 'bottomright',
+    separator: ' | ',
+    lngFormatter: hms_formatter,
+    latFormatter: dms_formatter
+}).addTo(myMap);
 
 // Searches for object or coordinate pair
 const objectSearchForm = document.getElementById('search-form');
@@ -119,8 +155,7 @@ const createFilterOverlays = async () => {
         .then(results => results.json())
         .then(filters => {
             let i = 0
-            
-            let layersControl = L.control.layers()
+            let layersControl = L.control.layers(null,null,{collapsed: false});
             for (const [key,value] of Object.entries(filters)) {
                 let latlngs = value;
                 let layers = L.layerGroup();
@@ -130,10 +165,9 @@ const createFilterOverlays = async () => {
                 polygon.addTo(layers)
                 layersControl.addOverlay(layers,key);
             }
-            layersControl.addTo(myMap)
+            layersControl.addTo(myMap);
         })
 }
-
 
 // TODO: Refactor this beast
 const createCatalogQueryMenu = async () => {
@@ -154,14 +188,15 @@ const createCatalogQueryMenu = async () => {
         const color = COLORS[counter];
         counter++;
         // add catalog names to select input
-        const catalogName = catalog.name
+        const catalogName = catalog.name;
+        let catalogLayer = L.layerGroup();
         let optionElement = document.createElement('option');
-        optionElement.setAttribute('value', catalog.name);
-        optionElement.innerHTML = catalog.name;
+        optionElement.setAttribute('value', catalogName);
+        optionElement.innerHTML = catalogName;
         selectMenu.appendChild(optionElement);
         // display parameters
         let refineForm = document.createElement('form');
-        refineForm.setAttribute('id',`${catalog.name}-form`);
+        refineForm.setAttribute('id',`${catalogName}-form`);
         refineForm.setAttribute('class','refine-form hide row');
         refineForm.addEventListener('submit', (event) => {
             const formData = new FormData(refineForm);
@@ -172,13 +207,18 @@ const createCatalogQueryMenu = async () => {
             })
             .then(response => response.json())
             .then((object) => {
+                catalogLayer.clearLayers();
+                mainLayerControl.removeLayer(catalogLayer);
+                mainLayerControl.addOverlay(catalogLayer, catalogName);
                 for (let [name,coordinates] of Object.entries(object)) {
                     let myMarker = L.circle(coordinates, {
-                        radius: 100,
+                        radius: 500,
                         color: color,
-                        weight: 1}).on('click', () => displayObjectInformation(catalogName,name));
-                    myMarker.addTo(myMap);
-                }
+                        weight: 1})
+                    myMarker.bindTooltip(`${name} (${catalogName})`)                   
+                    myMarker.on('click', () => displayObjectInformation(catalogName,name));
+                    myMarker.addTo(catalogLayer);
+                }  
             })
         })
         for (principleColumn of catalog.principleColumns) {
@@ -205,9 +245,11 @@ const createCatalogQueryMenu = async () => {
         let downloadButton = document.createElement('button');
         downloadButton.innerText = "download";
         downloadButton.setAttribute('class','btn-small orange lighten-2')
-        let clearButton = document.createElement('button');
-        clearButton.innerText = "clear";
-        clearButton.setAttribute('class','btn-small red lighten-3')
+        let clearButton = document.createElement('input');
+        clearButton.setAttribute('type','button');
+        clearButton.setAttribute('value','clear');
+        clearButton.setAttribute('class','btn-small red lighten-3');
+        clearButton.addEventListener('click', () => resetQueryForm(catalogName,catalogLayer));
         buttonDiv.appendChild(submitButton)
         buttonDiv.appendChild(downloadButton)
         buttonDiv.appendChild(clearButton)
@@ -216,6 +258,13 @@ const createCatalogQueryMenu = async () => {
     }
     M.FormSelect.init(selectMenu);
     M.updateTextFields();
+}
+
+const resetQueryForm = (catalogName, catalogLayer) => {
+    document.getElementById(`${catalogName}-form`).reset();
+    mainLayerControl.removeLayer(catalogLayer);
+    catalogLayer.clearLayers();
+
 }
 
 const downloadCatalogInformation = async () => {
