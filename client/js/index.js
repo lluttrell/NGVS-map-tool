@@ -36,6 +36,10 @@ const downloadSelection = (bounds) => {
     alert(`this should popup with available fits files for ${bounds}`)
 }
 
+/**
+ * Returns a leaflet marker icon
+ * @param {*} color icon color (red, blue, green, yellow, black)
+ */
 const createMarkerIcon = (color) => {
     return new L.Icon({
         iconUrl: `https://cdn.rawgit.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-${color}.png`,
@@ -119,7 +123,7 @@ L.control.mousePosition({
     latFormatter: dms_formatter
 }).addTo(myMap);
 
-// Searches for object or coordinate pair
+// adds search functionality to the searchbar
 const objectSearchForm = document.getElementById('search-form');
 objectSearchForm.addEventListener('submit', (e) => {
     e.preventDefault();
@@ -137,8 +141,9 @@ objectSearchForm.addEventListener('submit', (e) => {
     })
 });
 
-
-
+/**
+ * Creates the overlays for the field outlines
+ */
 const createFilterOverlays = async () => {
     fetch('http://127.0.0.1:5000/overlays')
         .then(results => results.json())
@@ -158,6 +163,7 @@ const createFilterOverlays = async () => {
         })
 }
 
+
 /**
  * Adds a catalog name to the query-tab-select-menu
  * @param {string} catalogName Catalog name to add to menu
@@ -170,6 +176,7 @@ const addCatalogToSelectMenu = (catalogName) => {
     selectMenu.appendChild(optionElement);
     M.FormSelect.init(selectMenu);
 }
+
 
 /**
  * Initializes the menu for selecting catalogs in the 'query' tab
@@ -186,6 +193,7 @@ const initSelectMenu = () => {
     M.FormSelect.init(selectMenu);
 }
 
+
 /**
  * Switches view of refine forms to the form selected in the query-tab-select-menu
  */
@@ -200,6 +208,7 @@ const changeCatalog = () => {
         }
     }
 }
+
 
 /**
  * Creates a slider to be used for setting the marker size in the query menu
@@ -222,6 +231,7 @@ const createMarkerSizeSlider = (catalogName) => {
     return markerSizeDiv;
 }
 
+
 /**
  * Creates an input field for an individual principle column from an individual catalog
  * @param {*} catalogName catalog name for input field 
@@ -242,6 +252,13 @@ const createRefineField = (catalogName, principleColumn) => {
     return inputField
 }
 
+
+/**
+ * Creates the apply, clear, and download buttons for the refine section
+ * @param {*} catalogName Catalog name for buttons
+ * @param {*} refineForm 
+ * @param {*} catalogLayer 
+ */
 const  createButtonDiv = (catalogName, refineForm, catalogLayer) => {
     let buttonDiv = document.createElement('div')
     buttonDiv.setAttribute('class', 'col s12 refine-btns')
@@ -257,7 +274,7 @@ const  createButtonDiv = (catalogName, refineForm, catalogLayer) => {
     let clearButton = document.createElement('input')
     clearButton.setAttribute('type', 'button')
     clearButton.setAttribute('value', 'clear')
-    clearButton.setAttribute('class', 'btn-small red lighten-3')
+    clearButton.setAttribute('class', 'btn-small red lighten-2')
     clearButton.addEventListener('click', () => resetQueryForm(catalogName, catalogLayer))
     buttonDiv.appendChild(submitButton)
     buttonDiv.appendChild(downloadButton)
@@ -265,7 +282,9 @@ const  createButtonDiv = (catalogName, refineForm, catalogLayer) => {
     return buttonDiv
 }
 
-// TODO: Refactor this horrible thing i've created
+/**
+ * Creates the whole query form and adds it to the DOM
+ */
 const createCatalogQueryMenu = async () => {
     const catalogList = await downloadCatalogInformation();
     const queryTabBody = document.getElementById('query-tab-body');
@@ -275,12 +294,8 @@ const createCatalogQueryMenu = async () => {
     for (catalog of catalogList) {
         const color = COLORS[counter];
         const catalogName = catalog.name;
-        counter++;
-        // add catalog names to select input
         addCatalogToSelectMenu(catalogName);
         let catalogLayer = L.layerGroup();
-        
-        // display parameters
         let refineForm = document.createElement('form');
         refineForm.setAttribute('id',`${catalogName}-form`);
         refineForm.setAttribute('class','refine-form hide row');
@@ -308,14 +323,13 @@ const createCatalogQueryMenu = async () => {
                 }  
             })
         })
-       
         refineForm.appendChild(createMarkerSizeSlider(catalogName));
         for (principleColumn of catalog.principleColumns) {
             refineForm.appendChild(createRefineField(catalogName, principleColumn));
         }
-        // add buttons to form
         refineForm.appendChild(createButtonDiv(catalogName, refineForm, catalogLayer));
         queryTabBody.appendChild(refineForm);
+        counter++;
     }
     M.updateTextFields();
 }
@@ -350,12 +364,19 @@ const resetQueryForm = (catalogName, catalogLayer) => {
 
 }
 
+/**
+ * Queries the database to obtain catalog names and principle column names
+ */
 const downloadCatalogInformation = async () => {
     const response = await fetch('http://127.0.0.1:5000/catalogs')
     return response.json();
 }
 
-// Retrieves all information about a single object
+/**
+ * Displays information about a single object in a modal popup window
+ * @param {*} catalogName 
+ * @param {*} objectID 
+ */
 const displayObjectInformation = (catalogName, objectID) => {
     fetch(`http://127.0.0.1:5000/catalogs/${catalogName}/query_object/${objectID}`)
         .then(response => response.json())
