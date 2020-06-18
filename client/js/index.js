@@ -169,7 +169,7 @@ const createFilterOverlays = async () => {
         })
 }
 
-// TODO: Refactor this beast
+// TODO: Refactor this horrible thing i've created
 const createCatalogQueryMenu = async () => {
     const catalogList = await downloadCatalogInformation();
     const selectMenu = document.getElementById('query-tab-select-menu');
@@ -208,11 +208,12 @@ const createCatalogQueryMenu = async () => {
             .then(response => response.json())
             .then((object) => {
                 catalogLayer.clearLayers();
+                let markerSize = document.getElementById(`${catalogName}-markerSizeSlider`).value;
                 mainLayerControl.removeLayer(catalogLayer);
                 mainLayerControl.addOverlay(catalogLayer, catalogName);
                 for (let [name,coordinates] of Object.entries(object)) {
                     let myMarker = L.circle(coordinates, {
-                        radius: 500,
+                        radius: markerSize,
                         color: color,
                         weight: 1})
                     myMarker.bindTooltip(`${name} (${catalogName})`)                   
@@ -221,6 +222,20 @@ const createCatalogQueryMenu = async () => {
                 }  
             })
         })
+        let markerSizeDiv = document.createElement('div');
+        markerSizeDiv.setAttribute('class','col s12');
+        let markerSizeSlider = document.createElement('input');
+        markerSizeSlider.setAttribute('type','range');
+        markerSizeSlider.setAttribute('min','100');
+        markerSizeSlider.setAttribute('max','2000');
+        markerSizeSlider.setAttribute('value','500');
+        markerSizeSlider.setAttribute('id',`${catalogName}-markerSizeSlider`);
+        let markerSizeLabel = document.createElement('label');
+        markerSizeLabel.setAttribute('for',`${catalogName}-markerSizeSlider`);
+        markerSizeLabel.innerHTML = 'Marker Size';
+        markerSizeDiv.appendChild(markerSizeSlider);
+        markerSizeDiv.appendChild(markerSizeLabel);
+        refineForm.appendChild(markerSizeDiv);
         for (principleColumn of catalog.principleColumns) {
             let inputField = document.createElement('div');
             inputField.setAttribute('class','input-field col s6');
@@ -242,9 +257,11 @@ const createCatalogQueryMenu = async () => {
         submitButton.innerText = "apply";
         submitButton.setAttribute('class',"btn-small");
         submitButton.setAttribute('name','apply');
-        let downloadButton = document.createElement('button');
-        downloadButton.innerText = "download";
+        let downloadButton = document.createElement('input');
+        downloadButton.setAttribute('value','download');
+        downloadButton.setAttribute('type','button');
         downloadButton.setAttribute('class','btn-small orange lighten-2')
+        downloadButton.addEventListener('click', () => downloadQuery(catalogName, refineForm));
         let clearButton = document.createElement('input');
         clearButton.setAttribute('type','button');
         clearButton.setAttribute('value','clear');
@@ -258,6 +275,23 @@ const createCatalogQueryMenu = async () => {
     }
     M.FormSelect.init(selectMenu);
     M.updateTextFields();
+}
+
+const downloadQuery = (catalogName, refineForm) => {
+    const formData = new FormData(refineForm);
+    fetch(`http://127.0.0.1:5000/catalogs/${catalogName}/download`, {
+                method: 'post',
+                body: formData
+    })
+    .then(response => response.text())
+    .then((data) => {
+        let currentDate = Date.now();
+        let blob = new Blob([data]);
+        let link = document.createElement('a');
+        link.href = window.URL.createObjectURL(blob);
+        link.download =`${catalogName}-${currentDate}.csv`;
+        link.click();
+    })
 }
 
 const resetQueryForm = (catalogName, catalogLayer) => {

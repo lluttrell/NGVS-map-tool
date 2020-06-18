@@ -4,7 +4,7 @@ import os
 import re
 from tempfile import NamedTemporaryFile
 
-from flask import make_response, request
+from flask import make_response, request, send_file
 
 from app import app
 from app.cadc import tap_client as client
@@ -65,6 +65,24 @@ def get_column_names(catalog_name):
     :return: List of column names in json format
     """
     return json.dumps(get_table_schema_names(catalog_name))
+
+
+@app.route('/catalogs/<catalog_name>/download', methods=['POST'])
+def download_catalog(catalog_name):
+    query_string = f'SELECT * FROM {catalog_name}'
+    parameter_filters = request.form.to_dict(flat=True)
+    has_constraints = False
+    where_clause = ' WHERE '
+    for key in parameter_filters:
+        if parameter_filters[key] != '':
+            has_constraints = True
+            where_clause += f'({parse_selection_to_conditions(parameter_filters[key], key)}) AND '
+    if has_constraints:
+        query_string += where_clause[:-4]
+
+    with NamedTemporaryFile(mode='r+') as temp_file:
+        client.query(query_string, output_file=temp_file.name, response_format='csv', data_only=True)
+        return send_file(filename_or_fp=temp_file.name, mimetype='text/csv')
 
 
 @app.route('/catalogs/<catalog_name>/query', methods=['POST'])
