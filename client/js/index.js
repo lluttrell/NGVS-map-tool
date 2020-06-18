@@ -138,17 +138,6 @@ objectSearchForm.addEventListener('submit', (e) => {
 });
 
 
-const changeCatalog = () => {
-    let selectMenu = document.getElementById('query-tab-select-menu');
-    let currentCatalogName = selectMenu.value
-    let divs = document.getElementsByClassName('refine-form');
-    for (div of divs) {
-        div.classList.add("hide");
-        if (div.id === `${currentCatalogName}-form`) {
-            div.classList.remove("hide");
-        }
-    }
-}
 
 const createFilterOverlays = async () => {
     fetch('http://127.0.0.1:5000/overlays')
@@ -169,12 +158,24 @@ const createFilterOverlays = async () => {
         })
 }
 
-// TODO: Refactor this horrible thing i've created
-const createCatalogQueryMenu = async () => {
-    const catalogList = await downloadCatalogInformation();
+/**
+ * Adds a catalog name to the query-tab-select-menu
+ * @param {string} catalogName Catalog name to add to menu
+ */
+const addCatalogToSelectMenu = (catalogName) => {
     const selectMenu = document.getElementById('query-tab-select-menu');
-    const queryTabBody = document.getElementById('query-tab-body');
+    let optionElement = document.createElement('option');
+    optionElement.setAttribute('value', catalogName);
+    optionElement.innerHTML = catalogName;
+    selectMenu.appendChild(optionElement);
+    M.FormSelect.init(selectMenu);
+}
 
+/**
+ * Initializes the menu for selecting catalogs in the 'query' tab
+ */
+const initSelectMenu = () => {
+    const selectMenu = document.getElementById('query-tab-select-menu');
     let defaultSelect = document.createElement('option');
     defaultSelect.setAttribute('disabled',true);
     defaultSelect.setAttribute('selected', true)
@@ -182,18 +183,103 @@ const createCatalogQueryMenu = async () => {
     defaultSelect.innerText = 'Select Catalog';
     selectMenu.appendChild(defaultSelect);
     selectMenu.addEventListener('change', changeCatalog);
+    M.FormSelect.init(selectMenu);
+}
 
+/**
+ * Switches view of refine forms to the form selected in the query-tab-select-menu
+ */
+const changeCatalog = () => {
+    let selectMenu = document.getElementById('query-tab-select-menu');
+    let currentCatalogName = selectMenu.value;
+    let divs = document.getElementsByClassName('refine-form');
+    for (div of divs) {
+        div.classList.add("hide");
+        if (div.id === `${currentCatalogName}-form`) {
+            div.classList.remove("hide");
+        }
+    }
+}
+
+/**
+ * Creates a slider to be used for setting the marker size in the query menu
+ * @param {String} catalogName Catalog name to create slider for
+ */
+const createMarkerSizeSlider = (catalogName) => {
+    let markerSizeDiv = document.createElement('div');
+    markerSizeDiv.setAttribute('class','col s12');
+    let markerSizeSlider = document.createElement('input');
+    markerSizeSlider.setAttribute('type','range');
+    markerSizeSlider.setAttribute('min','100');
+    markerSizeSlider.setAttribute('max','5000');
+    markerSizeSlider.setAttribute('value','500');
+    markerSizeSlider.setAttribute('id',`${catalogName}-markerSizeSlider`);
+    let markerSizeLabel = document.createElement('label');
+    markerSizeLabel.setAttribute('for',`${catalogName}-markerSizeSlider`);
+    markerSizeLabel.innerHTML = 'Marker Size';
+    markerSizeDiv.appendChild(markerSizeSlider);
+    markerSizeDiv.appendChild(markerSizeLabel);
+    return markerSizeDiv;
+}
+
+/**
+ * Creates an input field for an individual principle column from an individual catalog
+ * @param {*} catalogName catalog name for input field 
+ * @param {*} principleColumn principle column name fo input field
+ */
+const createRefineField = (catalogName, principleColumn) => {
+    let inputField = document.createElement('div')
+    inputField.setAttribute('class', 'input-field col s6')
+    let input = document.createElement('input')
+    input.setAttribute('name', principleColumn)
+    input.setAttribute('type', 'text')
+    input.setAttribute('id', `${catalogName}-${principleColumn}`)
+    let label = document.createElement('label')
+    label.setAttribute('for', `${catalogName}-${principleColumn}`)
+    label.innerHTML = `${principleColumn.slice(9)}`
+    inputField.appendChild(label)
+    inputField.appendChild(input)
+    return inputField
+}
+
+const  createButtonDiv = (catalogName, refineForm, catalogLayer) => {
+    let buttonDiv = document.createElement('div')
+    buttonDiv.setAttribute('class', 'col s12 refine-btns')
+    let submitButton = document.createElement('button')
+    submitButton.innerText = "apply"
+    submitButton.setAttribute('class', "btn-small")
+    submitButton.setAttribute('name', 'apply')
+    let downloadButton = document.createElement('input')
+    downloadButton.setAttribute('value', 'download')
+    downloadButton.setAttribute('type', 'button')
+    downloadButton.setAttribute('class', 'btn-small orange lighten-2')
+    downloadButton.addEventListener('click', () => downloadQuery(catalogName, refineForm))
+    let clearButton = document.createElement('input')
+    clearButton.setAttribute('type', 'button')
+    clearButton.setAttribute('value', 'clear')
+    clearButton.setAttribute('class', 'btn-small red lighten-3')
+    clearButton.addEventListener('click', () => resetQueryForm(catalogName, catalogLayer))
+    buttonDiv.appendChild(submitButton)
+    buttonDiv.appendChild(downloadButton)
+    buttonDiv.appendChild(clearButton)
+    return buttonDiv
+}
+
+// TODO: Refactor this horrible thing i've created
+const createCatalogQueryMenu = async () => {
+    const catalogList = await downloadCatalogInformation();
+    const queryTabBody = document.getElementById('query-tab-body');
+    initSelectMenu();
+    
     let counter = 0;
     for (catalog of catalogList) {
         const color = COLORS[counter];
+        const catalogName = catalog.name;
         counter++;
         // add catalog names to select input
-        const catalogName = catalog.name;
+        addCatalogToSelectMenu(catalogName);
         let catalogLayer = L.layerGroup();
-        let optionElement = document.createElement('option');
-        optionElement.setAttribute('value', catalogName);
-        optionElement.innerHTML = catalogName;
-        selectMenu.appendChild(optionElement);
+        
         // display parameters
         let refineForm = document.createElement('form');
         refineForm.setAttribute('id',`${catalogName}-form`);
@@ -222,61 +308,24 @@ const createCatalogQueryMenu = async () => {
                 }  
             })
         })
-        let markerSizeDiv = document.createElement('div');
-        markerSizeDiv.setAttribute('class','col s12');
-        let markerSizeSlider = document.createElement('input');
-        markerSizeSlider.setAttribute('type','range');
-        markerSizeSlider.setAttribute('min','100');
-        markerSizeSlider.setAttribute('max','2000');
-        markerSizeSlider.setAttribute('value','500');
-        markerSizeSlider.setAttribute('id',`${catalogName}-markerSizeSlider`);
-        let markerSizeLabel = document.createElement('label');
-        markerSizeLabel.setAttribute('for',`${catalogName}-markerSizeSlider`);
-        markerSizeLabel.innerHTML = 'Marker Size';
-        markerSizeDiv.appendChild(markerSizeSlider);
-        markerSizeDiv.appendChild(markerSizeLabel);
-        refineForm.appendChild(markerSizeDiv);
+       
+        refineForm.appendChild(createMarkerSizeSlider(catalogName));
         for (principleColumn of catalog.principleColumns) {
-            let inputField = document.createElement('div');
-            inputField.setAttribute('class','input-field col s6');
-            let input = document.createElement('input');
-            input.setAttribute('name', principleColumn);
-            input.setAttribute('type','text');
-            input.setAttribute('id',`${catalogName}-${principleColumn}`);
-            let label = document.createElement('label');
-            label.setAttribute('for',`${catalogName}-${principleColumn}`);
-            label.innerHTML = `${principleColumn.slice(9)}`;
-            inputField.appendChild(label);
-            inputField.appendChild(input);
-            refineForm.appendChild(inputField);
+            refineForm.appendChild(createRefineField(catalogName, principleColumn));
         }
         // add buttons to form
-        let buttonDiv = document.createElement('div');
-        buttonDiv.setAttribute('class','col s12');
-        let submitButton = document.createElement('button');
-        submitButton.innerText = "apply";
-        submitButton.setAttribute('class',"btn-small");
-        submitButton.setAttribute('name','apply');
-        let downloadButton = document.createElement('input');
-        downloadButton.setAttribute('value','download');
-        downloadButton.setAttribute('type','button');
-        downloadButton.setAttribute('class','btn-small orange lighten-2')
-        downloadButton.addEventListener('click', () => downloadQuery(catalogName, refineForm));
-        let clearButton = document.createElement('input');
-        clearButton.setAttribute('type','button');
-        clearButton.setAttribute('value','clear');
-        clearButton.setAttribute('class','btn-small red lighten-3');
-        clearButton.addEventListener('click', () => resetQueryForm(catalogName,catalogLayer));
-        buttonDiv.appendChild(submitButton)
-        buttonDiv.appendChild(downloadButton)
-        buttonDiv.appendChild(clearButton)
-        refineForm.appendChild(buttonDiv);
+        refineForm.appendChild(createButtonDiv(catalogName, refineForm, catalogLayer));
         queryTabBody.appendChild(refineForm);
     }
-    M.FormSelect.init(selectMenu);
     M.updateTextFields();
 }
 
+
+/**
+ * Downloads all entries from catalogName that match the constraints in refineform
+ * @param {*} catalogName 
+ * @param {*} refineForm 
+ */
 const downloadQuery = (catalogName, refineForm) => {
     const formData = new FormData(refineForm);
     fetch(`http://127.0.0.1:5000/catalogs/${catalogName}/download`, {
@@ -329,3 +378,7 @@ const displayObjectInformation = (catalogName, objectID) => {
             instance.open();
         })
 }
+
+
+
+
