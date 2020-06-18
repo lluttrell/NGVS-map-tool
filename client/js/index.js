@@ -1,9 +1,8 @@
 const DEFAULT_MAP_LOCATION = [10.425,-7.037387]
 const DEFAULT_ZOOM = 6
 const COLORS = ['yellow','red','blue','orange','teal','purple','lightgreen'] 
-
-const GOOGLE_SKY_URL = L.tileLayer("https://mw1.google.com/mw-planetary/sky/skytiles_v1/{x}_{y}_{z}.jpg")
-const NGVS_TILE_URL = L.tileLayer("https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/data/pub/GSKY/M.{x}.{y}.{z}.png")
+const GOOGLE_SKY_TILESET = L.tileLayer("https://mw1.google.com/mw-planetary/sky/skytiles_v1/{x}_{y}_{z}.jpg")
+const NGVS_TILE_TILESET = L.tileLayer("https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/data/pub/GSKY/M.{x}.{y}.{z}.png")
 
 document.addEventListener('DOMContentLoaded', async function() {
     await createCatalogQueryMenu();
@@ -14,8 +13,7 @@ document.addEventListener('DOMContentLoaded', async function() {
     M.updateTextFields();
 });
 
-let tileLayers = L.layerGroup([GOOGLE_SKY_URL, NGVS_TILE_URL])
-let queryLayers = L.layerGroup();
+let tileLayers = L.layerGroup([GOOGLE_SKY_TILESET, NGVS_TILE_TILESET])
 
 let myMap = L.map('map-container', {
     center: DEFAULT_MAP_LOCATION,
@@ -23,7 +21,7 @@ let myMap = L.map('map-container', {
     minZoom: 5,
     maxZoom: 14,
     selectArea: true,
-    layers: [GOOGLE_SKY_URL, NGVS_TILE_URL],
+    layers: [GOOGLE_SKY_TILESET, NGVS_TILE_TILESET],
     renderer: L.canvas()
 })
 
@@ -56,8 +54,8 @@ let searchMarker = L.marker([0,0], {
     "icon": createMarkerIcon('yellow')}).addTo(myMap);
 
 let baseMaps = {
-    "GoogleSky" : GOOGLE_SKY_URL,
-    "NGVSTile" : NGVS_TILE_URL
+    "GoogleSky" : GOOGLE_SKY_TILESET,
+    "NGVSTile" : NGVS_TILE_TILESET
 }
 
 let mainLayerControl = L.control.layers(null,baseMaps, {
@@ -399,7 +397,3 @@ const displayObjectInformation = (catalogName, objectID) => {
             instance.open();
         })
 }
-
-
-
-
