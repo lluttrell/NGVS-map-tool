@@ -1,10 +1,35 @@
-const decimal_ra_formatter = (num) => {
-  if(num < 0) { num = (num*-1)+180;} 
-  return num.toFixed(4)
+/**
+ * @fileoverview Collection of functions used to format coordinates into strings
+ * representing the coordinate in a variety of formats
+ */
+
+/**
+ * Takes a right ascension value in decimal format in the range (-180, 360) and returns
+ * a rounded decimal format in the range (0,360).
+ * @param {number} num number to format.
+ * @param {number} precision number of decimal places to round to.
+ */
+const decimal_ra_formatter = (num, precision=4) => {
+  if (num <= -180 || num >= 360) {
+    throw new RangeError('Coordinate must be between -180 and 360.')
+  } else if (num < 0) {
+    num = (num*-1)+180;
+  }
+  return num.toFixed(precision)
 };
 
-const decimal_dec_formatter = (num) => {
-  return num.toFixed(4);
+
+/**
+ * Takes a declination value in decimal format and returns a rounded decimal format in the
+ * range (-90,90)
+ * @param {number} num number to format.
+ * @param {number} precision number of decimal places to round to.
+ */
+const decimal_dec_formatter = (num, precision=4) => {
+  if (num < -90 || num > 90) {
+    throw new RangeError('Coordinate must be between -90 and 90')
+  }
+  return num.toFixed(precision);
 };
 
 const dms_formatter = (num) => {
