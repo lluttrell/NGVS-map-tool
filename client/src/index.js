@@ -1,4 +1,6 @@
 import './styles/main.css'
+import 'materialize-css/dist/css/materialize.min.css'
+import 'materialize-css/dist/js/materialize.min.js'
 
 const DEFAULT_MAP_LOCATION = [10.425,-7.037387]
 const DEFAULT_ZOOM = 6

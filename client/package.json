@@ -14,5 +14,8 @@
     "style-loader": "^1.2.1",
     "webpack": "^4.43.0",
     "webpack-cli": "^3.3.12"
+  },
+  "dependencies": {
+    "materialize-css": "^1.0.0-rc.2"
   }
 }
