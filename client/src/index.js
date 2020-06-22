@@ -2,8 +2,10 @@ import './styles/main.css'
 import 'materialize-css/dist/css/materialize.min.css'
 import 'materialize-css/dist/js/materialize.min.js'
 import 'leaflet'
+import 'leaflet/dist/leaflet.css'
 import 'leaflet-mouse-position'
 import 'leaflet-mouse-position/src/L.Control.MousePosition.css'
+import SelectArea from 'leaflet-area-select'
 
 const DEFAULT_MAP_LOCATION = [10.425,-7.037387]
 const DEFAULT_ZOOM = 6
@@ -24,7 +26,7 @@ let myMap = L.map('map-container', {
 })
 
 myMap.on('areaselected', (e) => {
-    selectionBounds = e.bounds.toBBoxString();
+    let selectionBounds = e.bounds.toBBoxString();
     downloadSelection(selectionBounds);
   });
 
