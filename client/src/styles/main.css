@@ -1,5 +1,9 @@
 header, main, footer {
-    padding-left: 300px;
+    padding-left: 320px;
+}
+
+ul.sidenav {
+    width: 320px;
 }
 
 @media only screen and (max-width : 600px) {
@@ -29,4 +33,15 @@ header, main, footer {
   
 .leaflet-zoom-anim .leaflet-zoom-animated {
 will-change: unset;
+}
+
+.input-field {
+    position: relative;
+    margin-top: 0.1rem;
+    margin-bottom: 0.1rem;
+}
+
+.refine-btns {
+    display: flex;
+    justify-content: space-around;
 }

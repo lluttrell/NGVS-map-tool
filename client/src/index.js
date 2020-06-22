@@ -1,21 +1,19 @@
+import 'materialize-css/dist/css/materialize.min.css'
+import 'materialize-css/dist/js/materialize.min.js'
+import 'leaflet'
+import 'leaflet/dist/leaflet.css'
+import 'leaflet-mouse-position'
+import 'leaflet-mouse-position/src/L.Control.MousePosition.css'
+import SelectArea from 'leaflet-area-select'
+import './styles/main.css'
+
 const DEFAULT_MAP_LOCATION = [10.425,-7.037387]
 const DEFAULT_ZOOM = 6
 const COLORS = ['yellow','red','blue','orange','teal','purple','lightgreen'] 
+const GOOGLE_SKY_TILESET = L.tileLayer("https://mw1.google.com/mw-planetary/sky/skytiles_v1/{x}_{y}_{z}.jpg")
+const NGVS_TILE_TILESET = L.tileLayer("https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/data/pub/GSKY/M.{x}.{y}.{z}.png")
 
-const GOOGLE_SKY_URL = L.tileLayer("https://mw1.google.com/mw-planetary/sky/skytiles_v1/{x}_{y}_{z}.jpg")
-const NGVS_TILE_URL = L.tileLayer("https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/data/pub/GSKY/M.{x}.{y}.{z}.png")
-
-document.addEventListener('DOMContentLoaded', async function() {
-    await createCatalogQueryMenu();
-    await createFilterOverlays();
-    M.Collapsible.init(document.querySelectorAll('.collapsible'));
-    M.Tabs.init(document.getElementById('query-tab'));
-    M.Sidenav.init(document.querySelectorAll('.sidenav'));
-    M.updateTextFields();
-});
-
-let tileLayers = L.layerGroup([GOOGLE_SKY_URL, NGVS_TILE_URL])
-let queryLayers = L.layerGroup();
+let tileLayers = L.layerGroup([GOOGLE_SKY_TILESET, NGVS_TILE_TILESET])
 
 let myMap = L.map('map-container', {
     center: DEFAULT_MAP_LOCATION,
@@ -23,12 +21,12 @@ let myMap = L.map('map-container', {
     minZoom: 5,
     maxZoom: 14,
     selectArea: true,
-    layers: [GOOGLE_SKY_URL, NGVS_TILE_URL],
+    layers: [GOOGLE_SKY_TILESET, NGVS_TILE_TILESET],
     renderer: L.canvas()
 })
 
 myMap.on('areaselected', (e) => {
-    selectionBounds = e.bounds.toBBoxString();
+    let selectionBounds = e.bounds.toBBoxString();
     downloadSelection(selectionBounds);
   });
 
@@ -36,6 +34,10 @@ const downloadSelection = (bounds) => {
     alert(`this should popup with available fits files for ${bounds}`)
 }
 
+/**
+ * Returns a leaflet marker icon
+ * @param {string} color icon color (red, blue, green, yellow, black)
+ */
 const createMarkerIcon = (color) => {
     return new L.Icon({
         iconUrl: `https://cdn.rawgit.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-${color}.png`,
@@ -52,8 +54,8 @@ let searchMarker = L.marker([0,0], {
     "icon": createMarkerIcon('yellow')}).addTo(myMap);
 
 let baseMaps = {
-    "GoogleSky" : GOOGLE_SKY_URL,
-    "NGVSTile" : NGVS_TILE_URL
+    "GoogleSky" : GOOGLE_SKY_TILESET,
+    "NGVSTile" : NGVS_TILE_TILESET
 }
 
 let mainLayerControl = L.control.layers(null,baseMaps, {
@@ -119,7 +121,7 @@ L.control.mousePosition({
     latFormatter: dms_formatter
 }).addTo(myMap);
 
-// Searches for object or coordinate pair
+// adds search functionality to the searchbar
 const objectSearchForm = document.getElementById('search-form');
 objectSearchForm.addEventListener('submit', (e) => {
     e.preventDefault();
@@ -137,19 +139,9 @@ objectSearchForm.addEventListener('submit', (e) => {
     })
 });
 
-
-const changeCatalog = () => {
-    let selectMenu = document.getElementById('query-tab-select-menu');
-    let currentCatalogName = selectMenu.value
-    let divs = document.getElementsByClassName('refine-form');
-    for (div of divs) {
-        div.classList.add("hide");
-        if (div.id === `${currentCatalogName}-form`) {
-            div.classList.remove("hide");
-        }
-    }
-}
-
+/**
+ * Creates the overlays for the field outlines
+ */
 const createFilterOverlays = async () => {
     fetch('http://127.0.0.1:5000/overlays')
         .then(results => results.json())
@@ -169,12 +161,26 @@ const createFilterOverlays = async () => {
         })
 }
 
-// TODO: Refactor this horrible thing i've created
-const createCatalogQueryMenu = async () => {
-    const catalogList = await downloadCatalogInformation();
-    const selectMenu = document.getElementById('query-tab-select-menu');
-    const queryTabBody = document.getElementById('query-tab-body');
 
+/**
+ * Adds a catalog name to the query-tab-select-menu
+ * @param {string} catalogName Catalog name to add to menu
+ */
+const addCatalogToSelectMenu = (catalogName) => {
+    const selectMenu = document.getElementById('query-tab-select-menu');
+    let optionElement = document.createElement('option');
+    optionElement.setAttribute('value', catalogName);
+    optionElement.innerHTML = catalogName;
+    selectMenu.appendChild(optionElement);
+    M.FormSelect.init(selectMenu);
+}
+
+
+/**
+ * Initializes the menu for selecting catalogs in the 'query' tab
+ */
+const initSelectMenu = () => {
+    const selectMenu = document.getElementById('query-tab-select-menu');
     let defaultSelect = document.createElement('option');
     defaultSelect.setAttribute('disabled',true);
     defaultSelect.setAttribute('selected', true)
@@ -182,19 +188,112 @@ const createCatalogQueryMenu = async () => {
     defaultSelect.innerText = 'Select Catalog';
     selectMenu.appendChild(defaultSelect);
     selectMenu.addEventListener('change', changeCatalog);
+    M.FormSelect.init(selectMenu);
+}
 
+
+/**
+ * Switches view of refine forms to the form selected in the query-tab-select-menu
+ */
+const changeCatalog = () => {
+    let selectMenu = document.getElementById('query-tab-select-menu');
+    let currentCatalogName = selectMenu.value;
+    let divs = document.getElementsByClassName('refine-form');
+    for (let div of divs) {
+        div.classList.add("hide");
+        if (div.id === `${currentCatalogName}-form`) {
+            div.classList.remove("hide");
+        }
+    }
+}
+
+
+/**
+ * Creates a slider to be used for setting the marker size in the query menu
+ * @param {String} catalogName Catalog name to create slider for
+ */
+const createMarkerSizeSlider = (catalogName) => {
+    let markerSizeDiv = document.createElement('div');
+    markerSizeDiv.setAttribute('class','col s12');
+    let markerSizeSlider = document.createElement('input');
+    markerSizeSlider.setAttribute('type','range');
+    markerSizeSlider.setAttribute('min','100');
+    markerSizeSlider.setAttribute('max','5000');
+    markerSizeSlider.setAttribute('value','500');
+    markerSizeSlider.setAttribute('id',`${catalogName}-markerSizeSlider`);
+    let markerSizeLabel = document.createElement('label');
+    markerSizeLabel.setAttribute('for',`${catalogName}-markerSizeSlider`);
+    markerSizeLabel.innerHTML = 'Marker Size';
+    markerSizeDiv.appendChild(markerSizeSlider);
+    markerSizeDiv.appendChild(markerSizeLabel);
+    return markerSizeDiv;
+}
+
+
+/**
+ * Creates an input field for an individual principle column from an individual catalog
+ * @param {*} catalogName catalog name for input field 
+ * @param {*} principleColumn principle column name fo input field
+ */
+const createRefineField = (catalogName, principleColumn) => {
+    let inputField = document.createElement('div')
+    inputField.setAttribute('class', 'input-field col s6')
+    let input = document.createElement('input')
+    input.setAttribute('name', principleColumn)
+    input.setAttribute('type', 'text')
+    input.setAttribute('id', `${catalogName}-${principleColumn}`)
+    let label = document.createElement('label')
+    label.setAttribute('for', `${catalogName}-${principleColumn}`)
+    label.innerHTML = `${principleColumn.slice(9)}`
+    inputField.appendChild(label)
+    inputField.appendChild(input)
+    return inputField
+}
+
+
+/**
+ * Creates the apply, clear, and download buttons for the refine section
+ * @param {*} catalogName Catalog name for buttons
+ * @param {*} refineForm 
+ * @param {*} catalogLayer 
+ */
+const  createButtonDiv = (catalogName, refineForm, catalogLayer) => {
+    let buttonDiv = document.createElement('div')
+    buttonDiv.setAttribute('class', 'col s12 refine-btns')
+    let submitButton = document.createElement('button')
+    submitButton.innerText = "apply"
+    submitButton.setAttribute('class', "btn-small")
+    submitButton.setAttribute('name', 'apply')
+    let downloadButton = document.createElement('input')
+    downloadButton.setAttribute('value', 'download')
+    downloadButton.setAttribute('type', 'button')
+    downloadButton.setAttribute('class', 'btn-small orange lighten-2')
+    downloadButton.addEventListener('click', () => downloadQuery(catalogName, refineForm))
+    let clearButton = document.createElement('input')
+    clearButton.setAttribute('type', 'button')
+    clearButton.setAttribute('value', 'clear')
+    clearButton.setAttribute('class', 'btn-small red lighten-2')
+    clearButton.addEventListener('click', () => resetQueryForm(catalogName, catalogLayer))
+    buttonDiv.appendChild(submitButton)
+    buttonDiv.appendChild(downloadButton)
+    buttonDiv.appendChild(clearButton)
+    return buttonDiv
+}
+
+/**
+ * Creates the whole query form and adds it to the DOM
+ */
+const createCatalogQueryMenu = async () => {
+    const catalogList = await downloadCatalogInformation();
+    const queryTabBody = document.getElementById('query-tab-body');
+    initSelectMenu();
+    
     let counter = 0;
-    for (catalog of catalogList) {
+    for (let catalog of catalogList) {
         const color = COLORS[counter];
-        counter++;
-        // add catalog names to select input
         const catalogName = catalog.name;
+        addCatalogToSelectMenu(catalogName);
         let catalogLayer = L.layerGroup();
-        let optionElement = document.createElement('option');
-        optionElement.setAttribute('value', catalogName);
-        optionElement.innerHTML = catalogName;
-        selectMenu.appendChild(optionElement);
-        // display parameters
         let refineForm = document.createElement('form');
         refineForm.setAttribute('id',`${catalogName}-form`);
         refineForm.setAttribute('class','refine-form hide row');
@@ -222,61 +321,23 @@ const createCatalogQueryMenu = async () => {
                 }  
             })
         })
-        let markerSizeDiv = document.createElement('div');
-        markerSizeDiv.setAttribute('class','col s12');
-        let markerSizeSlider = document.createElement('input');
-        markerSizeSlider.setAttribute('type','range');
-        markerSizeSlider.setAttribute('min','100');
-        markerSizeSlider.setAttribute('max','2000');
-        markerSizeSlider.setAttribute('value','500');
-        markerSizeSlider.setAttribute('id',`${catalogName}-markerSizeSlider`);
-        let markerSizeLabel = document.createElement('label');
-        markerSizeLabel.setAttribute('for',`${catalogName}-markerSizeSlider`);
-        markerSizeLabel.innerHTML = 'Marker Size';
-        markerSizeDiv.appendChild(markerSizeSlider);
-        markerSizeDiv.appendChild(markerSizeLabel);
-        refineForm.appendChild(markerSizeDiv);
-        for (principleColumn of catalog.principleColumns) {
-            let inputField = document.createElement('div');
-            inputField.setAttribute('class','input-field col s6');
-            let input = document.createElement('input');
-            input.setAttribute('name', principleColumn);
-            input.setAttribute('type','text');
-            input.setAttribute('id',`${catalogName}-${principleColumn}`);
-            let label = document.createElement('label');
-            label.setAttribute('for',`${catalogName}-${principleColumn}`);
-            label.innerHTML = `${principleColumn.slice(9)}`;
-            inputField.appendChild(label);
-            inputField.appendChild(input);
-            refineForm.appendChild(inputField);
+        refineForm.appendChild(createMarkerSizeSlider(catalogName));
+        for (let principleColumn of catalog.principleColumns) {
+            refineForm.appendChild(createRefineField(catalogName, principleColumn));
         }
-        // add buttons to form
-        let buttonDiv = document.createElement('div');
-        buttonDiv.setAttribute('class','col s12');
-        let submitButton = document.createElement('button');
-        submitButton.innerText = "apply";
-        submitButton.setAttribute('class',"btn-small");
-        submitButton.setAttribute('name','apply');
-        let downloadButton = document.createElement('input');
-        downloadButton.setAttribute('value','download');
-        downloadButton.setAttribute('type','button');
-        downloadButton.setAttribute('class','btn-small orange lighten-2')
-        downloadButton.addEventListener('click', () => downloadQuery(catalogName, refineForm));
-        let clearButton = document.createElement('input');
-        clearButton.setAttribute('type','button');
-        clearButton.setAttribute('value','clear');
-        clearButton.setAttribute('class','btn-small red lighten-3');
-        clearButton.addEventListener('click', () => resetQueryForm(catalogName,catalogLayer));
-        buttonDiv.appendChild(submitButton)
-        buttonDiv.appendChild(downloadButton)
-        buttonDiv.appendChild(clearButton)
-        refineForm.appendChild(buttonDiv);
+        refineForm.appendChild(createButtonDiv(catalogName, refineForm, catalogLayer));
         queryTabBody.appendChild(refineForm);
+        counter++;
     }
-    M.FormSelect.init(selectMenu);
     M.updateTextFields();
 }
 
+
+/**
+ * Downloads all entries from catalogName that match the constraints in refineform
+ * @param {string} catalogName 
+ * @param {string} refineForm 
+ */
 const downloadQuery = (catalogName, refineForm) => {
     const formData = new FormData(refineForm);
     fetch(`http://127.0.0.1:5000/catalogs/${catalogName}/download`, {
@@ -301,12 +362,19 @@ const resetQueryForm = (catalogName, catalogLayer) => {
 
 }
 
+/**
+ * Queries the database to obtain catalog names and principle column names
+ */
 const downloadCatalogInformation = async () => {
     const response = await fetch('http://127.0.0.1:5000/catalogs')
     return response.json();
 }
 
-// Retrieves all information about a single object
+/**
+ * Displays information about a single object in a modal popup window
+ * @param {string} catalogName 
+ * @param {string} objectID 
+ */
 const displayObjectInformation = (catalogName, objectID) => {
     fetch(`http://127.0.0.1:5000/catalogs/${catalogName}/query_object/${objectID}`)
         .then(response => response.json())
@@ -329,3 +397,12 @@ const displayObjectInformation = (catalogName, objectID) => {
             instance.open();
         })
 }
+
+document.addEventListener('DOMContentLoaded', async function() {
+    await createCatalogQueryMenu();
+    await createFilterOverlays();
+    M.Collapsible.init(document.querySelectorAll('.collapsible'));
+    M.Tabs.init(document.getElementById('query-tab'));
+    M.Sidenav.init(document.querySelectorAll('.sidenav'));
+    M.updateTextFields();
+});
