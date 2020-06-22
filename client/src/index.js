@@ -1,21 +1,15 @@
 import './styles/main.css'
 import 'materialize-css/dist/css/materialize.min.css'
 import 'materialize-css/dist/js/materialize.min.js'
+import 'leaflet'
+import 'leaflet-mouse-position'
+import 'leaflet-mouse-position/src/L.Control.MousePosition.css'
 
 const DEFAULT_MAP_LOCATION = [10.425,-7.037387]
 const DEFAULT_ZOOM = 6
 const COLORS = ['yellow','red','blue','orange','teal','purple','lightgreen'] 
 const GOOGLE_SKY_TILESET = L.tileLayer("https://mw1.google.com/mw-planetary/sky/skytiles_v1/{x}_{y}_{z}.jpg")
 const NGVS_TILE_TILESET = L.tileLayer("https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/data/pub/GSKY/M.{x}.{y}.{z}.png")
-
-document.addEventListener('DOMContentLoaded', async function() {
-    await createCatalogQueryMenu();
-    await createFilterOverlays();
-    M.Collapsible.init(document.querySelectorAll('.collapsible'));
-    M.Tabs.init(document.getElementById('query-tab'));
-    M.Sidenav.init(document.querySelectorAll('.sidenav'));
-    M.updateTextFields();
-});
 
 let tileLayers = L.layerGroup([GOOGLE_SKY_TILESET, NGVS_TILE_TILESET])
 
@@ -401,3 +395,12 @@ const displayObjectInformation = (catalogName, objectID) => {
             instance.open();
         })
 }
+
+document.addEventListener('DOMContentLoaded', async function() {
+    await createCatalogQueryMenu();
+    await createFilterOverlays();
+    M.Collapsible.init(document.querySelectorAll('.collapsible'));
+    M.Tabs.init(document.getElementById('query-tab'));
+    M.Sidenav.init(document.querySelectorAll('.sidenav'));
+    M.updateTextFields();
+});

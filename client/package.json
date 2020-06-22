@@ -16,6 +16,8 @@
     "webpack-cli": "^3.3.12"
   },
   "dependencies": {
+    "leaflet": "^1.6.0",
+    "leaflet-mouse-position": "^1.2.0",
     "materialize-css": "^1.0.0-rc.2"
   }
 }
