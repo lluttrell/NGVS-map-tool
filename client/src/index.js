@@ -1,4 +1,3 @@
-import './styles/main.css'
 import 'materialize-css/dist/css/materialize.min.css'
 import 'materialize-css/dist/js/materialize.min.js'
 import 'leaflet'
@@ -6,6 +5,7 @@ import 'leaflet/dist/leaflet.css'
 import 'leaflet-mouse-position'
 import 'leaflet-mouse-position/src/L.Control.MousePosition.css'
 import SelectArea from 'leaflet-area-select'
+import './styles/main.css'
 
 const DEFAULT_MAP_LOCATION = [10.425,-7.037387]
 const DEFAULT_ZOOM = 6
@@ -36,7 +36,7 @@ const downloadSelection = (bounds) => {
 
 /**
  * Returns a leaflet marker icon
- * @param {*} color icon color (red, blue, green, yellow, black)
+ * @param {string} color icon color (red, blue, green, yellow, black)
  */
 const createMarkerIcon = (color) => {
     return new L.Icon({
@@ -335,8 +335,8 @@ const createCatalogQueryMenu = async () => {
 
 /**
  * Downloads all entries from catalogName that match the constraints in refineform
- * @param {*} catalogName 
- * @param {*} refineForm 
+ * @param {string} catalogName 
+ * @param {string} refineForm 
  */
 const downloadQuery = (catalogName, refineForm) => {
     const formData = new FormData(refineForm);
@@ -372,8 +372,8 @@ const downloadCatalogInformation = async () => {
 
 /**
  * Displays information about a single object in a modal popup window
- * @param {*} catalogName 
- * @param {*} objectID 
+ * @param {string} catalogName 
+ * @param {string} objectID 
  */
 const displayObjectInformation = (catalogName, objectID) => {
     fetch(`http://127.0.0.1:5000/catalogs/${catalogName}/query_object/${objectID}`)
