@@ -1,3 +1,5 @@
+import './styles/main.css'
+
 const DEFAULT_MAP_LOCATION = [10.425,-7.037387]
 const DEFAULT_ZOOM = 6
 const COLORS = ['yellow','red','blue','orange','teal','purple','lightgreen'] 
@@ -199,7 +201,7 @@ const changeCatalog = () => {
     let selectMenu = document.getElementById('query-tab-select-menu');
     let currentCatalogName = selectMenu.value;
     let divs = document.getElementsByClassName('refine-form');
-    for (div of divs) {
+    for (let div of divs) {
         div.classList.add("hide");
         if (div.id === `${currentCatalogName}-form`) {
             div.classList.remove("hide");
@@ -289,7 +291,7 @@ const createCatalogQueryMenu = async () => {
     initSelectMenu();
     
     let counter = 0;
-    for (catalog of catalogList) {
+    for (let catalog of catalogList) {
         const color = COLORS[counter];
         const catalogName = catalog.name;
         addCatalogToSelectMenu(catalogName);
@@ -322,7 +324,7 @@ const createCatalogQueryMenu = async () => {
             })
         })
         refineForm.appendChild(createMarkerSizeSlider(catalogName));
-        for (principleColumn of catalog.principleColumns) {
+        for (let principleColumn of catalog.principleColumns) {
             refineForm.appendChild(createRefineField(catalogName, principleColumn));
         }
         refineForm.appendChild(createButtonDiv(catalogName, refineForm, catalogLayer));
