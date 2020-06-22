@@ -2,3 +2,5 @@ venv/
 .idea/
 *__pycache__/
 *node_modules/
+client/dist/*.js
+client/dist/*.png
