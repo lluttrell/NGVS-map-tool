@@ -1,6 +1,6 @@
 /**
  * @fileoverview Collection of functions used to format coordinates into strings
- * representing the coordinate in a variety of formats
+ * representing the coordinate in a letiety of formats
  */
 
 /**
@@ -32,22 +32,43 @@ const decimal_dec_formatter = (num, precision=4) => {
   return num.toFixed(precision);
 };
 
-const dms_formatter = (num) => {
-  var deg = Math.floor(num) ;
-  var frac = Math.abs(num - deg);
-  var min = Math.floor(frac * 60);
-  var sec = Math.floor(frac * 3600 - min * 60 );
-  var fsec = Math.floor((frac * 3600 - min * 60 - sec ) * 10) ;
-  return ("00" + deg).slice(-2) + ":" + ("00" + min).slice(-2) + ":" + ( "00" + sec).slice(-2) + "." + fsec;
+/**
+ * Takes a declination value in decimal format and returns coordinate in
+ * DMS format
+ * @param {number} num number to format.
+ * @param {number} precision number of decimal places to round to.
+ */
+const dms_formatter = (num, precision=0) => {
+  if (num < -90 || num > 90) {
+    throw new RangeError('Coordinate must be between -90 and 90')
+  }
+  let deg = Math.floor(num) ;
+  let frac = Math.abs(num - deg);
+  let min = Math.floor(frac * 60);
+  let sec = Math.floor(frac * 3600 - min * 60 );
+  let fsec = (frac * 3600 - min * 60 - sec ).toFixed(precision) ;
+  return ("00" + deg).slice(-2) + ":" + ("00" + min).slice(-2) + ":" + ( "00" + sec).slice(-2) + fsec.toString().slice(1, precision + 2);
 };
 
-const hms_formatter = (num) => {
-  if(num < 0) { num = (num*-1)+180;}
-  var hour = Math.floor(num / 15);
-  var minute = Math.floor((num/15 - hour)*60);
-  var sec = Math.floor(hour * 3600 - minute * 60 );
-  var fsec = Math.floor(( hour * 3600 - minute * 60 - sec ) * 100) ;
-  return ("00" + hour).slice(-2) + ":" + ("00" + minute).slice(-2) + ":" + ("00" + sec).slice(-2) + "." + fsec;
+/**
+ * Takes a declination value in decimal format and returns coordinate in
+ * DMS format
+ * @param {number} num number to format.
+ * @param {number} precision number of decimal places to round to.
+ */
+const hms_formatter = (num, precision=0) => {
+  if (num <= -180 || num >= 360) {
+    throw new RangeError('Coordinate must be between -180 and 360.')
+  } else if(num < 0) {
+    num = (num*-1)+180;
+  }
+  let hrs = Math.floor(num/15);
+  let min = Math.floor((num/15 - hrs) * 60);
+  let sec = (num/15 - hrs - min/60) * 3600;
+  let wsec = Math.floor(sec);
+  let fsec = (sec - wsec).toFixed(precision)
+  return ("00" + hrs).slice(-2) + ":" + ("00" + min).slice(-2) + ":" + ("00" + wsec).slice(-2) + fsec.toString().slice(1, precision + 2);
+
 }
 
 export { decimal_dec_formatter, decimal_ra_formatter, dms_formatter, hms_formatter }
