@@ -1,6 +1,8 @@
 /**
  * @fileoverview Collection of functions used to format coordinates into strings
- * representing the coordinate in a letiety of formats
+ * representing the coordinate in a variety of formats. Note this was written for
+ * the mouse coordinate position and there may be precision errors. May be 
+ * unsuitable for other uses.
  */
 
 /**
