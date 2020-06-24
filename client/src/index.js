@@ -7,20 +7,18 @@ import 'leaflet-mouse-position/src/L.Control.MousePosition.css'
 import SelectArea from 'leaflet-area-select'
 import './styles/main.css'
 import { hms_formatter, dms_formatter, decimal_dec_formatter, decimal_ra_formatter } from './coordinate-formatter'
+import { config } from '../app.config'
 
-const DEFAULT_MAP_LOCATION = [10.425,-7.037387]
-const DEFAULT_ZOOM = 6
-const COLORS = ['yellow','red','blue','orange','teal','purple','lightgreen'] 
-const GOOGLE_SKY_TILESET = L.tileLayer("https://mw1.google.com/mw-planetary/sky/skytiles_v1/{x}_{y}_{z}.jpg")
-const NGVS_TILE_TILESET = L.tileLayer("https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/data/pub/GSKY/M.{x}.{y}.{z}.png")
+const GOOGLE_SKY_TILESET = L.tileLayer(config.skyTileUrl)
+const NGVS_TILE_TILESET = L.tileLayer(config.ngvsTileUrl)
 
 let tileLayers = L.layerGroup([GOOGLE_SKY_TILESET, NGVS_TILE_TILESET])
 
 let myMap = L.map('map-container', {
-    center: DEFAULT_MAP_LOCATION,
-    zoom: DEFAULT_ZOOM,
-    minZoom: 5,
-    maxZoom: 14,
+    center: config.defaultMapLocation,
+    zoom: config.defaultZoom,
+    minZoom: config.minZoom,
+    maxZoom: config.maxZoom,
     selectArea: true,
     layers: [GOOGLE_SKY_TILESET, NGVS_TILE_TILESET],
     renderer: L.canvas()
@@ -81,7 +79,6 @@ const clearSearchMarker = () => {
     searchMarker.setOpacity(0.0);
 }
 
-
 L.control.mousePosition({
     position: 'bottomright',
     separator: ' | ',
@@ -126,7 +123,7 @@ const createFilterOverlays = async () => {
             for (const [key,value] of Object.entries(filters)) {
                 let latlngs = value;
                 let layers = L.layerGroup();
-                const color = COLORS[i];
+                const color = config.colors[i];
                 i++;
                 const polygon = L.polygon(latlngs, {color: color, fillOpacity: 0.0})
                 polygon.addTo(layers)
@@ -265,7 +262,7 @@ const createCatalogQueryMenu = async () => {
     
     let counter = 0;
     for (let catalog of catalogList) {
-        const color = COLORS[counter];
+        const color = config.colors[counter];
         const catalogName = catalog.name;
         addCatalogToSelectMenu(catalogName);
         let catalogLayer = L.layerGroup();
