@@ -1,12 +1,26 @@
+/**
+ * Converts a string containing a range in the form (x..y) and converts to an SQL
+ * range for the supplied attributename
+ * 
+ * @param {str} inputString string in the form (x..y) where x and y are attribute values
+ * @param {str} attributeName attribute to which range is applied on
+ */
 const rangeToSQL = (inputString, attributeName) => {
   let [lowerBound, upperBound] = inputString.split(/\.{2}/)
   return `(${attributeName} >= ${lowerBound} AND ${attributeName} <= ${upperBound})`
 }
 
+/**
+ * Converts a string containing a comparison operator and a value to an SQL
+ * comparison for a certain attribute.
+ * 
+ * @param {str} inputString whitespace stripped string containing a single comparator and value
+ * @param {str} attributeName attribute to which comparison is applied on
+ */
 const comparisonToSQL = (inputString, attributeName) => {
-
+  let [,delimiter, value] = inputString.split(/(<(?!=)|>(?!=)|<=|>=)/)
+  return `${attributeName} ${delimiter} ${value}`
 }
-
 
 /**
  * Takes a string representing conditions and the attribute to which the conditions belong
@@ -25,10 +39,14 @@ const parseSelectionToConditions = (selectionString, attributeName) => {
     .map(r => rangeToSQL(r, attributeName))
 
   let comparisons = disjuncts
-    .filter(disjunct => disjunct.match(/(<|<=|>|>=)/))
+    .filter(disjunct => disjunct.match(/(<(?!=)|>(?!=)|<=|>=)/))
     .map(r => comparisonToSQL(r,attributeName))
   
-  return ranges
+  let singles = disjuncts
+    .filter(disjunct => !disjunct.match(/(<(?!=)|>(?!=)|<=|>=|\.{2})/))
+    .map(r => `${attributeName} = ${r}`)
+  
+  return [].concat(ranges, comparisons, singles).join(' OR ')
 }
 
-export { parseSelectionToConditions, rangeToSQL }
+export { parseSelectionToConditions, rangeToSQL, comparisonToSQL }

@@ -1,5 +1,5 @@
 import { parseSelectionToConditions } from '../src/query-builder'
-import { rangeToSQL } from '../src/query-builder'
+import { rangeToSQL, comparisonToSQL } from '../src/query-builder'
 
 describe('test rangeToSQL', () => {
   let attributeName = 'atr';
@@ -10,12 +10,35 @@ describe('test rangeToSQL', () => {
   })
 
   test('test simple range with decimals', () => {
-    expect(rangeToSQL('1.2..3.4', attributeName))
-      .toBe(`(${attributeName} >= 1.2 AND ${attributeName} <= 3.4)`)
+    expect(rangeToSQL('-1.2..3.4', attributeName))
+      .toBe(`(${attributeName} >= -1.2 AND ${attributeName} <= 3.4)`)
   })
 })
 
-describe('test)
+describe('test comparisonToSQL', () => {
+  let attributeName = 'atr';
+  
+  test('test less than', () => {
+    expect(comparisonToSQL('<3',attributeName))
+      .toBe(`${attributeName} < 3`)
+  })
+
+  test('test less than equal', () => {
+    expect(comparisonToSQL('<=3.14',attributeName))
+      .toBe(`${attributeName} <= 3.14`)
+  })
+
+  test('test greater than', () => {
+    expect(comparisonToSQL('>3',attributeName))
+      .toBe(`${attributeName} > 3`)
+  })
+
+  test('test greater than equal', () => {
+    expect(comparisonToSQL('>=3.14',attributeName))
+      .toBe(`${attributeName} >= 3.14`)
+  })
+})
+
 
 describe('test parseSelectionToConditions', () => {
   let attributeName = 'atr';
@@ -52,14 +75,14 @@ describe('test parseSelectionToConditions', () => {
 
   test('test multiple values', () => {
     expect(parseSelectionToConditions('1 , < 2,3.14', attributeName))
-      .toBe(`${attributeName} = 1 OR ${attributeName} < 2 OR ${attributeName} = 3.14`)
+      .toBe(`${attributeName} < 2 OR ${attributeName} = 1 OR ${attributeName} = 3.14`)
   })
 
   test('test single range', () => {
     expect(parseSelectionToConditions('1..2', attributeName))
       .toBe(`(${attributeName} >= 1 AND ${attributeName} <= 2)`)
   })
-  
+
   test('test multiple values with ranges', () => {
     expect(parseSelectionToConditions('1..2, >4', attributeName))
       .toBe(`(${attributeName} >= 1 AND ${attributeName} <= 2) OR ${attributeName} > 4`)
