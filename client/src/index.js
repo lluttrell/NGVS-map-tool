@@ -10,11 +10,6 @@ import { hms_formatter, dms_formatter, decimal_dec_formatter, decimal_ra_formatt
 import { config } from '../app.config'
 import { parseSelectionToConditions } from './query-builder'
 import Catalog from './catalog'
-import TapClient from './tap-client'
-
-let myCat = new Catalog('cfht.ngvsMap')
-myCat.init()
-console.log(myCat)
 
 const GOOGLE_SKY_TILESET = L.tileLayer(config.skyTileUrl)
 const NGVS_TILE_TILESET = L.tileLayer(config.ngvsTileUrl)
@@ -146,6 +141,7 @@ const createFilterOverlays = async () => {
  * @param {string} catalogName Catalog name to add to menu
  */
 const addCatalogToSelectMenu = (catalogName) => {
+    console.log(catalogName);
     const selectMenu = document.getElementById('query-tab-select-menu');
     let optionElement = document.createElement('option');
     optionElement.setAttribute('value', catalogName);
@@ -263,9 +259,9 @@ const  createButtonDiv = (catalogName, refineForm, catalogLayer) => {
  * Creates the whole query form and adds it to the DOM
  */
 const createCatalogQueryMenu = async () => {
-    const catalogList = await downloadCatalogInformation();
+    //const catalogList = await downloadCatalogInformation();
     const queryTabBody = document.getElementById('query-tab-body');
-    initSelectMenu();
+    
     
     let counter = 0;
     for (let catalog of catalogList) {
@@ -377,9 +373,39 @@ const displayObjectInformation = (catalogName, objectID) => {
         })
 }
 
+
+class AppModel {
+    constructor() {
+        this.catalogList = []
+        this.currentCatalog = null
+    }
+
+    async init() {
+        for (let [catalogName, color] of config.catalogList.map((e, i) => [e, config.colors[i]])) {
+            let catalog = new Catalog(catalogName, color);
+            await catalog.init();
+            this.catalogList.push(catalog)
+        }
+    }
+
+
+}
+
 document.addEventListener('DOMContentLoaded', async function() {
-    await createCatalogQueryMenu();
+    //await createCatalogQueryMenu();
     await createFilterOverlays();
+
+    const appModel = new AppModel()
+    await appModel.init();
+    // create an array of catalog objects from init file
+    initSelectMenu();
+    
+    for (let catObj of appModel.catalogList) {
+        addCatalogToSelectMenu(catObj.name);
+    }
+
+    //let currentCatalog = ((appModel.catalogList)[0]).name;
+    //console.log(currentCatalog);
     M.Collapsible.init(document.querySelectorAll('.collapsible'));
     M.Tabs.init(document.getElementById('query-tab'));
     M.Sidenav.init(document.querySelectorAll('.sidenav'));
