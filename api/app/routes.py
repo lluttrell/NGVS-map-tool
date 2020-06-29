@@ -1,6 +1,7 @@
 import json
 import csv
 import re
+import io
 from tempfile import NamedTemporaryFile
 
 from flask import make_response, request, send_file
@@ -122,6 +123,15 @@ def query_all_for_object(catalog_name, object_id):
         keys = data[0]
         values = data[1]
         return dict(zip(keys, values))
+
+
+@app.route('/query/')
+def send_query():
+    query_string = request.args.get('QUERY')
+    print(query_string)
+    with NamedTemporaryFile(mode='r+') as temp_file:
+        client.query(query_string, output_file=temp_file.name, response_format='csv', data_only=False)
+        return send_file(temp_file.name)
 
 
 @app.route('/overlays')

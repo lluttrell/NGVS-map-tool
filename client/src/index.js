@@ -9,6 +9,12 @@ import './styles/main.css'
 import { hms_formatter, dms_formatter, decimal_dec_formatter, decimal_ra_formatter } from './coordinate-formatter'
 import { config } from '../app.config'
 import { parseSelectionToConditions } from './query-builder'
+import Catalog from './catalog'
+import TapClient from './tap-client'
+
+let myCat = new Catalog('cfht.ngvsMap')
+myCat.init()
+console.log(myCat)
 
 const GOOGLE_SKY_TILESET = L.tileLayer(config.skyTileUrl)
 const NGVS_TILE_TILESET = L.tileLayer(config.ngvsTileUrl)
