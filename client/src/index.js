@@ -141,7 +141,6 @@ const createFilterOverlays = async () => {
  * @param {string} catalogName Catalog name to add to menu
  */
 const addCatalogToSelectMenu = (catalogName) => {
-    console.log(catalogName);
     const selectMenu = document.getElementById('query-tab-select-menu');
     let optionElement = document.createElement('option');
     optionElement.setAttribute('value', catalogName);
@@ -235,10 +234,11 @@ const createRefineField = (catalogName, principleColumn) => {
 const  createButtonDiv = (catalogName, refineForm, catalogLayer) => {
     let buttonDiv = document.createElement('div')
     buttonDiv.setAttribute('class', 'col s12 refine-btns')
-    let submitButton = document.createElement('button')
-    submitButton.innerText = "apply"
-    submitButton.setAttribute('class', "btn-small")
-    submitButton.setAttribute('name', 'apply')
+    let submitButton = document.createElement('input')
+    submitButton.setAttribute('value', 'apply')
+    submitButton.setAttribute('class', 'btn-small')
+    submitButton.setAttribute('type', 'button')
+    submitButton.addEventListener('click', () => applyQuery(catalogName, catalogLayer))
     let downloadButton = document.createElement('input')
     downloadButton.setAttribute('value', 'download')
     downloadButton.setAttribute('type', 'button')
@@ -399,10 +399,20 @@ document.addEventListener('DOMContentLoaded', async function() {
     await appModel.init();
     // create an array of catalog objects from init file
     initSelectMenu();
-    
+    const queryTabBody = document.getElementById('query-tab-body');
     for (let catObj of appModel.catalogList) {
+        let catalogLayer = L.layerGroup();
         addCatalogToSelectMenu(catObj.name);
+        let refineForm = document.createElement('form');
+        refineForm.setAttribute('id',`${catObj.name}-form`);
+        refineForm.setAttribute('class','refine-form hide row');
+        for (let principleColumn of catObj.principleColumns) {
+            refineForm.appendChild(createRefineField(catObj.name, principleColumn))
+        }
+        refineForm.appendChild(createButtonDiv(catObj.name, refineForm, catalogLayer));
+        queryTabBody.appendChild(refineForm);
     }
+
 
     //let currentCatalog = ((appModel.catalogList)[0]).name;
     //console.log(currentCatalog);

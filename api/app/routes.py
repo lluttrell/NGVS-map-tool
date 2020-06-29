@@ -128,7 +128,6 @@ def query_all_for_object(catalog_name, object_id):
 @app.route('/query/')
 def send_query():
     query_string = request.args.get('QUERY')
-    print(query_string)
     with NamedTemporaryFile(mode='r+') as temp_file:
         client.query(query_string, output_file=temp_file.name, response_format='csv', data_only=False)
         return send_file(temp_file.name)
