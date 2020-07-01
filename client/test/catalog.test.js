@@ -20,3 +20,4 @@ describe('test init', () => {
     expect(testCatalog.principleColumnNames.length).toBe(3)
   })
 })
+

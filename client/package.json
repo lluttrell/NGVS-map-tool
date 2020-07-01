@@ -23,6 +23,7 @@
     "leaflet": "^1.6.0",
     "leaflet-area-select": "^1.0.3",
     "leaflet-mouse-position": "^1.2.0",
-    "materialize-css": "^1.0.0-rc.2"
+    "materialize-css": "^1.0.0-rc.2",
+    "papaparse": "^5.2.0"
   }
 }

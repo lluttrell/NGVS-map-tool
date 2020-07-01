@@ -138,13 +138,13 @@ const createFilterOverlays = async () => {
 
 /**
  * Adds a catalog name to the query-tab-select-menu
- * @param {string} catalogName Catalog name to add to menu
+ * @param {Catalog} catalog Catalog to add to menu
  */
-const addCatalogToSelectMenu = (catalogName) => {
+const addCatalogToSelectMenu = (catalog) => {
     const selectMenu = document.getElementById('query-tab-select-menu');
     let optionElement = document.createElement('option');
-    optionElement.setAttribute('value', catalogName);
-    optionElement.innerHTML = catalogName;
+    optionElement.setAttribute('value', catalog.name);
+    optionElement.innerHTML = catalog.name;
     selectMenu.appendChild(optionElement);
     M.FormSelect.init(selectMenu);
 }
@@ -204,20 +204,26 @@ const createMarkerSizeSlider = (catalogName) => {
 }
 
 
+
+
+
 /**
  * Creates an input field for an individual principle column from an individual catalog
  * @param {*} catalogName catalog name for input field 
  * @param {*} principleColumn principle column name fo input field
  */
-const createRefineField = (catalogName, principleColumn) => {
+const createRefineField = (catalog, principleColumn) => {
     let inputField = document.createElement('div')
     inputField.setAttribute('class', 'input-field col s6')
     let input = document.createElement('input')
     input.setAttribute('name', principleColumn)
     input.setAttribute('type', 'text')
-    input.setAttribute('id', `${catalogName}-${principleColumn}`)
+    input.setAttribute('id', `${catalog.name}-${principleColumn}`)
+    input.addEventListener('input', () => {
+        catalog.refineParameters[principleColumn] = input.value;
+    })
     let label = document.createElement('label')
-    label.setAttribute('for', `${catalogName}-${principleColumn}`)
+    label.setAttribute('for', `${catalog.name}-${principleColumn}`)
     label.innerHTML = `${principleColumn.slice(9)}`
     inputField.appendChild(label)
     inputField.appendChild(input)
@@ -231,14 +237,17 @@ const createRefineField = (catalogName, principleColumn) => {
  * @param {*} refineForm 
  * @param {*} catalogLayer 
  */
-const  createButtonDiv = (catalogName, refineForm, catalogLayer) => {
+const  createButtonDiv = (catalog, refineForm, catalogLayer) => {
     let buttonDiv = document.createElement('div')
     buttonDiv.setAttribute('class', 'col s12 refine-btns')
     let submitButton = document.createElement('input')
     submitButton.setAttribute('value', 'apply')
     submitButton.setAttribute('class', 'btn-small')
     submitButton.setAttribute('type', 'button')
-    submitButton.addEventListener('click', () => applyQuery(catalogName, catalogLayer))
+    submitButton.addEventListener('click', async () => {
+        await catalog.getObjectLocations();
+        renderCatalogQuery(catalog, catalogLayer);
+    })
     let downloadButton = document.createElement('input')
     downloadButton.setAttribute('value', 'download')
     downloadButton.setAttribute('type', 'button')
@@ -254,6 +263,23 @@ const  createButtonDiv = (catalogName, refineForm, catalogLayer) => {
     buttonDiv.appendChild(clearButton)
     return buttonDiv
 }
+
+const renderCatalogQuery = (catalog, catalogLayer) => {
+    catalogLayer.clearLayers();
+    mainLayerControl.removeLayer(catalogLayer);
+    mainLayerControl.addOverlay(catalogLayer, catalog.name);
+    for (let [name,lon,lat] of catalog.currentQuery) {
+        let coordinates = L.latLng(lat,lon)
+        let myMarker = L.circle(coordinates, {
+            radius: catalog.markerSize,
+            color: catalog.markerColor,
+            weight: 1})
+        myMarker.bindTooltip(`${name} (${catalog.name})`)                   
+        myMarker.on('click', () => displayObjectInformation(catalog.name,name));
+        myMarker.addTo(catalogLayer);
+    }
+}
+
 
 /**
  * Creates the whole query form and adds it to the DOM
@@ -338,14 +364,6 @@ const resetQueryForm = (catalogName, catalogLayer) => {
 }
 
 /**
- * Queries the database to obtain catalog names and principle column names
- */
-const downloadCatalogInformation = async () => {
-    const response = await fetch('http://127.0.0.1:5000/catalogs')
-    return response.json();
-}
-
-/**
  * Displays information about a single object in a modal popup window
  * @param {string} catalogName 
  * @param {string} objectID 
@@ -402,14 +420,14 @@ document.addEventListener('DOMContentLoaded', async function() {
     const queryTabBody = document.getElementById('query-tab-body');
     for (let catObj of appModel.catalogList) {
         let catalogLayer = L.layerGroup();
-        addCatalogToSelectMenu(catObj.name);
+        addCatalogToSelectMenu(catObj);
         let refineForm = document.createElement('form');
         refineForm.setAttribute('id',`${catObj.name}-form`);
         refineForm.setAttribute('class','refine-form hide row');
         for (let principleColumn of catObj.principleColumns) {
-            refineForm.appendChild(createRefineField(catObj.name, principleColumn))
+            refineForm.appendChild(createRefineField(catObj, principleColumn))
         }
-        refineForm.appendChild(createButtonDiv(catObj.name, refineForm, catalogLayer));
+        refineForm.appendChild(createButtonDiv(catObj, refineForm, catalogLayer));
         queryTabBody.appendChild(refineForm);
     }
 
