@@ -262,7 +262,7 @@ const  createButtonDiv = (catalog, refineForm, catalogLayer) => {
     clearButton.setAttribute('type', 'button')
     clearButton.setAttribute('value', 'clear')
     clearButton.setAttribute('class', 'btn-small red lighten-2')
-    clearButton.addEventListener('click', () => resetQueryForm(catalogName, catalogLayer))
+    clearButton.addEventListener('click', () => resetQueryForm(catalog, catalogLayer))
     buttonDiv.appendChild(submitButton)
     buttonDiv.appendChild(downloadButton)
     buttonDiv.appendChild(clearButton)
@@ -307,9 +307,9 @@ const downloadQuery = (catalogName, refineForm) => {
     })
 }
 
-const resetQueryForm = (catalogName, catalogLayer) => {
-    document.getElementById(`${catalogName}-form`).reset();
-    mainLayerControl.removeLayer(catalogLayer);
+const resetQueryForm = (catalog, catalogLayer) => {
+    document.getElementById(`${catalog.name}-form`).reset();
+    catalogLayerControl.removeLayer(catalogLayer);
     catalogLayer.clearLayers();
 
 }
