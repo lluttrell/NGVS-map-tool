@@ -345,7 +345,7 @@ const initQueryTabBody = (appModel) => {
         for (let principleColumn of catObj.principleColumns) {
             refineForm.appendChild(createRefineField(catObj, principleColumn))
         }
-        refineForm.appendChild(createButtonDiv(catObj, refineForm, catalogLayer))
+        refineForm.appendChild(createButtonDiv(catObj, catalogLayer))
         queryTabBody.appendChild(refineForm)
     }
 }

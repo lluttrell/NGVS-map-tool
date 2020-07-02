@@ -7,9 +7,11 @@ class Catalog {
     this.markerColor = markerColor;
     this.markerSize = 400;
     this.principleColumns = null;
+    this.primaryKey = null;
     this.refineParameters = {};
-    this.currentQuery = null
-    this.currentDownload = null
+    this.currentQuery = null;
+    this.currentObjectQuery = null;
+    this.currentDownload = null;
   }
 
   /**
@@ -17,17 +19,25 @@ class Catalog {
    * catalog 
    */
   async init() {
+    let response = await fetch(`http://127.0.0.1:5000/query/?QUERY=SELECT%20TOP%201%20*%20FROM%20${this.name}`)
+    let csvText = await response.text()
+    this.primaryKey = csvText.split(',')[0];
+    this.principleColumns = csvText
+      .split(',')
+      .filter((attributeName) => attributeName.includes('principle'));
+    
+    return 1
+  }
+
+  async queryObject(objectName) {
     let self = this;
-    // retrieve principle column names
-    await fetch(`http://127.0.0.1:5000/query/?QUERY=SELECT%20TOP%201%20*%20FROM%20${this.name}`)
-      .then(response => response.text())
-      .then(text => {
-        self.primaryKey = text.split(',')[0];
-        self.principleColumns = text
-          .split(',')
-          .filter((attributeName) => attributeName.includes('principle'))
-      })
-    return
+    let queryString = `SELECT * FROM ${this.name} WHERE ${this.primaryKey} = '${objectName}'`
+    let response = await fetch(`http://127.0.0.1:5000/query/?QUERY=${queryString}`)
+    let csvText = await response.text()
+    let csvArray = Papa.parse(csvText, {dynamicTyping: true}).data
+    csvArray = csvArray.slice(2,-3)
+    this.currentObjectQuery = csvArray
+    return 1
   }
 
   /**
@@ -57,7 +67,7 @@ class Catalog {
     csvArray = csvArray.slice(2,-3)
     self.currentQuery = csvArray;
     self.currentDownload = csvText;
-    
+
     return 1
   }
 }
