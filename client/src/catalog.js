@@ -9,6 +9,7 @@ class Catalog {
     this.principleColumns = null;
     this.refineParameters = {};
     this.currentQuery = null
+    this.currentDownload = null
   }
 
   /**
@@ -34,23 +35,29 @@ class Catalog {
    * sets currentQuery to be an array containing name and coordinates of each object in the catalog
    * that satisfy the refine parameters
    */
-  async getObjectLocations() {
+  async query(locationOnly=true) {
     let self = this;
-    let filterString = ''
+    let queryString = ''
     let parametersExist = false
     for (const parameter in this.refineParameters) {
         if (this.refineParameters[parameter] !== '') {
-          filterString += parseSelectionToConditions(this.refineParameters[parameter], parameter)
+          queryString += parseSelectionToConditions(this.refineParameters[parameter], parameter)
           parametersExist = true
         }
     }
-    if (parametersExist) filterString = `WHERE ${filterString}`; 
-    let response = await fetch(`http://127.0.0.1:5000/query/?QUERY=SELECT ${self.primaryKey}, principleRA, principleDEC from ${self.name} ${filterString}`)
+    if (parametersExist) queryString = `WHERE ${queryString}`;
+    if (locationOnly) {
+      queryString = `SELECT ${self.primaryKey}, principleRA, principleDEC from ${self.name} ${queryString}`
+    } else {
+      queryString = `SELECT * from ${self.name} ${queryString}`
+    }
+    let response = await fetch(`http://127.0.0.1:5000/query/?QUERY=${queryString}`)
     let csvText  = await response.text();
     let csvArray = Papa.parse(csvText, {dynamicTyping: true}).data
-    // prune header and footer from the array
     csvArray = csvArray.slice(2,-3)
     self.currentQuery = csvArray;
+    self.currentDownload = csvText;
+    
     return 1
   }
 }

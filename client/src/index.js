@@ -250,14 +250,17 @@ const  createButtonDiv = (catalog, refineForm, catalogLayer) => {
     submitButton.setAttribute('class', 'btn-small')
     submitButton.setAttribute('type', 'button')
     submitButton.addEventListener('click', async () => {
-        await catalog.getObjectLocations();
+        await catalog.query();
         renderCatalogQuery(catalog, catalogLayer);
     })
     let downloadButton = document.createElement('input')
     downloadButton.setAttribute('value', 'download')
     downloadButton.setAttribute('type', 'button')
     downloadButton.setAttribute('class', 'btn-small orange lighten-2')
-    downloadButton.addEventListener('click', () => downloadQuery(catalogName, refineForm))
+    downloadButton.addEventListener('click', async () => {
+        await catalog.query(false)
+        downloadQuery(catalog)
+    })
     let clearButton = document.createElement('input')
     clearButton.setAttribute('type', 'button')
     clearButton.setAttribute('value', 'clear')
@@ -290,21 +293,13 @@ const renderCatalogQuery = (catalog, catalogLayer) => {
  * @param {string} catalogName 
  * @param {string} refineForm 
  */
-const downloadQuery = (catalogName, refineForm) => {
-    const formData = new FormData(refineForm);
-    fetch(`http://127.0.0.1:5000/catalogs/${catalogName}/download`, {
-                method: 'post',
-                body: formData
-    })
-    .then(response => response.text())
-    .then((data) => {
-        let currentDate = Date.now();
-        let blob = new Blob([data]);
-        let link = document.createElement('a');
-        link.href = window.URL.createObjectURL(blob);
-        link.download =`${catalogName}-${currentDate}.csv`;
-        link.click();
-    })
+const downloadQuery = (catalog) => {
+    let currentDate = Date.now();
+    let blob = new Blob([catalog.currentDownload], {type: 'text/csv', endings:'native'});
+    let link = document.createElement('a');
+    link.href = window.URL.createObjectURL(blob);
+    link.download =`${catalog.name}-${currentDate}.csv`;
+    link.click();
 }
 
 const resetQueryForm = (catalog, catalogLayer) => {
