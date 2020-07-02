@@ -209,13 +209,10 @@ const createMarkerSizeSlider = (catalogName) => {
 }
 
 
-
-
-
 /**
  * Creates an input field for an individual principle column from an individual catalog
- * @param {*} catalogName catalog name for input field 
- * @param {*} principleColumn principle column name fo input field
+ * @param {Catalog} catalog catalog name for input field 
+ * @param {string} principleColumn principle column name fo input field
  */
 const createRefineField = (catalog, principleColumn) => {
     let inputField = document.createElement('div')
@@ -242,7 +239,7 @@ const createRefineField = (catalog, principleColumn) => {
  * @param {*} refineForm 
  * @param {*} catalogLayer 
  */
-const  createButtonDiv = (catalog, refineForm, catalogLayer) => {
+const  createButtonDiv = (catalog, catalogLayer) => {
     let buttonDiv = document.createElement('div')
     buttonDiv.setAttribute('class', 'col s12 refine-btns')
     let submitButton = document.createElement('input')
@@ -272,6 +269,7 @@ const  createButtonDiv = (catalog, refineForm, catalogLayer) => {
     return buttonDiv
 }
 
+
 const renderCatalogQuery = (catalog, catalogLayer) => {
     catalogLayer.clearLayers();
     catalogLayerControl.removeLayer(catalogLayer);
@@ -289,9 +287,8 @@ const renderCatalogQuery = (catalog, catalogLayer) => {
 }
 
 /**
- * Downloads all entries from catalogName that match the constraints in refineform
- * @param {string} catalogName 
- * @param {string} refineForm 
+ * Downloads the currentDownload from a catalog in csv format
+ * @param {Catalog} catalog
  */
 const downloadQuery = (catalog) => {
     let currentDate = Date.now();
@@ -354,7 +351,6 @@ const initQueryTabBody = (appModel) => {
 }
 
 
-
 class AppModel {
     constructor() {
         this.catalogList = []
@@ -368,9 +364,8 @@ class AppModel {
             this.catalogList.push(catalog)
         }
     }
-
-
 }
+
 
 document.addEventListener('DOMContentLoaded', async function() {
     await createFilterOverlays();
