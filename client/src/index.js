@@ -8,7 +8,6 @@ import SelectArea from 'leaflet-area-select'
 import './styles/main.css'
 import { hms_formatter, dms_formatter, decimal_dec_formatter, decimal_ra_formatter } from './coordinate-formatter'
 import { config } from '../app.config'
-import { parseSelectionToConditions } from './query-builder'
 import Catalog from './catalog'
 
 const GOOGLE_SKY_TILESET = L.tileLayer(config.skyTileUrl)
@@ -280,60 +279,6 @@ const renderCatalogQuery = (catalog, catalogLayer) => {
     }
 }
 
-
-/**
- * Creates the whole query form and adds it to the DOM
- */
-const createCatalogQueryMenu = async () => {
-    //const catalogList = await downloadCatalogInformation();
-    const queryTabBody = document.getElementById('query-tab-body');
-    
-    
-    let counter = 0;
-    for (let catalog of catalogList) {
-        const color = config.colors[counter];
-        const catalogName = catalog.name;
-        addCatalogToSelectMenu(catalogName);
-        let catalogLayer = L.layerGroup();
-        let refineForm = document.createElement('form');
-        refineForm.setAttribute('id',`${catalogName}-form`);
-        refineForm.setAttribute('class','refine-form hide row');
-        refineForm.addEventListener('submit', (event) => {
-            const formData = new FormData(refineForm);
-            event.preventDefault();
-            fetch(`http://127.0.0.1:5000/catalogs/${catalogName}/query`, {
-                method: 'post',
-                body: formData
-            })
-            .then(response => response.json())
-            .then((object) => {
-                catalogLayer.clearLayers();
-                let markerSize = document.getElementById(`${catalogName}-markerSizeSlider`).value;
-                mainLayerControl.removeLayer(catalogLayer);
-                mainLayerControl.addOverlay(catalogLayer, catalogName);
-                for (let [name,coordinates] of Object.entries(object)) {
-                    let myMarker = L.circle(coordinates, {
-                        radius: markerSize,
-                        color: color,
-                        weight: 1})
-                    myMarker.bindTooltip(`${name} (${catalogName})`)                   
-                    myMarker.on('click', () => displayObjectInformation(catalogName,name));
-                    myMarker.addTo(catalogLayer);
-                }  
-            })
-        })
-        refineForm.appendChild(createMarkerSizeSlider(catalogName));
-        for (let principleColumn of catalog.principleColumns) {
-            refineForm.appendChild(createRefineField(catalogName, principleColumn));
-        }
-        refineForm.appendChild(createButtonDiv(catalogName, refineForm, catalogLayer));
-        queryTabBody.appendChild(refineForm);
-        counter++;
-    }
-    M.updateTextFields();
-}
-
-
 /**
  * Downloads all entries from catalogName that match the constraints in refineform
  * @param {string} catalogName 
@@ -417,6 +362,7 @@ document.addEventListener('DOMContentLoaded', async function() {
     await appModel.init();
     // create an array of catalog objects from init file
     initSelectMenu();
+
     const queryTabBody = document.getElementById('query-tab-body');
     for (let catObj of appModel.catalogList) {
         let catalogLayer = L.layerGroup();
@@ -430,10 +376,6 @@ document.addEventListener('DOMContentLoaded', async function() {
         refineForm.appendChild(createButtonDiv(catObj, refineForm, catalogLayer));
         queryTabBody.appendChild(refineForm);
     }
-
-
-    //let currentCatalog = ((appModel.catalogList)[0]).name;
-    //console.log(currentCatalog);
     M.Collapsible.init(document.querySelectorAll('.collapsible'));
     M.Tabs.init(document.getElementById('query-tab'));
     M.Sidenav.init(document.querySelectorAll('.sidenav'));

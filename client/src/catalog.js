@@ -11,6 +11,10 @@ class Catalog {
     this.currentQuery = null
   }
 
+  /**
+   * Initializes the catalog object. Queries database to obtain principle column names for the 
+   * catalog 
+   */
   async init() {
     let self = this;
     // retrieve principle column names
@@ -25,7 +29,11 @@ class Catalog {
     return
   }
 
-
+  /**
+   * queries database with (optional) constaints in refine parameters.
+   * sets currentQuery to be an array containing name and coordinates of each object in the catalog
+   * that satisfy the refine parameters
+   */
   async getObjectLocations() {
     let self = this;
     let filterString = ''
@@ -37,15 +45,14 @@ class Catalog {
         }
     }
     if (parametersExist) filterString = `WHERE ${filterString}`; 
-
     let response = await fetch(`http://127.0.0.1:5000/query/?QUERY=SELECT ${self.primaryKey}, principleRA, principleDEC from ${self.name} ${filterString}`)
     let csvText  = await response.text();
-    let csvArray = Papa.parse(csvText, {dynamicTyping: true}).data.slice(2);
+    let csvArray = Papa.parse(csvText, {dynamicTyping: true}).data
+    // prune header and footer from the array
+    csvArray = csvArray.slice(2,-3)
     self.currentQuery = csvArray;
     return 1
   }
-
-
 }
 
 export default Catalog
