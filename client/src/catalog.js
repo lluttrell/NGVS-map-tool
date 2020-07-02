@@ -30,13 +30,13 @@ class Catalog {
   }
 
   async queryObject(objectName) {
-    let self = this;
     let queryString = `SELECT * FROM ${this.name} WHERE ${this.primaryKey} = '${objectName}'`
+    queryString = encodeURIComponent(queryString)
     let response = await fetch(`http://127.0.0.1:5000/query/?QUERY=${queryString}`)
     let csvText = await response.text()
-    let csvArray = Papa.parse(csvText, {dynamicTyping: true}).data
-    csvArray = csvArray.slice(2,-3)
-    this.currentObjectQuery = csvArray
+    let csvObj = Papa.parse(csvText, {dynamicTyping: true, header: true}).data[1]
+    //csvArray = csvArray.slice(2,-3)
+    this.currentObjectQuery = csvObj
     return 1
   }
 

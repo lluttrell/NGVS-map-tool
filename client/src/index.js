@@ -239,7 +239,7 @@ const createRefineField = (catalog, principleColumn) => {
  * @param {*} refineForm 
  * @param {*} catalogLayer 
  */
-const  createButtonDiv = (catalog, catalogLayer) => {
+const createButtonDiv = (catalog, catalogLayer) => {
     let buttonDiv = document.createElement('div')
     buttonDiv.setAttribute('class', 'col s12 refine-btns')
     let submitButton = document.createElement('input')
@@ -281,7 +281,7 @@ const renderCatalogQuery = (catalog, catalogLayer) => {
             color: catalog.markerColor,
             weight: 1})
         myMarker.bindTooltip(`${name} (${catalog.name})`)                   
-        myMarker.on('click', () => displayObjectInformation(catalog.name,name));
+        myMarker.on('click', () => displayObjectInformation(catalog, name));
         myMarker.addTo(catalogLayer);
     }
 }
@@ -311,27 +311,24 @@ const resetQueryForm = (catalog, catalogLayer) => {
  * @param {string} catalogName 
  * @param {string} objectID 
  */
-const displayObjectInformation = (catalogName, objectID) => {
-    fetch(`http://127.0.0.1:5000/catalogs/${catalogName}/query_object/${objectID}`)
-        .then(response => response.json())
-        .then(objectInformation => {
-            let elem = document.getElementById('object-modal')
-            document.getElementById('modal-object-name').innerText = objectID;
-            const instance = M.Modal.init(elem, {dismissible: true});
+const displayObjectInformation = async (catalog, objectID) => {
+    await catalog.queryObject(objectID)
+    let elem = document.getElementById('object-modal')
+    document.getElementById('modal-object-name').innerText = objectID;
+    const instance = M.Modal.init(elem, {dismissible: true});
 
-            const tableBody = document.getElementById('object-table-body')
-            for(let [key,value] of Object.entries(objectInformation)) {
-                const row = document.createElement('tr');
-                const property = document.createElement('th');
-                property.innerHTML = key;
-                const propertyValue = document.createElement('th');
-                propertyValue.innerHTML = value;
-                row.appendChild(property);
-                row.appendChild(propertyValue);
-                tableBody.appendChild(row);
-            }
-            instance.open();
-        })
+    const tableBody = document.getElementById('object-table-body')
+    for(let [key,value] of Object.entries(catalog.currentObjectQuery)) {
+        const row = document.createElement('tr');
+        const property = document.createElement('th');
+        property.innerHTML = key;
+        const propertyValue = document.createElement('th');
+        propertyValue.innerHTML = value;
+        row.appendChild(property);
+        row.appendChild(propertyValue);
+        tableBody.appendChild(row);
+    }
+    instance.open();
 }
 
 const initQueryTabBody = (appModel) => {
