@@ -61,8 +61,14 @@ let baseMaps = {
 let mainLayerControl = L.control.layers(null,baseMaps, {
     collapsed : false
 })
+mainLayerControl.addTo(myMap)
+
+let catalogLayerControl = L.control.layers(null,null, {
+    collapsed : false
+})
 
 mainLayerControl.addTo(myMap)
+catalogLayerControl.addTo(myMap)
 
 const toLatLng = (coordinates) => {
     let dec = coordinates['Dec']
@@ -265,8 +271,8 @@ const  createButtonDiv = (catalog, refineForm, catalogLayer) => {
 
 const renderCatalogQuery = (catalog, catalogLayer) => {
     catalogLayer.clearLayers();
-    mainLayerControl.removeLayer(catalogLayer);
-    mainLayerControl.addOverlay(catalogLayer, catalog.name);
+    catalogLayerControl.removeLayer(catalogLayer);
+    catalogLayerControl.addOverlay(catalogLayer, catalog.name);
     for (let [name,lon,lat] of catalog.currentQuery) {
         let coordinates = L.latLng(lat,lon)
         let myMarker = L.circle(coordinates, {
@@ -336,6 +342,23 @@ const displayObjectInformation = (catalogName, objectID) => {
         })
 }
 
+const initQueryTabBody = (appModel) => {
+    const queryTabBody = document.getElementById('query-tab-body')
+    for (let catObj of appModel.catalogList) {
+        let catalogLayer = L.layerGroup()
+        addCatalogToSelectMenu(catObj)
+        let refineForm = document.createElement('form')
+        refineForm.setAttribute('id', `${catObj.name}-form`)
+        refineForm.setAttribute('class', 'refine-form hide row')
+        for (let principleColumn of catObj.principleColumns) {
+            refineForm.appendChild(createRefineField(catObj, principleColumn))
+        }
+        refineForm.appendChild(createButtonDiv(catObj, refineForm, catalogLayer))
+        queryTabBody.appendChild(refineForm)
+    }
+}
+
+
 
 class AppModel {
     constructor() {
@@ -355,29 +378,14 @@ class AppModel {
 }
 
 document.addEventListener('DOMContentLoaded', async function() {
-    //await createCatalogQueryMenu();
     await createFilterOverlays();
-
     const appModel = new AppModel()
     await appModel.init();
-    // create an array of catalog objects from init file
     initSelectMenu();
-
-    const queryTabBody = document.getElementById('query-tab-body');
-    for (let catObj of appModel.catalogList) {
-        let catalogLayer = L.layerGroup();
-        addCatalogToSelectMenu(catObj);
-        let refineForm = document.createElement('form');
-        refineForm.setAttribute('id',`${catObj.name}-form`);
-        refineForm.setAttribute('class','refine-form hide row');
-        for (let principleColumn of catObj.principleColumns) {
-            refineForm.appendChild(createRefineField(catObj, principleColumn))
-        }
-        refineForm.appendChild(createButtonDiv(catObj, refineForm, catalogLayer));
-        queryTabBody.appendChild(refineForm);
-    }
+    initQueryTabBody(appModel)
     M.Collapsible.init(document.querySelectorAll('.collapsible'));
     M.Tabs.init(document.getElementById('query-tab'));
     M.Sidenav.init(document.querySelectorAll('.sidenav'));
     M.updateTextFields();
 });
+
