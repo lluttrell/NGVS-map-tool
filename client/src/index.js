@@ -9,6 +9,7 @@ import './styles/main.css'
 import { hms_formatter, dms_formatter, decimal_dec_formatter, decimal_ra_formatter } from './coordinate-formatter'
 import { config } from '../app.config'
 import Catalog from './catalog'
+import FieldOutlines from './field-outlines'
 
 const GOOGLE_SKY_TILESET = L.tileLayer(config.skyTileUrl)
 const NGVS_TILE_TILESET = L.tileLayer(config.ngvsTileUrl)
@@ -102,42 +103,39 @@ L.control.mousePosition({
 
 // adds search functionality to the searchbar
 const objectSearchForm = document.getElementById('search-form');
-objectSearchForm.addEventListener('submit', (e) => {
+const objectSearchBox = document.getElementById('search-box');
+objectSearchForm.addEventListener('submit', async (e) => {
     e.preventDefault();
-    const formData = new FormData(objectSearchForm);
+    let searchString = objectSearchBox.value;
     objectSearchForm.reset();
-    fetch('http://127.0.0.1:5000/coordinates' , {
-        method: 'post',
-        body: formData
-    }).then((response) => {
-        return response.json();  
-    }).then((json) => {
-        moveSearchMarker(json);
-    }).catch((error) => {
-        clearSearchMarker();
-    })
-});
+    let response = await fetch(`https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/AdvancedSearch/unitconversion/Plane.position.bounds?term=${searchString}&resolver=all`)
+    let resultText = await response.text()
+    console.log(resultText)
+    // will need to finish rewriting this when the page is hosted on a canfar domain
+    // then((response) => {
+    //     return response.json();  
+    // }).then((json) => {
+    //     moveSearchMarker(json);
+    // }).catch((error) => {
+    //     clearSearchMarker();
+})
+
 
 /**
  * Creates the overlays for the field outlines
  */
-const createFilterOverlays = async () => {
-    fetch('http://127.0.0.1:5000/overlays')
-        .then(results => results.json())
-        .then(filters => {
-            let i = 0
-            let layersControl = L.control.layers(null,null,{collapsed: false});
-            for (const [key,value] of Object.entries(filters)) {
-                let latlngs = value;
-                let layers = L.layerGroup();
-                const color = config.colors[i];
-                i++;
-                const polygon = L.polygon(latlngs, {color: color, fillOpacity: 0.0})
-                polygon.addTo(layers)
-                layersControl.addOverlay(layers,key);
-            }
-            layersControl.addTo(myMap);
-        })
+const createFilterOverlays = () => {
+    let fieldOutlines = new FieldOutlines();
+    let layersControl = L.control.layers(null,null,{collapsed: false});
+    for (const field of Object.keys(fieldOutlines)) {
+        const latlngs = fieldOutlines[field].coordinates;
+        const color = fieldOutlines[field].color;
+        const layers = L.layerGroup();
+        const polygon = L.polygon(latlngs, {color: color, fillOpacity: 0.0})
+        polygon.addTo(layers)
+        layersControl.addOverlay(layers,field);
+    }
+    layersControl.addTo(myMap);
 }
 
 
@@ -365,7 +363,7 @@ class AppModel {
 
 
 document.addEventListener('DOMContentLoaded', async function() {
-    await createFilterOverlays();
+    createFilterOverlays();
     const appModel = new AppModel()
     await appModel.init();
     initSelectMenu();
