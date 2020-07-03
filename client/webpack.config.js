@@ -2,8 +2,11 @@ const path = require('path');
 
 module.exports = {
   mode: 'development',
-  // watch: true,
   devtool: 'inline-source-map',
+  devServer: {
+    contentBase: './dist',
+    port: 8085
+  },
   entry: './src/index.js',
   output: {
     filename: 'main.js',
