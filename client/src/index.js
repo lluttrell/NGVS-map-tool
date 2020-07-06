@@ -72,14 +72,15 @@ mainLayerControl.addTo(myMap)
 catalogLayerControl.addTo(myMap)
 
 const toLatLng = (coordinates) => {
-    let dec = coordinates['Dec']
-    let ra = coordinates['RA'];
+    let dec = coordinates[0]
+    let ra = coordinates[1];
     if (ra > 180) { ra = 180 - ra};
     return L.latLng([dec,ra]);
 }
 
-const moveSearchMarker = (coordinates) => {
+const moveSearchMarker = (name, coordinates) => {
     searchMarker.setLatLng(toLatLng(coordinates));
+    searchMarker.bindTooltip(`${name}`)
     searchMarker.setOpacity(1.0);
 }
 
@@ -106,18 +107,22 @@ const objectSearchForm = document.getElementById('search-form');
 const objectSearchBox = document.getElementById('search-box');
 objectSearchForm.addEventListener('submit', async (e) => {
     e.preventDefault();
-    let searchString = objectSearchBox.value;
+    const searchString = objectSearchBox.value;
     objectSearchForm.reset();
-    let response = await fetch(`https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/AdvancedSearch/unitconversion/Plane.position.bounds?term=${searchString}&resolver=all`)
-    let resultText = await response.text()
-    console.log(resultText)
-    // will need to finish rewriting this when the page is hosted on a canfar domain
-    // then((response) => {
-    //     return response.json();  
-    // }).then((json) => {
-    //     moveSearchMarker(json);
-    // }).catch((error) => {
-    //     clearSearchMarker();
+    const response = await fetch(`https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/AdvancedSearch/unitconversion/Plane.position.bounds?term=${searchString}&resolver=all`)
+    const resultJSON = await response.json();
+    if (resultJSON.resolveStatus === "GOOD") {
+        // the resolveValue object is (strangely) not valid JSON so needs to be manually parsed
+        // this will need to be changed if the API changes
+        const resolveValues = resultJSON.resolveValue.split('\n');
+        let targetName = resolveValues[0].split(':')[1]
+        let targetDec = parseFloat(resolveValues[1].split(':')[1])
+        let targetRA = parseFloat(resolveValues[2].split(':')[1])
+        moveSearchMarker(targetName, [targetDec, targetRA]);
+    } else {
+        M.toast({html: 'Search Failed'})
+        clearSearchMarker()
+    }
 })
 
 
@@ -299,9 +304,8 @@ const downloadQuery = (catalog) => {
 
 const resetQueryForm = (catalog, catalogLayer) => {
     document.getElementById(`${catalog.name}-form`).reset();
-    catalogLayerControl.removeLayer(catalogLayer);
     catalogLayer.clearLayers();
-
+    catalogLayerControl.removeLayer(catalogLayer);
 }
 
 /**

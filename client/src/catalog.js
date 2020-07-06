@@ -19,7 +19,7 @@ class Catalog {
    * catalog 
    */
   async init() {
-    let response = await fetch(`http://127.0.0.1:5000/query/?QUERY=SELECT%20TOP%201%20*%20FROM%20${this.name}`)
+    let response = await fetch(`http://206.12.92.202:8086/query/?QUERY=SELECT%20TOP%201%20*%20FROM%20${this.name}`)
     let csvText = await response.text()
     this.primaryKey = csvText.split(',')[0];
     this.principleColumns = csvText
@@ -32,7 +32,7 @@ class Catalog {
   async queryObject(objectName) {
     let queryString = `SELECT * FROM ${this.name} WHERE ${this.primaryKey} = '${objectName}'`
     queryString = encodeURIComponent(queryString)
-    let response = await fetch(`http://127.0.0.1:5000/query/?QUERY=${queryString}`)
+    let response = await fetch(`http://206.12.92.202:8086/query/?QUERY=${queryString}`)
     let csvText = await response.text()
     let csvObj = Papa.parse(csvText, {dynamicTyping: true, header: true}).data[1]
     //csvArray = csvArray.slice(2,-3)
@@ -61,7 +61,7 @@ class Catalog {
     } else {
       queryString = `SELECT * from ${self.name} ${queryString}`
     }
-    let response = await fetch(`http://127.0.0.1:5000/query/?QUERY=${queryString}`)
+    let response = await fetch(`http://206.12.92.202:8086/query/?QUERY=${queryString}`)
     let csvText  = await response.text();
     let csvArray = Papa.parse(csvText, {dynamicTyping: true}).data
     csvArray = csvArray.slice(2,-3)
