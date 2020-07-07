@@ -33,8 +33,9 @@ class Catalog {
     queryString = encodeURIComponent(queryString)
     let response = await fetch(`https://ws-cadc.canfar.net/youcat/sync?LANG=ADQL&FORMAT=csv&QUERY=${queryString}`, {credentials: 'include'})
     let csvText = await response.text()
-    let csvObj = Papa.parse(csvText, {dynamicTyping: true, header: true}).data[1]
-    //csvArray = csvArray.slice(2,-3)
+    let csvObj = Papa.parse(csvText, {
+      dynamicTyping: true,
+      header: true}).data[0]
     this.currentObjectQuery = csvObj
     return 1
   }
