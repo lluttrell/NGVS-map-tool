@@ -10,11 +10,11 @@ import { hms_formatter, dms_formatter, decimal_dec_formatter, decimal_ra_formatt
 import { config } from '../app.config'
 import Catalog from './catalog'
 import FieldOutlines from './field-outlines'
+import FITZManager from './fitz'
 
 const GOOGLE_SKY_TILESET = L.tileLayer(config.skyTileUrl)
 const NGVS_TILE_TILESET = L.tileLayer(config.ngvsTileUrl)
-
-let tileLayers = L.layerGroup([GOOGLE_SKY_TILESET, NGVS_TILE_TILESET])
+const fitzmgr = new FITZManager();
 
 let myMap = L.map('map-container', {
     center: config.defaultMapLocation,
@@ -27,8 +27,12 @@ let myMap = L.map('map-container', {
 })
 
 myMap.on('areaselected', (e) => {
-    let selectionBounds = e.bounds.toBBoxString();
-    downloadSelection(selectionBounds);
+    const selectionBounds = e.bounds
+    console.log(selectionBounds)
+    const bottomLeft = e.bounds.getSouthWest()
+    const topRight = e.bounds.getNorthEast()
+    fitzmgr.getPublisherIdAtRegion(bottomLeft, topRight)
+    //downloadSelection(selectionBounds);
   });
 
 const downloadSelection = (bounds) => {
@@ -239,7 +243,6 @@ const createRefineField = (catalog, principleColumn) => {
 /**
  * Creates the apply, clear, and download buttons for the refine section
  * @param {*} catalogName Catalog name for buttons
- * @param {*} refineForm 
  * @param {*} catalogLayer 
  */
 const createButtonDiv = (catalog, catalogLayer) => {
@@ -308,6 +311,7 @@ const resetQueryForm = (catalog, catalogLayer) => {
     catalogLayerControl.removeLayer(catalogLayer);
 }
 
+
 /**
  * Displays information about a single object in a modal popup window
  * @param {string} catalogName 
@@ -318,7 +322,6 @@ const displayObjectInformation = async (catalog, objectID) => {
     let elem = document.getElementById('object-modal')
     document.getElementById('modal-object-name').innerText = objectID;
     const instance = M.Modal.init(elem, {dismissible: true});
-
     const tableBody = document.getElementById('object-table-body')
     for(let [key,value] of Object.entries(catalog.currentObjectQuery)) {
         const row = document.createElement('tr');
@@ -365,8 +368,8 @@ class AppModel {
     }
 }
 
-
 document.addEventListener('DOMContentLoaded', async function() {
+
     createFilterOverlays();
     const appModel = new AppModel()
     await appModel.init();
@@ -375,6 +378,6 @@ document.addEventListener('DOMContentLoaded', async function() {
     M.Collapsible.init(document.querySelectorAll('.collapsible'));
     M.Tabs.init(document.getElementById('query-tab'));
     M.Sidenav.init(document.querySelectorAll('.sidenav'));
-    M.updateTextFields();
+    //M.updateTextFields();
 });
 
