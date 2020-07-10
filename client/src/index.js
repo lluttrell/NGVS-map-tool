@@ -27,12 +27,9 @@ let myMap = L.map('map-container', {
 })
 
 myMap.on('areaselected', (e) => {
-    const selectionBounds = e.bounds
-    console.log(selectionBounds)
     const bottomLeft = e.bounds.getSouthWest()
     const topRight = e.bounds.getNorthEast()
     fitzmgr.getPublisherIdAtRegion(bottomLeft, topRight)
-    //downloadSelection(selectionBounds);
   });
 
 const downloadSelection = (bounds) => {

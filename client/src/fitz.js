@@ -2,11 +2,12 @@ import { decimal_ra_formatter } from './coordinate-formatter'
 
 class FITZManager {
   constructor() {
-    this.filterList = ['u','i']
+    this.filterList = ['u']
   }
 
   buildQueryString() {
-    let baseQuery = `SELECT publisherId, energy_bandpassName, target_name
+    // publisherId, accessURL
+    let baseQuery = `SELECT publisherId, time_exposure, publisherId, energy_bandpassName, target_name
       FROM caom2.Observation as o JOIN caom2.Plane p on o.obsID=p.obsID JOIN caom2.Artifact a on a.planeID=p.planeID
       WHERE o.proposal_project='NGVS' AND o.type='OBJECT' AND a.productType='science'`;
     let filterQuery = ''
