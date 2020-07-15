@@ -23,7 +23,8 @@ let myMap = L.map('map-container', {
     maxZoom: config.maxZoom,
     selectArea: true,
     layers: [GOOGLE_SKY_TILESET, NGVS_TILE_TILESET],
-    renderer: L.canvas()
+    // renderer: L.canvas()
+    preferCanvas: true
 })
 
 myMap.on('areaselected', (e) => {
@@ -268,9 +269,9 @@ const createButtonDiv = (catalog, catalogLayer) => {
 
 
 const renderCatalogQuery = (catalog, catalogLayer) => {
+    catalogLayerControl.removeLayer(catalogLayer)
+    catalogLayer.remove();
     catalogLayer.clearLayers();
-    catalogLayerControl.removeLayer(catalogLayer);
-    catalogLayerControl.addOverlay(catalogLayer, catalog.name);
     for (let [name,lon,lat] of catalog.currentQuery) {
         let coordinates = L.latLng(lat,lon)
         let myMarker = L.circle(coordinates, {
@@ -281,6 +282,8 @@ const renderCatalogQuery = (catalog, catalogLayer) => {
         myMarker.on('click', () => displayObjectInformation(catalog, name));
         myMarker.addTo(catalogLayer);
     }
+    catalogLayer.addTo(myMap)
+    catalogLayerControl.addOverlay(catalogLayer, catalog.name);
 }
 
 /**
@@ -298,8 +301,9 @@ const downloadQuery = (catalog) => {
 
 const resetQueryForm = (catalog, catalogLayer) => {
     document.getElementById(`${catalog.name}-form`).reset();
-    catalogLayer.clearLayers();
+    catalogLayer.remove();
     catalogLayerControl.removeLayer(catalogLayer);
+    catalogLayer.clearLayers();
 }
 
 
@@ -548,11 +552,10 @@ const displayAreaSelectionInformation = async (selectionBounds) => {
     modalBody.appendChild(createFITSSelectionOverview())
 }
 
-
 const initQueryTabBody = (appModel) => {
     const queryTabBody = document.getElementById('query-tab-body')
     for (let catObj of appModel.catalogList) {
-        let catalogLayer = L.layerGroup()
+        const catalogLayer = L.layerGroup()
         addCatalogToSelectMenu(catObj)
         let refineForm = document.createElement('form')
         refineForm.setAttribute('id', `${catObj.name}-form`)
