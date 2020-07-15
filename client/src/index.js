@@ -10,11 +10,11 @@ import { hms_formatter, dms_formatter, decimal_dec_formatter, decimal_ra_formatt
 import { config } from '../app.config'
 import Catalog from './catalog'
 import FieldOutlines from './field-outlines'
-import FITZManager from './fitz'
+import FITSManager from './fits'
 
 const GOOGLE_SKY_TILESET = L.tileLayer(config.skyTileUrl)
 const NGVS_TILE_TILESET = L.tileLayer(config.ngvsTileUrl)
-const fitzmgr = new FITZManager();
+const fitsmgr = new FITSManager();
 
 let myMap = L.map('map-container', {
     center: config.defaultMapLocation,
@@ -27,14 +27,8 @@ let myMap = L.map('map-container', {
 })
 
 myMap.on('areaselected', (e) => {
-    const bottomLeft = e.bounds.getSouthWest()
-    const topRight = e.bounds.getNorthEast()
-    fitzmgr.getPublisherIdAtRegion(bottomLeft, topRight)
+    displayAreaSelectionInformation(e.bounds)
   });
-
-const downloadSelection = (bounds) => {
-    alert(`this should popup with available fits files for ${bounds}`)
-}
 
 /**
  * Returns a leaflet marker icon
@@ -239,8 +233,8 @@ const createRefineField = (catalog, principleColumn) => {
 
 /**
  * Creates the apply, clear, and download buttons for the refine section
- * @param {*} catalogName Catalog name for buttons
- * @param {*} catalogLayer 
+ * @param {Catalog} catalog catalog to create buttons for
+ * @param {string} catalogLayer le
  */
 const createButtonDiv = (catalog, catalogLayer) => {
     let buttonDiv = document.createElement('div')
@@ -333,6 +327,228 @@ const displayObjectInformation = async (catalog, objectID) => {
     instance.open();
 }
 
+const createFITSFilterSelectionButtons = () => {
+    const buttonDiv = document.createElement('div')
+    for (const filter of config.filters) {
+        const button = document.createElement('label')
+        button.classList.add('fits-selection-label')
+        const checkbox = document.createElement('input')
+        checkbox.setAttribute('type','checkbox')
+        checkbox.classList.add('filled-in')
+        if (!fitsmgr.availableFilters.has(filter)) checkbox.setAttribute('disabled','disabled')
+        if (fitsmgr.selectedFilters.includes(filter)) checkbox.setAttribute('checked','checked')
+        checkbox.addEventListener('change', (e) => {
+            if (!e.target.checked) {
+                // this is really confusing as there are two filters and i'm using the filter function
+                fitsmgr.selectedFilters = fitsmgr.selectedFilters.filter(f => f != filter)
+            } else {
+                fitsmgr.selectedFilters.push(filter)
+            }
+            refreshFITSSelectionOverview();
+        })
+        const name = document.createElement('span')
+        name.innerText = filter
+        button.appendChild(checkbox)
+        button.appendChild(name)
+        buttonDiv.appendChild(button)
+    }
+    return buttonDiv
+}
+
+const createFITSExposureSelectionButtons = () => {
+    const buttonDiv = document.createElement('div')
+    for (const exposure of config.exposures) {
+        const button = document.createElement('label')
+        button.classList.add('fits-selection-label')
+        const checkbox = document.createElement('input')
+        checkbox.setAttribute('type','checkbox')
+        checkbox.classList.add('filled-in')
+        if (!fitsmgr.availableExposures.has(exposure)) checkbox.setAttribute('disabled','disabled')
+        if (fitsmgr.selectedExposures.includes(exposure)) checkbox.setAttribute('checked','checked')
+        checkbox.addEventListener('change', (e) => {
+            if (!e.target.checked) {
+                fitsmgr.selectedExposures = fitsmgr.selectedExposures.filter(f => f != exposure)
+            } else {
+                fitsmgr.selectedExposures.push(exposure)
+            }
+            refreshFITSSelectionOverview();
+        })
+        const name = document.createElement('span')
+        name.innerText = exposure
+        button.appendChild(checkbox)
+        button.appendChild(name)
+        buttonDiv.appendChild(button)
+    }
+    return buttonDiv
+}
+
+const createFITSStackedSelectionButtons = () => {
+    const buttonDiv = document.createElement('div')
+    for (const pipeline of config.stackedPipelines) {
+        const button = document.createElement('label')
+        button.classList.add('fits-selection-label')
+        const checkbox = document.createElement('input')
+        checkbox.setAttribute('type','checkbox')
+        checkbox.classList.add('filled-in')
+        if (!fitsmgr.availableStackedPipelines.has(pipeline)) checkbox.setAttribute('disabled','disabled')
+        if (fitsmgr.selectedStackedPipelines.includes(pipeline)) checkbox.setAttribute('checked','checked')
+        checkbox.addEventListener('change', (e) => {
+            if (!e.target.checked) {
+                fitsmgr.selectedStackedPipelines = fitsmgr.selectedStackedPipelines.filter(f => f != pipeline)
+            } else {
+                fitsmgr.selectedStackedPipelines.push(pipeline)
+            }
+            refreshFITSSelectionOverview();
+        })
+        const name = document.createElement('span')
+        name.innerText = pipeline
+        button.appendChild(checkbox)
+        button.appendChild(name)
+        buttonDiv.appendChild(button)
+    }
+    return buttonDiv
+}
+
+const createFITSIndividualSelectionButtons = () => {
+    const buttonDiv = document.createElement('div')
+    for (const pipeline of config.individualPipelines) {
+        const button = document.createElement('label')
+        button.classList.add('fits-selection-label')
+        const checkbox = document.createElement('input')
+        checkbox.setAttribute('type','checkbox')
+        checkbox.classList.add('filled-in')
+        if (!fitsmgr.availableIndividualPipelines.has(pipeline)) checkbox.setAttribute('disabled','disabled')
+        if (fitsmgr.selectedIndividualPipelines.includes(pipeline)) checkbox.setAttribute('checked','checked')
+        checkbox.addEventListener('change', (e) => {
+            if (!e.target.checked) {
+                fitsmgr.selectedIndividualPipelines = fitsmgr.selectedIndividualPipelines.filter(f => f != pipeline)
+            } else {
+                fitsmgr.selectedIndividualPipelines.push(pipeline)
+            }
+            refreshFITSSelectionOverview();
+        })
+        const name = document.createElement('span')
+        name.innerText = pipeline
+        button.appendChild(checkbox)
+        button.appendChild(name)
+        buttonDiv.appendChild(button)
+    }
+    return buttonDiv
+}
+
+/**
+ * Constructs a table element for the table containing links and information about
+ * the availiable fits images for the current selection. For internal use in the 
+ * createFITSSelectionOverview method
+ */
+const createFITSImageTable = () => {
+    const table = document.createElement('table')
+    const tableHead = document.createElement('thead')
+    const row = document.createElement('tr')
+    for (const title of ['Filter','Exposure','Stacked','Proccesing','Pointing','Link']) {
+        const titleColumn = document.createElement('th')
+        titleColumn.innerText = title
+        row.appendChild(titleColumn)
+    }
+    tableHead.appendChild(row)
+    table.appendChild(tableHead)
+    const tableBody = document.createElement('tbody')
+    for (let link of fitsmgr.downloadList) {
+        const row = document.createElement('tr');
+        const filterCol = document.createElement('th');
+        filterCol.innerText = link.filter;
+        const processingCol = document.createElement('th');
+        processingCol.innerText = link.pipeline;
+        const exposureCol = document.createElement('th');
+        exposureCol.innerText = link.exposure;
+        const pointingCol = document.createElement('th');
+        pointingCol.innerText = link.pointing;
+        const stackedCol = document.createElement('th');
+        stackedCol.innerText = link.stacked;
+        const linkCol = document.createElement('th');
+        linkCol.innerHTML = `<a href='${link.url}'>${link.publisherID.split('?')[1].split('/')[1]}</a>`;
+        row.append(filterCol, exposureCol, stackedCol, processingCol, pointingCol, linkCol);
+        tableBody.appendChild(row)
+    }
+    table.appendChild(tableBody)
+    return table
+}
+
+/**
+ * Constructs a div containing information about the currently created download list in the
+ * fitsmanager. If there is one or more images available for download, also shows a table with
+ * details of each file
+ */
+const createFITSSelectionOverview = () => {
+    const selectionOverviewDiv = document.createElement('div')
+    selectionOverviewDiv.id = 'fits-selection-overview'
+    const overviewPanel = document.createElement('p')
+    if (fitsmgr.currentQuery.length == 0) {
+        overviewPanel.classList.add('red-text')
+        overviewPanel.innerText = 'There are no images available in the selected region.'
+    } else if (fitsmgr.downloadList.length == 0) {
+        overviewPanel.classList.add('red-text')
+        overviewPanel.innerText = 'There are no images available in the selected region that match your selection criteria'
+    } else {
+        overviewPanel.innerText = `Selection returned ${fitsmgr.downloadList.length} images`
+    }
+    selectionOverviewDiv.appendChild(overviewPanel)
+    if (fitsmgr.downloadList.length != 0) {
+        selectionOverviewDiv.appendChild(createFITSImageTable())
+    }
+    return selectionOverviewDiv
+}
+
+/**
+ * Updates the download list in the fits manager, and re-renders the selection table.
+ * Modal must be already created to use this method
+ */
+const refreshFITSSelectionOverview = () => {
+    fitsmgr.updateDownloadList()
+    const fitsSelectionOverview = document.getElementById('fits-selection-overview')
+    fitsSelectionOverview.innerText = ''
+    fitsSelectionOverview.appendChild(createFITSSelectionOverview())
+}
+
+const displayAreaSelectionInformation = async (selectionBounds) => {
+    let elem = document.getElementById('download-modal')
+    const instance = M.Modal.init(elem, {dismissible: true});
+    const modalBody = document.getElementById('download-modal-content')
+    modalBody.innerHTML = '<p>Retrieving selection from database</p>'
+    modalBody.innerHTML += '<div class="progress"><div class="indeterminate"></div></div>'
+    instance.open();
+
+    const bottomLeft = selectionBounds.getSouthWest()
+    const topRight = selectionBounds.getNorthEast()
+    await fitsmgr.getPublisherIdAtRegion(bottomLeft, topRight)
+    
+    modalBody.innerHTML = ''
+    const modalTitle = document.createElement('h4')
+    modalTitle.innerHTML = 'FITS Image Selection'
+    modalBody.appendChild(modalTitle)
+    const filterTitle = document.createElement('h6')
+    filterTitle.innerText = 'Filters'
+    modalBody.appendChild(filterTitle)
+    modalBody.appendChild(createFITSFilterSelectionButtons())
+    const exposureTitle = document.createElement('h6')
+    exposureTitle.innerText = 'Exposures'
+    modalBody.appendChild(exposureTitle)
+    modalBody.appendChild(createFITSExposureSelectionButtons())
+    const stackedTitle = document.createElement('h6')
+    stackedTitle.innerText = 'Stacked Images'
+    modalBody.appendChild(stackedTitle)
+    modalBody.appendChild(createFITSStackedSelectionButtons())
+    const individualTitle = document.createElement('h6')
+    individualTitle.innerText = 'Single Images'
+    modalBody.appendChild(individualTitle)
+    modalBody.appendChild(createFITSIndividualSelectionButtons())
+    const resultsTitle = document.createElement('h5')
+    resultsTitle.innerText = 'Selection Preview'
+    modalBody.appendChild(resultsTitle)
+    modalBody.appendChild(createFITSSelectionOverview())
+}
+
+
 const initQueryTabBody = (appModel) => {
     const queryTabBody = document.getElementById('query-tab-body')
     for (let catObj of appModel.catalogList) {
@@ -366,7 +582,6 @@ class AppModel {
 }
 
 document.addEventListener('DOMContentLoaded', async function() {
-
     createFilterOverlays();
     const appModel = new AppModel()
     await appModel.init();

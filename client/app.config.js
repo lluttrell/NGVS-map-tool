@@ -17,6 +17,10 @@ const config = {
     'z' : 'darkred',
     'k' : 'dimgray'
   },
+  'filters' : ['u','g','r','i','z','k'],
+  'exposures' : ['short','long'],
+  'individualPipelines' : ['raw', 'elixir', 'elixir-lsb'],
+  'stackedPipelines' : ['l128','g002','g004'],
   'defaultMapLocation' : [10.425,-7.037387],
   'defaultZoom' : 6,
   'minZoom' : 5,

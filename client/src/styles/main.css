@@ -45,3 +45,7 @@ will-change: unset;
     display: flex;
     justify-content: space-around;
 }
+
+.fits-selection-label {
+    margin-right: 1rem;
+}
