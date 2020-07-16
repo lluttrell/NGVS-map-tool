@@ -312,22 +312,39 @@ const resetQueryForm = (catalog, catalogLayer) => {
  * @param {string} objectID 
  */
 const displayObjectInformation = async (catalog, objectID) => {
+    let modalElem = document.getElementById('object-modal')
+    let modalInstance = M.Modal.init(modalElem, {dismissible: true});
+    let modalBody = document.getElementById('object-modal-content')
+    modalBody.innerHTML = '<p>Retrieving selection from database</p>'
+    modalBody.innerHTML += '<div class="progress"><div class="indeterminate"></div></div>'
+    modalInstance.open();
     await catalog.queryObject(objectID)
-    let elem = document.getElementById('object-modal')
-    document.getElementById('modal-object-name').innerText = objectID;
-    const instance = M.Modal.init(elem, {dismissible: true});
-    const tableBody = document.getElementById('object-table-body')
+    modalBody.innerHTML = ''
+    const modalTitle = document.createElement('h4')
+    modalTitle.innerHTML = objectID
+    modalBody.appendChild(modalTitle)
+    modalBody.appendChild(createObjectInformationTable(catalog))
+    
+}
+
+const createObjectInformationTable = (catalog) => {
+    let table = document.createElement('table')
+    table.classList.add('highlight')
+    let tableHead = document.createElement('thead')
+    tableHead.innerHTML = '<tr><th>Property</th><th>Value</th></tr>'
+    let tableBody = document.createElement('tbody')
     for(let [key,value] of Object.entries(catalog.currentObjectQuery)) {
-        const row = document.createElement('tr');
-        const property = document.createElement('th');
+        let row = document.createElement('tr');
+        let property = document.createElement('td');
         property.innerHTML = key;
-        const propertyValue = document.createElement('th');
+        let propertyValue = document.createElement('td');
         propertyValue.innerHTML = value;
         row.appendChild(property);
         row.appendChild(propertyValue);
         tableBody.appendChild(row);
     }
-    instance.open();
+    table.append(tableHead,tableBody)
+    return table
 }
 
 const createFITSFilterSelectionButtons = () => {
@@ -446,6 +463,7 @@ const createFITSIndividualSelectionButtons = () => {
  */
 const createFITSImageTable = () => {
     const table = document.createElement('table')
+    table.classList.add('highlight')
     const tableHead = document.createElement('thead')
     const row = document.createElement('tr')
     for (const title of ['Filter','Exposure','Stacked','Proccesing','Pointing','Link']) {
@@ -458,17 +476,17 @@ const createFITSImageTable = () => {
     const tableBody = document.createElement('tbody')
     for (let link of fitsmgr.downloadList) {
         const row = document.createElement('tr');
-        const filterCol = document.createElement('th');
+        const filterCol = document.createElement('td');
         filterCol.innerText = link.filter;
-        const processingCol = document.createElement('th');
+        const processingCol = document.createElement('td');
         processingCol.innerText = link.pipeline;
-        const exposureCol = document.createElement('th');
+        const exposureCol = document.createElement('td');
         exposureCol.innerText = link.exposure;
-        const pointingCol = document.createElement('th');
+        const pointingCol = document.createElement('td');
         pointingCol.innerText = link.pointing;
-        const stackedCol = document.createElement('th');
+        const stackedCol = document.createElement('td');
         stackedCol.innerText = link.stacked;
-        const linkCol = document.createElement('th');
+        const linkCol = document.createElement('td');
         linkCol.innerHTML = `<a href='${link.url}'>${link.productID}</a>`;
         row.append(filterCol, exposureCol, stackedCol, processingCol, pointingCol, linkCol);
         tableBody.appendChild(row)
@@ -528,12 +546,11 @@ const refreshFITSSelectionOverview = () => {
 
 const displayAreaSelectionInformation = async (selectionBounds) => {
     let elem = document.getElementById('download-modal')
-    const instance = M.Modal.init(elem, {dismissible: true});
+    const modalInstance = M.Modal.init(elem, {dismissible: true});
     const modalBody = document.getElementById('download-modal-content')
     modalBody.innerHTML = '<p>Retrieving selection from database</p>'
     modalBody.innerHTML += '<div class="progress"><div class="indeterminate"></div></div>'
-    instance.open();
-
+    modalInstance.open();
     const bottomLeft = selectionBounds.getSouthWest()
     const topRight = selectionBounds.getNorthEast()
     await fitsmgr.getPublisherIdAtRegion(bottomLeft, topRight)

@@ -2,6 +2,9 @@ import Data from './list.csv'
 import { config } from '../app.config'
 
 class FieldOutlines {
+  // baseQuery = `SELECT time_exposure, target_name, position_bounds, energy_bandpassName
+  //     FROM caom2.Observation as o JOIN caom2.Plane p on o.obsID=p.obsID
+  //     WHERE o.proposal_project='NGVS' AND o.type='OBJECT'`
   
   constructor() {
     Data.shift()
