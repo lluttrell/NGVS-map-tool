@@ -486,7 +486,7 @@ const createFITSImageTable = () => {
 const createFITSSelectionOverview = () => {
     const selectionOverviewDiv = document.createElement('div')
     selectionOverviewDiv.id = 'fits-selection-overview'
-    const overviewPanel = document.createElement('p')
+    const overviewPanel = document.createElement('span')
     if (fitsmgr.currentQuery.length == 0) {
         overviewPanel.classList.add('red-text')
         overviewPanel.innerText = 'There are no images available in the selected region.'
@@ -494,10 +494,16 @@ const createFITSSelectionOverview = () => {
         overviewPanel.classList.add('red-text')
         overviewPanel.innerText = 'There are no images available in the selected region that match your selection criteria'
     } else {
-        overviewPanel.innerText = `Selection returned ${fitsmgr.downloadList.length} images`
+        overviewPanel.innerText = `Selection contains ${fitsmgr.downloadList.length} images`
     }
     selectionOverviewDiv.appendChild(overviewPanel)
     if (fitsmgr.downloadList.length != 0) {
+        const downloadButton = document.createElement('button')
+        downloadButton.innerText='Download All'
+        downloadButton.id = 'fits-selection-dl-btn'
+        downloadButton.classList.add('btn-flat','teal','white-text','lighten-2')
+        downloadButton.addEventListener('click', () => fitsmgr.downloadSelection())
+        selectionOverviewDiv.appendChild(downloadButton)
         selectionOverviewDiv.appendChild(createFITSImageTable())
     }
     return selectionOverviewDiv

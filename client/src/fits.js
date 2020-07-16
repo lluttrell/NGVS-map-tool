@@ -73,6 +73,13 @@ class FITSManager {
       })
   }
 
+  async downloadSelection() {
+    const urlList = this.downloadList.map(li => li.accessURL)
+    for (const url in urlList) {
+      window.open(url)
+    }
+  }
+
   /**
    * Takes a single object representing a row (single fits file) of the query results
    * and determines the category that the image belongs to. Adds the category to the
