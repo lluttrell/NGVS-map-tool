@@ -53,3 +53,10 @@ will-change: unset;
 .fits-selection-dl-btn {
     margin-left: 2rem;
 }
+
+#toast-container {
+    top: auto !important;
+    right: auto !important;
+    bottom: 90%;
+    left:20%;
+}

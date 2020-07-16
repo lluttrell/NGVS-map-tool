@@ -37,8 +37,8 @@ class FITSManager {
   async getPublisherIdAtPoint(coordinates) {
     let queryString = this.baseQuery;
     queryString += ` AND 1=CONTAINS(POINT('ICRS',${coordinates[1]},${coordinates[0]}), p.position_bounds)`
-    this.query(queryString)
-    await this.query(queryString)
+    this._query(queryString)
+    await this._query(queryString)
     return 1
   }
 
@@ -55,7 +55,7 @@ class FITSManager {
     let queryString = this.baseQuery;
     const regionPolygon = `POLYGON('ICRS', ${minRA}, ${minDec}, ${minRA}, ${maxDec}, ${maxRA}, ${maxDec}, ${maxRA}, ${minDec})`
     queryString += ` AND 1=INTERSECTS(${regionPolygon}, p.position_bounds)`
-    await this.query(queryString)
+    await this._query(queryString)
     return 1
   }
 
@@ -73,11 +73,33 @@ class FITSManager {
       })
   }
 
+  /**
+   * Opens a download link containing urls the current download list
+   */
+  downloadSelectionURLList() {
+    let urlString = this.downloadList.reduce((acc, li) => acc + `${li.url}\n`,'')
+    let currentDate = Date.now();
+    let blob = new Blob([urlString], {type:'text/plain', endings:'native'});
+    let link = document.createElement('a');
+    link.href = window.URL.createObjectURL(blob);
+    link.download =`ngvs-urllist-${currentDate}.txt`;
+    link.click();
+  }
+
+  /**
+   * Opens all urls in the current download list (downloads all files)
+   */
   downloadSelection() {
-    let linkElement = document.createElement('a')
-    for (let li of this.downloadList) {
-      window.open(li.url)
+    for (let link of this.downloadList) {
+      window.open(link.url)
     }
+  }
+
+  /**
+   * Returns the total size of all files in the downloadlist (in bytes)
+   */
+  getDownloadListSize() {
+    return this.downloadList.reduce((acc, li) => acc + parseInt(li.contentLength), 0)
   }
 
   /**
@@ -86,7 +108,7 @@ class FITSManager {
    * currently available sets, and returns an object representing the category  
    * @param {Object} fitsImageData 
    */
-  buildAssetObject(fitsImageData) {
+  _buildAssetObject(fitsImageData) {
     let url = fitsImageData.accessURL
     let pointing = fitsImageData.target_name
     let productID = fitsImageData.productID
@@ -121,7 +143,7 @@ class FITSManager {
    * Uses results of query to populate currentQuery with list of available images. 
    * @param {string} queryString 
    */
-  async query(queryString) {
+  async _query(queryString) {
     this.currentQuery = []
     this.availableFilters.clear()
     this.availableExposures.clear()
@@ -133,7 +155,7 @@ class FITSManager {
     const responseArray = Papa.parse(response, {header: true})
     responseArray.data.pop();
     for (let fitsImageData of responseArray.data) {
-      this.currentQuery.push(this.buildAssetObject(fitsImageData))
+      this.currentQuery.push(this._buildAssetObject(fitsImageData))
     }
     this.updateDownloadList();
     return 1;

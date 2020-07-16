@@ -104,7 +104,6 @@ const objectSearchBox = document.getElementById('search-box');
 objectSearchForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     const searchString = objectSearchBox.value;
-    objectSearchForm.reset();
     const response = await fetch(`https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/AdvancedSearch/unitconversion/Plane.position.bounds?term=${searchString}&resolver=all`)
     const resultJSON = await response.json();
     if (resultJSON.resolveStatus === "GOOD") {
@@ -115,9 +114,10 @@ objectSearchForm.addEventListener('submit', async (e) => {
         let targetDec = parseFloat(resolveValues[1].split(':')[1])
         let targetRA = parseFloat(resolveValues[2].split(':')[1])
         moveSearchMarker(targetName, [targetDec, targetRA]);
-    } else {
-        M.toast({html: 'Search Failed'})
+    } else if(searchString === ''){
         clearSearchMarker()
+    } else {
+        M.toast({html: 'Search Failed', classes:'red lighten-2'},)
     }
 })
 
