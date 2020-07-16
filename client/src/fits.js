@@ -3,7 +3,7 @@ import { config } from '../app.config'
 import Papa from 'papaparse'
 
 /**
- * FITSManageris used to retrieve information about about the fits
+ * FITSManager is used to retrieve information about about the fits
  * images available in a given spatial region. It maintains a list 
  * of links available, as well as separate lists containing the filters,
  * exposures, and processing pipelines that are available for the current
@@ -15,7 +15,7 @@ import Papa from 'papaparse'
  */
 class FITSManager {
   constructor() {
-    this.baseQuery = `SELECT time_exposure, energy_bandpassName, target_name, provenance_name, provenance_version, a.accessURL, target_name, publisherID   
+    this.baseQuery = `SELECT time_exposure, energy_bandpassName, target_name, provenance_name, provenance_version, a.accessURL, target_name, productID, contentLength
       FROM caom2.Observation as o JOIN caom2.Plane p on o.obsID=p.obsID JOIN caom2.Artifact a on a.planeID=p.planeID
       WHERE o.proposal_project='NGVS' AND o.type='OBJECT' AND a.productType='science'`
     this.currentQuery = []
@@ -73,10 +73,10 @@ class FITSManager {
       })
   }
 
-  async downloadSelection() {
-    const urlList = this.downloadList.map(li => li.accessURL)
-    for (const url in urlList) {
-      window.open(url)
+  downloadSelection() {
+    let linkElement = document.createElement('a')
+    for (let li of this.downloadList) {
+      window.open(li.url)
     }
   }
 
@@ -87,10 +87,11 @@ class FITSManager {
    * @param {Object} fitsImageData 
    */
   buildAssetObject(fitsImageData) {
-    const url = fitsImageData.accessURL
-    const pointing = fitsImageData.target_name
-    const publisherID = fitsImageData.publisherID
-    const filter = fitsImageData.energy_bandpassName.slice(0,1)
+    let url = fitsImageData.accessURL
+    let pointing = fitsImageData.target_name
+    let productID = fitsImageData.productID
+    let contentLength = fitsImageData.contentLength
+    let filter = fitsImageData.energy_bandpassName.slice(0,1)
     this.availableFilters.add(filter)
     let exposure
     if (Number(fitsImageData.time_exposure) < 400) {
@@ -112,7 +113,7 @@ class FITSManager {
       pipeline = 'raw'
       this.availableIndividualPipelines.add(pipeline)
     }
-    return {filter, exposure, pipeline, url, pointing, publisherID, stacked}
+    return {filter, exposure, pipeline, url, pointing, productID, stacked, contentLength}
   }
 
   /**

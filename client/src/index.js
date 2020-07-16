@@ -306,7 +306,6 @@ const resetQueryForm = (catalog, catalogLayer) => {
     catalogLayer.clearLayers();
 }
 
-
 /**
  * Displays information about a single object in a modal popup window
  * @param {string} catalogName 
@@ -470,7 +469,7 @@ const createFITSImageTable = () => {
         const stackedCol = document.createElement('th');
         stackedCol.innerText = link.stacked;
         const linkCol = document.createElement('th');
-        linkCol.innerHTML = `<a href='${link.url}'>${link.publisherID.split('?')[1].split('/')[1]}</a>`;
+        linkCol.innerHTML = `<a href='${link.url}'>${link.productID}</a>`;
         row.append(filterCol, exposureCol, stackedCol, processingCol, pointingCol, linkCol);
         tableBody.appendChild(row)
     }
@@ -485,6 +484,9 @@ const createFITSImageTable = () => {
  */
 const createFITSSelectionOverview = () => {
     const selectionOverviewDiv = document.createElement('div')
+    const resultsTitle = document.createElement('h5')
+    resultsTitle.innerText = 'Selection Preview'
+    selectionOverviewDiv.appendChild(resultsTitle)
     selectionOverviewDiv.id = 'fits-selection-overview'
     const overviewPanel = document.createElement('span')
     if (fitsmgr.currentQuery.length == 0) {
@@ -499,11 +501,15 @@ const createFITSSelectionOverview = () => {
     selectionOverviewDiv.appendChild(overviewPanel)
     if (fitsmgr.downloadList.length != 0) {
         const downloadButton = document.createElement('button')
-        downloadButton.innerText='Download All'
-        downloadButton.id = 'fits-selection-dl-btn'
-        downloadButton.classList.add('btn-flat','teal','white-text','lighten-2')
-        downloadButton.addEventListener('click', () => fitsmgr.downloadSelection())
+        downloadButton.innerText='Download Selection'
+        downloadButton.classList.add('btn-flat','teal','white-text','lighten-2','fits-selection-dl-btn')
+        downloadButton.addEventListener('click', (e) => { fitsmgr.downloadSelection() })
         selectionOverviewDiv.appendChild(downloadButton)
+        const downloadTextButton = document.createElement('button')
+        downloadTextButton.innerText='Download URL List'
+        downloadTextButton.classList.add('btn-flat','red','white-text','lighten-2','fits-selection-dl-btn')
+        downloadTextButton.addEventListener('click', () => { fitsmgr.downloadListSelection() })
+        selectionOverviewDiv.appendChild(downloadTextButton)
         selectionOverviewDiv.appendChild(createFITSImageTable())
     }
     return selectionOverviewDiv
@@ -552,9 +558,7 @@ const displayAreaSelectionInformation = async (selectionBounds) => {
     individualTitle.innerText = 'Single Images'
     modalBody.appendChild(individualTitle)
     modalBody.appendChild(createFITSIndividualSelectionButtons())
-    const resultsTitle = document.createElement('h5')
-    resultsTitle.innerText = 'Selection Preview'
-    modalBody.appendChild(resultsTitle)
+
     modalBody.appendChild(createFITSSelectionOverview())
 }
 
