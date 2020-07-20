@@ -1,4 +1,4 @@
-import Data from './list.csv'
+import longOutlines from './ngvs_filter_outlines_long.csv'
 import { config } from '../app.config'
 
 class FieldOutlines {
@@ -7,8 +7,8 @@ class FieldOutlines {
   //     WHERE o.proposal_project='NGVS' AND o.type='OBJECT'`
   
   constructor() {
-    Data.shift()
-    for (let row of Data) {
+    longOutlines.shift()
+    for (let row of longOutlines) {
       const outlineCoordinate = [[row[0], row[1]],
                                 [row[2], row[3]],
                                 [row[4], row[5]],

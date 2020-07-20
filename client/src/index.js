@@ -117,7 +117,7 @@ objectSearchForm.addEventListener('submit', async (e) => {
     } else if(searchString === ''){
         clearSearchMarker()
     } else {
-        M.toast({html: 'Search Failed', classes:'red lighten-2'},)
+        M.toast({html: 'Search Failed', classes:'red lighten-2'})
     }
 })
 

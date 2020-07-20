@@ -89,10 +89,17 @@ class FITSManager {
   /**
    * Opens all urls in the current download list (downloads all files)
    */
-  downloadSelection() {
-    for (let link of this.downloadList) {
-      window.open(link.url)
-    }
+  async downloadSelection() {
+    let downloadManagerEndpoint = 'http://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/downloadManager/?'
+    let downloadManagerQuery = this.downloadList
+      .reduce((acc, li) => `${acc}uri=${li.url}&`, downloadManagerEndpoint)
+      .slice(0, -1)
+    console.log(downloadManagerQuery)
+    let response = await fetch(encodeURI(downloadManagerQuery), {
+      method: 'POST',
+      mode: 'cors' 
+    })
+    console.log(response)
   }
 
   /**
