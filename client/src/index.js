@@ -127,10 +127,12 @@ objectSearchForm.addEventListener('submit', async (e) => {
  */
 const createFilterOverlays = () => {
     let fieldOutlines = new FieldOutlines();
+    console.log(fieldOutlines)
     let layersControl = L.control.layers(null,null,{collapsed: false});
-    for (const field of Object.keys(fieldOutlines)) {
-        const latlngs = fieldOutlines[field].coordinates;
-        const color = fieldOutlines[field].color;
+    for (const field of Object.keys(fieldOutlines.longOutlines)) {
+        console.log(field)
+        const latlngs = fieldOutlines.longOutlines[field].coordinates;
+        const color = fieldOutlines.longOutlines[field].color;
         const layers = L.layerGroup();
         const polygon = L.polygon(latlngs, {color: color, fillOpacity: 0.0})
         polygon.addTo(layers)
