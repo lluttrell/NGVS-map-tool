@@ -150,22 +150,25 @@ const initSelectMenu = () => {
 
 const initQueryTabBody = (appModel) => {
     let queryTabBody = document.getElementById('query-tab-body')
+    if (appModel.catalogList.length == 0) {
+        queryTabBody.innerText = 'There are no available catalogs'
+    }
     const selectMenu = document.createElement('select')
     selectMenu.id = 'query-tab-select-menu'
     queryTabBody.appendChild(selectMenu)
+    initSelectMenu()
     for (let catObj of appModel.catalogList) {
-        if (catObj.principleColumns != null) {
-            let catalogLayer = L.layerGroup()
-            addCatalogToSelectMenu(catObj)
-            let refineForm = document.createElement('form')
-            refineForm.setAttribute('id', `${catObj.name}-form`)
-            refineForm.setAttribute('class', 'refine-form hide row')
-            for (let principleColumn of catObj.principleColumns) {
-                refineForm.appendChild(createRefineField(catObj, principleColumn))
-            }
-            refineForm.appendChild(createButtonDiv(catObj, catalogLayer))
-            queryTabBody.appendChild(refineForm)
+        console.log(catObj.principleColumns)
+        let catalogLayer = L.layerGroup()
+        addCatalogToSelectMenu(catObj)
+        let refineForm = document.createElement('form')
+        refineForm.setAttribute('id', `${catObj.name}-form`)
+        refineForm.setAttribute('class', 'refine-form hide row')
+        for (let principleColumn of catObj.principleColumns) {
+            refineForm.appendChild(createRefineField(catObj, principleColumn))
         }
+        refineForm.appendChild(createButtonDiv(catObj, catalogLayer))
+        queryTabBody.appendChild(refineForm)
     }
 }
 
@@ -604,9 +607,13 @@ class App {
 
     async init() {
         for (let [catalogName, color] of config.catalogList.map((e, i) => [e, config.colors[i]])) {
-            let catalog = new Catalog(catalogName, color);
-            await catalog.init();
-            this.catalogList.push(catalog)
+            try {
+                let catalog = new Catalog(catalogName, color);
+                await catalog.init();
+                this.catalogList.push(catalog)
+            } catch(e) {
+                M.toast({html: `Failed to load ${catalogName}: Permission Denied`, classes:'red lighten-2'})
+            }
         }
     }
 }
@@ -617,7 +624,7 @@ document.addEventListener('DOMContentLoaded', async function() {
     createFilterOverlays();
     const appModel = new App()
     await appModel.init();
-    initSelectMenu();
+    
     initQueryTabBody(appModel)
     M.Collapsible.init(document.querySelectorAll('.collapsible'));
     M.Tabs.init(document.getElementById('query-tab'));

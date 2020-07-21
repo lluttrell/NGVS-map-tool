@@ -20,6 +20,9 @@ class Catalog {
    */
   async init() {
     let response = await fetch(`https://ws-cadc.canfar.net/youcat/sync?LANG=ADQL&FORMAT=csv&QUERY=SELECT%20TOP%201%20*%20FROM%20${this.name}`, {credentials: 'include'})
+    if (response.status == 403) {
+      throw new Error(`permission denied on table ${this.name}`)
+    }
     let csvText = await response.text()
     this.primaryKey = csvText.split(',')[0];
     this.principleColumns = csvText
