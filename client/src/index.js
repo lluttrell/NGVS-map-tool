@@ -13,6 +13,7 @@ import Catalog from './catalog'
 import FieldOutlines from './field-outlines'
 import FITSManager from './fits'
 
+const root = document.getElementsByTagName('html')[0]
 const GOOGLE_SKY_TILESET = L.tileLayer(config.skyTileUrl)
 const NGVS_TILE_TILESET = L.tileLayer(config.ngvsTileUrl)
 const fitsmgr = new FITSManager();
@@ -116,8 +117,6 @@ objectSearchForm.addEventListener('submit', async (e) => {
 })
 
 
-
-
 /**
  * Creates the overlays for the field outlines
  */
@@ -147,22 +146,26 @@ const initSelectMenu = () => {
     defaultSelect.innerText = 'Select Catalog';
     selectMenu.appendChild(defaultSelect);
     selectMenu.addEventListener('change', changeCatalog);
-    M.FormSelect.init(selectMenu);
 }
 
 const initQueryTabBody = (appModel) => {
     let queryTabBody = document.getElementById('query-tab-body')
+    const selectMenu = document.createElement('select')
+    selectMenu.id = 'query-tab-select-menu'
+    queryTabBody.appendChild(selectMenu)
     for (let catObj of appModel.catalogList) {
-        let catalogLayer = L.layerGroup()
-        addCatalogToSelectMenu(catObj)
-        let refineForm = document.createElement('form')
-        refineForm.setAttribute('id', `${catObj.name}-form`)
-        refineForm.setAttribute('class', 'refine-form hide row')
-        for (let principleColumn of catObj.principleColumns) {
-            refineForm.appendChild(createRefineField(catObj, principleColumn))
+        if (catObj.principleColumns != null) {
+            let catalogLayer = L.layerGroup()
+            addCatalogToSelectMenu(catObj)
+            let refineForm = document.createElement('form')
+            refineForm.setAttribute('id', `${catObj.name}-form`)
+            refineForm.setAttribute('class', 'refine-form hide row')
+            for (let principleColumn of catObj.principleColumns) {
+                refineForm.appendChild(createRefineField(catObj, principleColumn))
+            }
+            refineForm.appendChild(createButtonDiv(catObj, catalogLayer))
+            queryTabBody.appendChild(refineForm)
         }
-        refineForm.appendChild(createButtonDiv(catObj, catalogLayer))
-        queryTabBody.appendChild(refineForm)
     }
 }
 
@@ -254,8 +257,10 @@ const createButtonDiv = (catalog, catalogLayer) => {
     submitButton.setAttribute('class', 'btn-small')
     submitButton.setAttribute('type', 'button')
     submitButton.addEventListener('click', async () => {
+        root.classList.add('in-progress')
         await catalog.query();
         renderCatalogQuery(catalog, catalogLayer);
+        root.classList.remove('in-progress')
     })
     let downloadButton = document.createElement('input')
     downloadButton.setAttribute('value', 'download')
@@ -591,7 +596,7 @@ const displayAreaSelectionInformation = async (selectionBounds) => {
 }
 
 
-class AppModel {
+class App {
     constructor() {
         this.catalogList = []
         this.currentCatalog = null
@@ -607,14 +612,16 @@ class AppModel {
 }
 
 document.addEventListener('DOMContentLoaded', async function() {
+
+    root.classList.add('in-progress')
     createFilterOverlays();
-    const appModel = new AppModel()
+    const appModel = new App()
     await appModel.init();
     initSelectMenu();
     initQueryTabBody(appModel)
     M.Collapsible.init(document.querySelectorAll('.collapsible'));
     M.Tabs.init(document.getElementById('query-tab'));
     M.Sidenav.init(document.querySelectorAll('.sidenav'));
-    //M.updateTextFields();
+    root.classList.remove('in-progress')
 });
 

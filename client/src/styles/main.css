@@ -60,3 +60,7 @@ will-change: unset;
     bottom: 90%;
     left:20%;
 }
+
+.in-progress * {
+    cursor: wait !important;
+}
