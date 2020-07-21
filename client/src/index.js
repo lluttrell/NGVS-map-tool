@@ -4,6 +4,7 @@ import 'leaflet'
 import 'leaflet/dist/leaflet.css'
 import 'leaflet-mouse-position'
 import 'leaflet-mouse-position/src/L.Control.MousePosition.css'
+import 'leaflet-groupedlayercontrol'
 import SelectArea from 'leaflet-area-select'
 import './styles/main.css'
 import { hms_formatter, dms_formatter, decimal_dec_formatter, decimal_ra_formatter } from './coordinate-formatter'
@@ -51,21 +52,14 @@ let searchMarker = L.marker([0,0], {
     "icon": createMarkerIcon('yellow')}).addTo(myMap);
 
 let baseMaps = {
-    "GoogleSky" : GOOGLE_SKY_TILESET,
-    "NGVSTile" : NGVS_TILE_TILESET
+    'Base Maps': {
+        'SDSS': GOOGLE_SKY_TILESET,
+        'NGVS': NGVS_TILE_TILESET
+    }
 }
 
-let mainLayerControl = L.control.layers(null,baseMaps, {
-    collapsed : false
-})
-mainLayerControl.addTo(myMap)
-
-let catalogLayerControl = L.control.layers(null,null, {
-    collapsed : false
-})
-
-mainLayerControl.addTo(myMap)
-catalogLayerControl.addTo(myMap)
+let layerControl = L.control.groupedLayers(null,baseMaps, {collapsed: false})
+layerControl.addTo(myMap)
 
 const toLatLng = (coordinates) => {
     let dec = coordinates[0]
@@ -122,37 +116,22 @@ objectSearchForm.addEventListener('submit', async (e) => {
 })
 
 
+
+
 /**
  * Creates the overlays for the field outlines
  */
 const createFilterOverlays = () => {
     let fieldOutlines = new FieldOutlines();
-    console.log(fieldOutlines)
-    let layersControl = L.control.layers(null,null,{collapsed: false});
+    
     for (const field of Object.keys(fieldOutlines.longOutlines)) {
-        console.log(field)
         const latlngs = fieldOutlines.longOutlines[field].coordinates;
         const color = fieldOutlines.longOutlines[field].color;
         const layers = L.layerGroup();
         const polygon = L.polygon(latlngs, {color: color, fillOpacity: 0.0})
         polygon.addTo(layers)
-        layersControl.addOverlay(layers,field);
+        layerControl.addOverlay(layers,field,'Field Outlines (Long)');
     }
-    layersControl.addTo(myMap);
-}
-
-
-/**
- * Adds a catalog name to the query-tab-select-menu
- * @param {Catalog} catalog Catalog to add to menu
- */
-const addCatalogToSelectMenu = (catalog) => {
-    const selectMenu = document.getElementById('query-tab-select-menu');
-    let optionElement = document.createElement('option');
-    optionElement.setAttribute('value', catalog.name);
-    optionElement.innerHTML = catalog.name;
-    selectMenu.appendChild(optionElement);
-    M.FormSelect.init(selectMenu);
 }
 
 
@@ -171,6 +150,34 @@ const initSelectMenu = () => {
     M.FormSelect.init(selectMenu);
 }
 
+const initQueryTabBody = (appModel) => {
+    let queryTabBody = document.getElementById('query-tab-body')
+    for (let catObj of appModel.catalogList) {
+        let catalogLayer = L.layerGroup()
+        addCatalogToSelectMenu(catObj)
+        let refineForm = document.createElement('form')
+        refineForm.setAttribute('id', `${catObj.name}-form`)
+        refineForm.setAttribute('class', 'refine-form hide row')
+        for (let principleColumn of catObj.principleColumns) {
+            refineForm.appendChild(createRefineField(catObj, principleColumn))
+        }
+        refineForm.appendChild(createButtonDiv(catObj, catalogLayer))
+        queryTabBody.appendChild(refineForm)
+    }
+}
+
+/**
+ * Adds a catalog name to the query-tab-select-menu
+ * @param {Catalog} catalog Catalog to add to menu
+ */
+const addCatalogToSelectMenu = (catalog) => {
+    const selectMenu = document.getElementById('query-tab-select-menu');
+    let optionElement = document.createElement('option');
+    optionElement.setAttribute('value', catalog.name);
+    optionElement.innerHTML = catalog.name;
+    selectMenu.appendChild(optionElement);
+    M.FormSelect.init(selectMenu);
+}
 
 /**
  * Switches view of refine forms to the form selected in the query-tab-select-menu
@@ -271,9 +278,10 @@ const createButtonDiv = (catalog, catalogLayer) => {
 
 
 const renderCatalogQuery = (catalog, catalogLayer) => {
-    catalogLayerControl.removeLayer(catalogLayer)
-    catalogLayer.remove();
-    catalogLayer.clearLayers();
+    console.log(catalogLayer)
+    layerControl.removeLayer(catalogLayer)
+    //myMap.removeLayer(catalogLayer);
+    //catalogLayer.clearLayers();
     for (let [name,lon,lat] of catalog.currentQuery) {
         let coordinates = L.latLng(lat,lon)
         let myMarker = L.circle(coordinates, {
@@ -285,7 +293,7 @@ const renderCatalogQuery = (catalog, catalogLayer) => {
         myMarker.addTo(catalogLayer);
     }
     catalogLayer.addTo(myMap)
-    catalogLayerControl.addOverlay(catalogLayer, catalog.name);
+    layerControl.addOverlay(catalogLayer, catalog.name,'Catalog Queries');
 }
 
 /**
@@ -303,9 +311,10 @@ const downloadQuery = (catalog) => {
 
 const resetQueryForm = (catalog, catalogLayer) => {
     document.getElementById(`${catalog.name}-form`).reset();
-    catalogLayer.remove();
-    catalogLayerControl.removeLayer(catalogLayer);
+    myMap.removeLayer(catalogLayer)
+    //catalogLayer.remove();
     catalogLayer.clearLayers();
+    layerControl.removeLayer(catalogLayer);
 }
 
 /**
@@ -579,22 +588,6 @@ const displayAreaSelectionInformation = async (selectionBounds) => {
     modalBody.appendChild(createFITSIndividualSelectionButtons())
 
     modalBody.appendChild(createFITSSelectionOverview())
-}
-
-const initQueryTabBody = (appModel) => {
-    const queryTabBody = document.getElementById('query-tab-body')
-    for (let catObj of appModel.catalogList) {
-        const catalogLayer = L.layerGroup()
-        addCatalogToSelectMenu(catObj)
-        let refineForm = document.createElement('form')
-        refineForm.setAttribute('id', `${catObj.name}-form`)
-        refineForm.setAttribute('class', 'refine-form hide row')
-        for (let principleColumn of catObj.principleColumns) {
-            refineForm.appendChild(createRefineField(catObj, principleColumn))
-        }
-        refineForm.appendChild(createButtonDiv(catObj, catalogLayer))
-        queryTabBody.appendChild(refineForm)
-    }
 }
 
 
