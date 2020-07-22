@@ -8,6 +8,18 @@ const config = {
   'ngvsTileUrl' : 'https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/data/pub/GSKY/M.{x}.{y}.{z}.png',
   'colors' : ['yellow','red','blue','orange','teal','purple','lightgreen'],
   'pointingOutlineColor' : 'dimgray',
+  'fieldLineStyles' : {
+    'single': {
+      'dashArray': '1',
+      'weight' : 1,
+      'opacity' : 0.8
+    },
+    'stacked': {
+      'dashArray': null,
+      'weight': 3,
+      'opacity' : 1.0
+    }
+  },
   'fieldColors' : {
     'u' : 'indigo',
     'b' : 'blue',

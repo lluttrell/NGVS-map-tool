@@ -1,16 +1,20 @@
-import longOutlineCSV from './assets/field_outlines_long_single.csv';
-import shortOutlineCSV from './assets/field_outlines_short_single.csv';
-import pointings from './ngvs_pointings.csv';
+import longOutlineSingleCSV from './assets/field_outlines_long_single.csv';
+import shortOutlineSingleCSV from './assets/field_outlines_short_single.csv';
+import longOutlineStackedCSV from './assets/field_outlines_long_stacked.csv';
+import shortOutlineStackedCSV from './assets/field_outlines_short_stacked.csv';
+import pointings from './assets/ngvs_pointings.csv';
 import { config } from '../app.config';
 
 class FieldOutlines {
 
   constructor() {
-    this.longOutlines = this._parseFilterOutlineCSV(longOutlineCSV)
-    this.shortOutlines = this._parseFilterOutlineCSV(shortOutlineCSV)
+    this.longSingle = this._parseFilterOutlineCSV(longOutlineSingleCSV,'single')
+    this.shortSingle = this._parseFilterOutlineCSV(shortOutlineSingleCSV,'single')
+    this.longStacked = this._parseFilterOutlineCSV(longOutlineStackedCSV,'stacked')
+    this.shortStacked = this._parseFilterOutlineCSV(shortOutlineStackedCSV,'stacked')
   }
 
-  _parseFilterOutlineCSV(outlineArray) {
+  _parseFilterOutlineCSV(outlineArray, exposure) {
     let filters = {}
 
     outlineArray.shift()
@@ -23,6 +27,9 @@ class FieldOutlines {
         filters[filterName] = {}
         filters[filterName].color = config.fieldColors[filterName]
         filters[filterName].coordinates = [polygonArray]
+        filters[filterName].dashArray = config.fieldLineStyles[exposure].dashArray
+        filters[filterName].weight = config.fieldLineStyles[exposure].weight
+        filters[filterName].opacity = config.fieldLineStyles[exposure].opacity
       }
     }
     return filters

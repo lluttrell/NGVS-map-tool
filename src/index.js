@@ -122,17 +122,32 @@ objectSearchForm.addEventListener('submit', async (e) => {
  */
 const createFilterOverlays = () => {
     let fieldOutlines = new FieldOutlines();
-    
-    for (const field of Object.keys(fieldOutlines.longOutlines)) {
-        const latlngs = fieldOutlines.longOutlines[field].coordinates;
-        const color = fieldOutlines.longOutlines[field].color;
-        const layers = L.layerGroup();
-        const polygon = L.polygon(latlngs, {color: color, fillOpacity: 0.0})
-        polygon.addTo(layers)
-        layerControl.addOverlay(layers,field,'Field Outlines (Long)');
+
+    for (let filter of config.filters) {
+        let longLayerGroup = L.layerGroup()
+        if (fieldOutlines.longSingle[filter]) longLayerGroup.addLayer(createFieldOutlinePolygon(fieldOutlines.longSingle[filter]))
+        if (fieldOutlines.longStacked[filter]) longLayerGroup.addLayer(createFieldOutlinePolygon(fieldOutlines.longStacked[filter]))
+        layerControl.addOverlay(longLayerGroup, filter, 'Field Outlines (Long)')
+        let shortLayerGroup = L.layerGroup()
+        if (fieldOutlines.shortSingle[filter]) shortLayerGroup.addLayer(createFieldOutlinePolygon(fieldOutlines.shortSingle[filter]))
+        if (fieldOutlines.shortStacked[filter]) shortLayerGroup.addLayer(createFieldOutlinePolygon(fieldOutlines.shortStacked[filter]))
+        layerControl.addOverlay(shortLayerGroup, filter, 'Field Outlines (Short)')
     }
 }
 
+/**
+ * Returns a L.polygon object for a single filter, exposure length and stacking. Used by createFilterOverlay
+ * @param {Object} filterOutline A specifific filter object of one of the four main parameters of FieldOutline class
+ */
+const createFieldOutlinePolygon = (filterOutline) => {
+    return L.polygon(filterOutline.coordinates, {
+        color: filterOutline.color,
+        dashArray: filterOutline.dashArray,
+        weight: filterOutline.weight,
+        opacity: filterOutline.opacity,
+        fillOpacity: 0.0 
+    })
+}
 
 /**
  * Initializes the menu for selecting catalogs in the 'query' tab
@@ -158,7 +173,6 @@ const initQueryTabBody = (appModel) => {
     queryTabBody.appendChild(selectMenu)
     initSelectMenu()
     for (let catObj of appModel.catalogList) {
-        console.log(catObj)
         addCatalogToSelectMenu(catObj)
         let refineForm = document.createElement('form')
         refineForm.setAttribute('id', `${catObj.name}-form`)
