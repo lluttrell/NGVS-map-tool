@@ -1,5 +1,6 @@
 import { parseSelectionToConditions } from './query-builder'
 import Papa from 'papaparse'
+import 'leaflet'
 
 class Catalog {
   constructor(name, markerColor=null) {
@@ -12,6 +13,7 @@ class Catalog {
     this.currentQuery = null;
     this.currentObjectQuery = null;
     this.currentDownload = null;
+    this.layerGroup = L.layerGroup()
   }
 
   /**

@@ -151,15 +151,14 @@ const initSelectMenu = () => {
 const initQueryTabBody = (appModel) => {
     let queryTabBody = document.getElementById('query-tab-body')
     if (appModel.catalogList.length == 0) {
-        queryTabBody.innerText = 'There are no available catalogs'
+        queryTabBody.innerHTML = '<div class="container"><p>There are no available catalogs</p></div>'
     }
     const selectMenu = document.createElement('select')
     selectMenu.id = 'query-tab-select-menu'
     queryTabBody.appendChild(selectMenu)
     initSelectMenu()
     for (let catObj of appModel.catalogList) {
-        console.log(catObj.principleColumns)
-        let catalogLayer = L.layerGroup()
+        console.log(catObj)
         addCatalogToSelectMenu(catObj)
         let refineForm = document.createElement('form')
         refineForm.setAttribute('id', `${catObj.name}-form`)
@@ -167,7 +166,7 @@ const initQueryTabBody = (appModel) => {
         for (let principleColumn of catObj.principleColumns) {
             refineForm.appendChild(createRefineField(catObj, principleColumn))
         }
-        refineForm.appendChild(createButtonDiv(catObj, catalogLayer))
+        refineForm.appendChild(createButtonDiv(catObj))
         queryTabBody.appendChild(refineForm)
     }
 }
@@ -252,7 +251,7 @@ const createRefineField = (catalog, principleColumn) => {
  * @param {Catalog} catalog catalog to create buttons for
  * @param {string} catalogLayer le
  */
-const createButtonDiv = (catalog, catalogLayer) => {
+const createButtonDiv = (catalog) => {
     let buttonDiv = document.createElement('div')
     buttonDiv.setAttribute('class', 'col s12 refine-btns')
     let submitButton = document.createElement('input')
@@ -262,7 +261,7 @@ const createButtonDiv = (catalog, catalogLayer) => {
     submitButton.addEventListener('click', async () => {
         root.classList.add('in-progress')
         await catalog.query();
-        renderCatalogQuery(catalog, catalogLayer);
+        renderCatalogQuery(catalog);
         root.classList.remove('in-progress')
     })
     let downloadButton = document.createElement('input')
@@ -277,7 +276,7 @@ const createButtonDiv = (catalog, catalogLayer) => {
     clearButton.setAttribute('type', 'button')
     clearButton.setAttribute('value', 'clear')
     clearButton.setAttribute('class', 'btn-small red lighten-2')
-    clearButton.addEventListener('click', () => resetQueryForm(catalog, catalogLayer))
+    clearButton.addEventListener('click', () => resetQueryForm(catalog))
     buttonDiv.appendChild(submitButton)
     buttonDiv.appendChild(downloadButton)
     buttonDiv.appendChild(clearButton)
@@ -285,11 +284,10 @@ const createButtonDiv = (catalog, catalogLayer) => {
 }
 
 
-const renderCatalogQuery = (catalog, catalogLayer) => {
-    console.log(catalogLayer)
-    layerControl.removeLayer(catalogLayer)
-    //myMap.removeLayer(catalogLayer);
-    //catalogLayer.clearLayers();
+const renderCatalogQuery = (catalog) => {
+    layerControl.removeLayer(catalog.layerGroup)
+    myMap.removeLayer(catalog.layerGroup);
+    catalog.layerGroup.clearLayers();
     for (let [name,lon,lat] of catalog.currentQuery) {
         let coordinates = L.latLng(lat,lon)
         let myMarker = L.circle(coordinates, {
@@ -298,10 +296,10 @@ const renderCatalogQuery = (catalog, catalogLayer) => {
             weight: 1})
         myMarker.bindTooltip(`${name} (${catalog.name})`)                   
         myMarker.on('click', () => displayObjectInformation(catalog, name));
-        myMarker.addTo(catalogLayer);
+        myMarker.addTo(catalog.layerGroup);
     }
-    catalogLayer.addTo(myMap)
-    layerControl.addOverlay(catalogLayer, catalog.name,'Catalog Queries');
+    catalog.layerGroup.addTo(myMap)
+    layerControl.addOverlay(catalog.layerGroup, catalog.name,'Catalog Queries');
 }
 
 /**
@@ -317,12 +315,12 @@ const downloadQuery = (catalog) => {
     link.click();
 }
 
-const resetQueryForm = (catalog, catalogLayer) => {
+const resetQueryForm = (catalog) => {
     document.getElementById(`${catalog.name}-form`).reset();
-    myMap.removeLayer(catalogLayer)
+    myMap.removeLayer(catalog.layerGroup)
     //catalogLayer.remove();
-    catalogLayer.clearLayers();
-    layerControl.removeLayer(catalogLayer);
+    catalog.layerGroup.clearLayers();
+    layerControl.removeLayer(catalog.layerGroup);
 }
 
 /**
