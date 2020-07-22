@@ -7,3 +7,4 @@ client/dist/*.js
 client/dist/*.png
 client/dist/main.js
 .vscode/launch.json
+src/assets/*.csv
