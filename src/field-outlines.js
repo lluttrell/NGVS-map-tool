@@ -1,5 +1,5 @@
-import longOutlineCSV from './long_filter_outlines.csv';
-import shortOutlineCSV from './short_filter_outlines.csv';
+import longOutlineCSV from './assets/field_outlines_long_single.csv';
+import shortOutlineCSV from './assets/field_outlines_short_single.csv';
 import pointings from './ngvs_pointings.csv';
 import { config } from '../app.config';
 
