@@ -569,17 +569,37 @@ const createFITSSelectionOverview = () => {
         const downloadButton = document.createElement('button')
         downloadButton.innerText='Download Selection'
         downloadButton.classList.add('btn-flat','teal','white-text','lighten-2','fits-selection-dl-btn')
-        downloadButton.addEventListener('click', (e) => { fitsmgr.downloadSelection() })
+        downloadButton.addEventListener('click', (e) => {
+            
+            openDownloadManager() 
+        })
         selectionOverviewDiv.appendChild(downloadButton)
         const downloadTextButton = document.createElement('button')
         downloadTextButton.innerText='Download URL List'
         downloadTextButton.classList.add('btn-flat','red','white-text','lighten-2','fits-selection-dl-btn')
-        downloadTextButton.addEventListener('click', () => { fitsmgr.downloadListSelection() })
+        downloadTextButton.addEventListener('click', () => { fitsmgr.downloadSelectionURLList() })
         selectionOverviewDiv.appendChild(downloadTextButton)
         selectionOverviewDiv.appendChild(createFITSImageTable())
     }
     return selectionOverviewDiv
 }
+
+
+const openDownloadManager = () => {
+    let modal = document.getElementById('download-mgr-modal')
+    let modalInstance = M.Modal.init(modal, {dismissible: true});
+    let modalBody = document.getElementById('download-mgr-modal-content')
+    modalBody.innerText = ''
+    let iframe = document.createElement('iframe')
+    iframe.name = 'download-mgr-iframe'
+    iframe.id = 'download-mgr-iframe'
+    modalBody.appendChild(iframe)
+    let formElement = fitsmgr.getDownloadManagerForm('download-mgr-iframe')
+    iframe.appendChild(formElement)
+    formElement.submit();
+    modalInstance.open()
+}
+
 
 /**
  * Updates the download list in the fits manager, and re-renders the selection table.

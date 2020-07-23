@@ -15,7 +15,8 @@ import Papa from 'papaparse'
  */
 class FITSManager {
   constructor() {
-    this.baseQuery = `SELECT time_exposure, energy_bandpassName, target_name, provenance_name, provenance_version, a.accessURL, target_name, productID, contentLength
+    this.baseQuery = `SELECT time_exposure, energy_bandpassName, target_name, provenance_name, provenance_version,
+       a.accessURL, target_name, productID, contentLength, publisherID
       FROM caom2.Observation as o JOIN caom2.Plane p on o.obsID=p.obsID JOIN caom2.Artifact a on a.planeID=p.planeID
       WHERE o.proposal_project='NGVS' AND o.type='OBJECT' AND a.productType='science'`
     this.currentQuery = []
@@ -87,19 +88,22 @@ class FITSManager {
   }
 
   /**
-   * Opens all urls in the current download list (downloads all files)
+   * Creates returns an html form element that will open the download manager landing page on submission
+   * @param {string} formTarget target attribute for the html form
    */
-  async downloadSelection() {
-    let downloadManagerEndpoint = 'http://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/downloadManager/?'
-    let downloadManagerQuery = this.downloadList
-      .reduce((acc, li) => `${acc}uri=${li.url}&`, downloadManagerEndpoint)
-      .slice(0, -1)
-    console.log(downloadManagerQuery)
-    let response = await fetch(encodeURI(downloadManagerQuery), {
-      method: 'POST',
-      mode: 'cors' 
-    })
-    console.log(response)
+  getDownloadManagerForm(formTarget='_blank') {
+    let downloadManagerPath = 'https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/downloadManager/download?'
+    let form = document.createElement('form')
+    form.method = 'post'
+    form.action = downloadManagerPath
+    form.target = formTarget
+    for (let publisherID of this.downloadList.map(li => li.publisherID)) {
+      let input = document.createElement('input')
+      input.name = 'uri'
+      input.value = publisherID
+      form.appendChild(input)
+    }
+    return form
   }
 
   /**
@@ -119,6 +123,7 @@ class FITSManager {
     let url = fitsImageData.accessURL
     let pointing = fitsImageData.target_name
     let productID = fitsImageData.productID
+    let publisherID = fitsImageData.publisherID
     let contentLength = fitsImageData.contentLength
     let filter = fitsImageData.energy_bandpassName.slice(0,1)
     this.availableFilters.add(filter)
@@ -142,7 +147,7 @@ class FITSManager {
       pipeline = 'raw'
       this.availableIndividualPipelines.add(pipeline)
     }
-    return {filter, exposure, pipeline, url, pointing, productID, stacked, contentLength}
+    return {filter, exposure, pipeline, url, pointing, productID, publisherID, stacked, contentLength}
   }
 
   /**
