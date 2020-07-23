@@ -656,7 +656,7 @@ document.addEventListener('DOMContentLoaded', async function() {
     await appModel.init();
     
     initQueryTabBody(appModel)
-    M.Collapsible.init(document.querySelectorAll('.collapsible'));
+    M.Collapsible.init(document.querySelectorAll('.collapsible'), {accordion: false});
     M.Tabs.init(document.getElementById('query-tab'));
     M.Sidenav.init(document.querySelectorAll('.sidenav'));
     root.classList.remove('in-progress')

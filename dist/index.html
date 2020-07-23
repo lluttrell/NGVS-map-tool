@@ -18,28 +18,30 @@
         </div>
       </li>
       <li>
-        <ul class="collapsible collapsible-accordion">
+        <ul class="collapsible expandable">
           <li>
-            <div class="collapsible-header"><i class="material-icons">place</i>Query</div>
+            <div class="collapsible-header"><i class="material-icons">place</i>Query Catalogs</div>
             <div class="collapsible-body" id="query-tab-body"></div>
           </li>
           <li>
-            <div class="collapsible-header"><i class="material-icons">color_lens</i>Adjust</div>
+            <div class="collapsible-header"><i class="material-icons">camera_alt</i>FITS Images</div>
+            <div class="collapsible-body" id="fits-tab-body"></div>
+          </li>
+          <li>
+            <div class="collapsible-header"><i class="material-icons">color_lens</i>Adjust Map</div>
             <div class="collapsible-body">
-              <form id="image-adjust-form" autocomplete="off">
-                <p class="range-field">
-                  <input type="range" id="saturation" min="0" max="100"/>
-                  <label for="saturation">Saturation</label>
-                </p>  
-                <p class="range-field">
-                  <input type="range" id="contrast" min="0" max="100"/>
-                  <label for="contrast">Contrast</label>
-                </p>  
-                <p class="range-field">
-                  <input type="range" id="brightness" min="0" max="100"/>
-                  <label for="brightness">Brightness</label>
-                </p>  
-              </form>
+              <p class="range-field">
+                <input type="range" id="saturation" min="0" max="100"/>
+                <label for="saturation">Saturation</label>
+              </p>  
+              <p class="range-field">
+                <input type="range" id="contrast" min="0" max="100"/>
+                <label for="contrast">Contrast</label>
+              </p>  
+              <p class="range-field">
+                <input type="range" id="brightness" min="0" max="100"/>
+                <label for="brightness">Brightness</label>
+              </p>  
             </div>
           </li>
         </ul>
