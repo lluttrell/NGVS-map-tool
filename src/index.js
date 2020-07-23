@@ -570,7 +570,7 @@ const createFITSSelectionOverview = () => {
         downloadButton.innerText='Download Selection'
         downloadButton.classList.add('btn-flat','teal','white-text','lighten-2','fits-selection-dl-btn')
         downloadButton.addEventListener('click', (e) => {
-            
+
             openDownloadManager() 
         })
         selectionOverviewDiv.appendChild(downloadButton)
@@ -586,9 +586,9 @@ const createFITSSelectionOverview = () => {
 
 
 const openDownloadManager = () => {
-    let modal = document.getElementById('download-mgr-modal')
-    let modalInstance = M.Modal.init(modal, {dismissible: true});
-    let modalBody = document.getElementById('download-mgr-modal-content')
+    //let modal = document.getElementById('download-mgr-modal')
+    //let modalInstance = M.Modal.init(modal, {dismissible: true});
+    let modalBody = document.getElementById('download-modal-content')
     modalBody.innerText = ''
     let iframe = document.createElement('iframe')
     iframe.name = 'download-mgr-iframe'
@@ -597,7 +597,7 @@ const openDownloadManager = () => {
     let formElement = fitsmgr.getDownloadManagerForm('download-mgr-iframe')
     iframe.appendChild(formElement)
     formElement.submit();
-    modalInstance.open()
+    //modalInstance.open()
 }
 
 

@@ -72,10 +72,10 @@ will-change: unset;
 #download-mgr-iframe {
     border: none;
     width: 100%;
-    height: 100%;
+    height: 95%;
 }
 
-/* #download-mgr-modal {
+#download-modal {
     width: 50%;
-    height: 50%;
-} */
+    height: 80%;
+}
