@@ -3,8 +3,9 @@ env/
 .idea/
 *__pycache__/
 *node_modules/
-client/dist/*.js
-client/dist/*.png
-client/dist/main.js
+dist/*.js
+dist/*.png
+dist/*.js
 .vscode/launch.json
 src/assets/*.csv
+dist/main.js

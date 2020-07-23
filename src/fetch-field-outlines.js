@@ -11,28 +11,27 @@ const path = require('path');
 console.log('retrieving field outline csv files')
 
 // update field outline files
-const minLongExposureTime = 410
-const minLongStackedExposureTime = 410 * 5
+const maxShortExposureTime = 255
 
 let fieldOutlineQueryParameters = [
   {
     filename: 'long_single',
-    timeExposure: `>${minLongExposureTime}`,
+    timeExposure: `>${maxShortExposureTime}`,
     provenanceName: `='ELIXIR'`
   },
   {
     filename: 'short_single',
-    timeExposure: `<${minLongExposureTime}`,
+    timeExposure: `<${maxShortExposureTime}`,
     provenanceName: `='ELIXIR'`
   },
   {
-    filename: 'short_stacked',
-    timeExposure: `<${minLongStackedExposureTime}`,
+    filename: 'long_stacked',
+    timeExposure: `>${maxShortExposureTime}`,
     provenanceName: `='MEGAPIPE'`
   },
   {
-    filename: 'long_stacked',
-    timeExposure: `>${minLongStackedExposureTime}`,
+    filename: 'short_stacked',
+    timeExposure: `<${maxShortExposureTime}`,
     provenanceName: `='MEGAPIPE'`
   }
 ]
