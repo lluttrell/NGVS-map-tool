@@ -17,6 +17,7 @@ const root = document.getElementsByTagName('html')[0]
 const GOOGLE_SKY_TILESET = L.tileLayer(config.skyTileUrl)
 const NGVS_TILE_TILESET = L.tileLayer(config.ngvsTileUrl)
 const fitsmgr = new FITSManager();
+const fieldOutlines = new FieldOutlines();
 
 let myMap = L.map('map-container', {
     center: config.defaultMapLocation,
@@ -83,15 +84,18 @@ L.control.mousePosition({
     position: 'bottomright',
     separator: ' | ',
     lngFormatter: decimal_ra_formatter,
-    latFormatter: decimal_dec_formatter
+    latFormatter: decimal_dec_formatter,
+    lngFirst: true
 }).addTo(myMap);
 
 L.control.mousePosition({
     position: 'bottomright',
     separator: ' | ',
     lngFormatter: hms_formatter,
-    latFormatter: dms_formatter
+    latFormatter: dms_formatter,
+    lngFirst: true
 }).addTo(myMap);
+
 
 // adds search functionality to the searchbar
 const objectSearchForm = document.getElementById('search-form');
@@ -117,12 +121,25 @@ objectSearchForm.addEventListener('submit', async (e) => {
 })
 
 
+const createPointingOverlays = () => {
+    let pointingLayerGroup = L.layerGroup()
+    for (let [name, props] of Object.entries(fieldOutlines.pointings)) {
+        let pointingBoundary = createFieldOutlinePolygon(props)
+        let textIcon = L.divIcon({
+            html: name,
+            className: 'pointing-label'
+        })
+        let pointingLabel = L.marker(pointingBoundary.getBounds().getCenter(), {icon: textIcon})
+        pointingLayerGroup.addLayer(pointingBoundary)
+        pointingLayerGroup.addLayer(pointingLabel)
+    }
+    layerControl.addOverlay(pointingLayerGroup,'NGVS Pointings', 'Pointings')
+}
+
 /**
  * Creates the overlays for the field outlines
  */
 const createFilterOverlays = () => {
-    let fieldOutlines = new FieldOutlines();
-
     for (let filter of config.filters) {
         let longLayerGroup = L.layerGroup()
         if (fieldOutlines.longSingle[filter]) longLayerGroup.addLayer(createFieldOutlinePolygon(fieldOutlines.longSingle[filter]))
@@ -136,15 +153,15 @@ const createFilterOverlays = () => {
 }
 
 /**
- * Returns a L.polygon object for a single filter, exposure length and stacking. Used by createFilterOverlay
- * @param {Object} filterOutline A specifific filter object of one of the four main parameters of FieldOutline class
+ * Returns a L.polygon object for outline objects in FieldOutline class
+ * @param {Object} outlineObj A specifific filter object of one of the five main parameters of FieldOutline class
  */
-const createFieldOutlinePolygon = (filterOutline) => {
-    return L.polygon(filterOutline.coordinates, {
-        color: filterOutline.color,
-        dashArray: filterOutline.dashArray,
-        weight: filterOutline.weight,
-        opacity: filterOutline.opacity,
+const createFieldOutlinePolygon = (outlineObj) => {
+    return L.polygon(outlineObj.coordinates, {
+        color: outlineObj.color,
+        dashArray: outlineObj.dashArray,
+        weight: outlineObj.weight,
+        opacity: outlineObj.opacity,
         fillOpacity: 0.0 
     })
 }
@@ -633,6 +650,7 @@ class App {
 document.addEventListener('DOMContentLoaded', async function() {
 
     root.classList.add('in-progress')
+    createPointingOverlays();
     createFilterOverlays();
     const appModel = new App()
     await appModel.init();

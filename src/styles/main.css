@@ -64,3 +64,7 @@ will-change: unset;
 .in-progress * {
     cursor: wait !important;
 }
+
+.pointing-label {
+    color: yellow;
+}

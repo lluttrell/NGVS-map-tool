@@ -7,19 +7,24 @@ const config = {
   'skyTileUrl' : 'https://mw1.google.com/mw-planetary/sky/skytiles_v1/{x}_{y}_{z}.jpg',
   'ngvsTileUrl' : 'https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/data/pub/GSKY/M.{x}.{y}.{z}.png',
   'colors' : ['yellow','red','blue','orange','teal','purple','lightgreen'],
-  'pointingOutlineColor' : 'dimgray',
   'fieldLineStyles' : {
     'single': {
-      'dashArray': '1',
-      'weight' : 1,
-      'opacity' : 0.8
+      'dashArray': '1, 4',
+      'weight' : 2,
+      'opacity' : 0.5
     },
     'stacked': {
       'dashArray': null,
       'weight': 3,
       'opacity' : 1.0
-    }
+    },
+    'pointing': {
+      'dashArray': null,
+      'weight': 3,
+      'opacity' : 1.0
+    },
   },
+  'pointingOutlineColor' : 'yellow',
   'fieldColors' : {
     'u' : 'indigo',
     'b' : 'blue',
