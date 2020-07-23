@@ -27,8 +27,13 @@ let myMap = L.map('map-container', {
     selectArea: true,
     layers: [GOOGLE_SKY_TILESET, NGVS_TILE_TILESET],
     // renderer: L.canvas()
-    preferCanvas: true
+    preferCanvas: true,
+    attributionControl: false
 })
+
+L.control.attribution({
+    position: 'bottomleft'
+  }).addTo(myMap);
 
 myMap.on('areaselected', (e) => {
     displayAreaSelectionInformation(e.bounds)
@@ -547,7 +552,7 @@ const createFITSImageTable = () => {
  * Constructs a div containing information about the currently created download list in the
  * fitsmanager. If there is one or more images available for download, also shows a table with
  * details of each file
- */
+ */100
 const createFITSSelectionOverview = () => {
     const selectionOverviewDiv = document.createElement('div')
     const resultsTitle = document.createElement('h5')
