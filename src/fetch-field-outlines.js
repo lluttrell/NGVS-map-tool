@@ -6,6 +6,7 @@
 
 const https = require('follow-redirects').https;
 const fs = require('fs');
+const path = require('path');
 
 console.log('retrieving field outline csv files')
 
@@ -56,9 +57,9 @@ fieldOutlineQueryParameters.forEach((obj) => {
     res.on("data", (chunk) => chunks.push(chunk));
     res.on("end", (chunk) => {
       let body = Buffer.concat(chunks);
-      fs.writeFile(`assets/field_outlines_${obj.filename}.csv`, body, (err) => {
+      fs.writeFile(path.join(__dirname,`/assets/field_outlines_${obj.filename}.csv`), body, (err) => {
         if (err) return console.error(err)
-        else return console.log(`updated ./assests/field_outlines${obj.filename}.csv`)
+        else return console.log(`updated field_outlines${obj.filename}.csv`)
       })
     });
     res.on("error", (error) => console.error(error));  
@@ -85,9 +86,9 @@ let req = https.request(options, (res) => {
   res.on("data", (chunk) => chunks.push(chunk));
   res.on("end", (chunk) => {
     let body = Buffer.concat(chunks);
-    fs.writeFile('assets/ngvs_pointings.csv', body, (err) => {
+    fs.writeFile(path.join(__dirname,'/assets/ngvs_pointings.csv'), body, (err) => {
       if (err) return console.error(err)
-      else return console.log(`updated ./assets/ngvs_pointings.csv`)
+      else return console.log(`updated ngvs_pointings.csv`)
     })
   });
   res.on("error", (error) => console.error(error));  
