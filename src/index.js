@@ -5,6 +5,7 @@ import 'leaflet/dist/leaflet.css'
 import 'leaflet-mouse-position'
 import 'leaflet-mouse-position/src/L.Control.MousePosition.css'
 import 'leaflet-groupedlayercontrol'
+import 'leaflet.tilelayer.colorfilter'
 import SelectArea from 'leaflet-area-select'
 import './styles/main.css'
 import { hms_formatter, dms_formatter, decimal_dec_formatter, decimal_ra_formatter } from './coordinate-formatter'
@@ -14,8 +15,16 @@ import FieldOutlines from './field-outlines'
 import FITSManager from './fits'
 
 const root = document.getElementsByTagName('html')[0]
-const GOOGLE_SKY_TILESET = L.tileLayer(config.skyTileUrl)
-const NGVS_TILE_TILESET = L.tileLayer(config.ngvsTileUrl)
+
+let tilesetFilter = []
+const GOOGLE_SKY_TILESET = L.tileLayer.colorFilter(config.skyTileUrl, {
+    attribution: 'SDSS Attribution',
+    filter: tilesetFilter
+})
+const NGVS_TILE_TILESET = L.tileLayer.colorFilter(config.ngvsTileUrl, {
+    attribution: 'NGVS Attribution',
+    filter: tilesetFilter
+})
 const fitsmgr = new FITSManager();
 const fieldOutlines = new FieldOutlines();
 
@@ -552,7 +561,7 @@ const createFITSImageTable = () => {
  * Constructs a div containing information about the currently created download list in the
  * fitsmanager. If there is one or more images available for download, also shows a table with
  * details of each file
- */100
+ */
 const createFITSSelectionOverview = () => {
     const selectionOverviewDiv = document.createElement('div')
     const resultsTitle = document.createElement('h5')
@@ -652,6 +661,33 @@ const displayAreaSelectionInformation = async (selectionBounds) => {
     modalBody.appendChild(createFITSSelectionOverview())
 }
 
+const createTileAdjustmentSliders = (parameter, minValue, maxValue) => {
+    let slider = document.createElement('p')
+    slider.classList.add('range-field')
+    let input = document.createElement('input')
+    input.setAttribute('type','range')
+    input.id = parameter
+    input.setAttribute('min',minValue)
+    input.setAttribute('max',maxValue)
+    input.addEventListener('input',(e) => {
+        NGVS_TILE_TILESET.updateFilter([`${e.target.id}:${e.target.value}%`])
+    })
+    let label = document.createElement('label')
+    label.setAttribute('for', parameter)
+    label.innerText = parameter
+    slider.appendChild(input)
+    slider.appendChild(label)
+    return slider
+}
+
+
+const initAdjustmentTabBody = () => {
+    let adjustmentTabBody = document.getElementById('adjustment-tab-body')
+    for (let prop of ['contrast','saturation','brightness']) {
+        let slider = createTileAdjustmentSliders(prop, 0, 100)
+        adjustmentTabBody.appendChild(slider)
+    }
+}
 
 class App {
     constructor() {
@@ -679,8 +715,8 @@ document.addEventListener('DOMContentLoaded', async function() {
     createFilterOverlays();
     const appModel = new App()
     await appModel.init();
-    
     initQueryTabBody(appModel)
+    initAdjustmentTabBody();
     M.Collapsible.init(document.querySelectorAll('.collapsible'), {accordion: false});
     M.Tabs.init(document.getElementById('query-tab'));
     M.Sidenav.init(document.querySelectorAll('.sidenav'));

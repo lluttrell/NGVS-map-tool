@@ -27,6 +27,7 @@
     "leaflet": "^1.6.0",
     "leaflet-area-select": "^1.0.3",
     "leaflet-mouse-position": "^1.2.0",
+    "leaflet.tilelayer.colorfilter": "^1.2.5",
     "materialize-css": "^1.0.0",
     "papaparse": "^5.2.0"
   }
