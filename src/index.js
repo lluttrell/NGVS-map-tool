@@ -13,102 +13,14 @@ import { config } from '../app.config'
 import Catalog from './catalog'
 import FieldOutlines from './field-outlines'
 import FITSManager from './fits'
+import Map from './map'
 
 const root = document.getElementsByTagName('html')[0]
-
-let tilesetFilter = []
-const GOOGLE_SKY_TILESET = L.tileLayer.colorFilter(config.skyTileUrl, {
-    attribution: 'SDSS Attribution',
-    filter: tilesetFilter
-})
-const NGVS_TILE_TILESET = L.tileLayer.colorFilter(config.ngvsTileUrl, {
-    attribution: 'NGVS Attribution',
-    filter: tilesetFilter
-})
 const fitsmgr = new FITSManager();
-const fieldOutlines = new FieldOutlines();
+const myMapObj = new Map();
+myMapObj.init();
 
-let myMap = L.map('map-container', {
-    center: config.defaultMapLocation,
-    zoom: config.defaultZoom,
-    minZoom: config.minZoom,
-    maxZoom: config.maxZoom,
-    selectArea: true,
-    layers: [GOOGLE_SKY_TILESET, NGVS_TILE_TILESET],
-    // renderer: L.canvas()
-    preferCanvas: true,
-    attributionControl: false
-})
-
-L.control.attribution({
-    position: 'bottomleft'
-  }).addTo(myMap);
-
-myMap.on('areaselected', (e) => {
-    displayAreaSelectionInformation(e.bounds)
-  });
-
-/**
- * Returns a leaflet marker icon
- * @param {string} color icon color (red, blue, green, yellow, black)
- */
-const createMarkerIcon = (color) => {
-    return new L.Icon({
-        iconUrl: `https://cdn.rawgit.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-${color}.png`,
-        shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
-        iconSize: [25, 41],
-        iconAnchor: [12, 41],
-        popupAnchor: [1, -34],
-        shadowSize: [41, 41]
-    });
-}
-
-let searchMarker = L.marker([0,0], {
-    "opacity" : 0.0,
-    "icon": createMarkerIcon('yellow')}).addTo(myMap);
-
-let baseMaps = {
-    'Base Maps': {
-        'SDSS': GOOGLE_SKY_TILESET,
-        'NGVS': NGVS_TILE_TILESET
-    }
-}
-
-let layerControl = L.control.groupedLayers(null,baseMaps, {collapsed: false})
-layerControl.addTo(myMap)
-
-const toLatLng = (coordinates) => {
-    let dec = coordinates[0]
-    let ra = coordinates[1];
-    if (ra > 180) { ra = 180 - ra};
-    return L.latLng([dec,ra]);
-}
-
-const moveSearchMarker = (name, coordinates) => {
-    searchMarker.setLatLng(toLatLng(coordinates));
-    searchMarker.bindTooltip(`${name}`)
-    searchMarker.setOpacity(1.0);
-}
-
-const clearSearchMarker = () => {
-    searchMarker.setOpacity(0.0);
-}
-
-L.control.mousePosition({
-    position: 'bottomright',
-    separator: ' | ',
-    lngFormatter: decimal_ra_formatter,
-    latFormatter: decimal_dec_formatter,
-    lngFirst: true
-}).addTo(myMap);
-
-L.control.mousePosition({
-    position: 'bottomright',
-    separator: ' | ',
-    lngFormatter: hms_formatter,
-    latFormatter: dms_formatter,
-    lngFirst: true
-}).addTo(myMap);
+const myMap = myMapObj.lMap;
 
 
 // adds search functionality to the searchbar
@@ -134,51 +46,6 @@ objectSearchForm.addEventListener('submit', async (e) => {
     }
 })
 
-
-const createPointingOverlays = () => {
-    let pointingLayerGroup = L.layerGroup()
-    for (let [name, props] of Object.entries(fieldOutlines.pointings)) {
-        let pointingBoundary = createFieldOutlinePolygon(props)
-        let textIcon = L.divIcon({
-            html: name,
-            className: 'pointing-label'
-        })
-        let pointingLabel = L.marker(pointingBoundary.getBounds().getCenter(), {icon: textIcon})
-        pointingLayerGroup.addLayer(pointingBoundary)
-        pointingLayerGroup.addLayer(pointingLabel)
-    }
-    layerControl.addOverlay(pointingLayerGroup,'NGVS', 'Pointings')
-}
-
-/**
- * Creates the overlays for the field outlines
- */
-const createFilterOverlays = () => {
-    for (let filter of config.filters) {
-        let longLayerGroup = L.layerGroup()
-        if (fieldOutlines.longSingle[filter]) longLayerGroup.addLayer(createFieldOutlinePolygon(fieldOutlines.longSingle[filter]))
-        if (fieldOutlines.longStacked[filter]) longLayerGroup.addLayer(createFieldOutlinePolygon(fieldOutlines.longStacked[filter]))
-        layerControl.addOverlay(longLayerGroup, filter, 'Field Outlines (Long)')
-        let shortLayerGroup = L.layerGroup()
-        if (fieldOutlines.shortSingle[filter]) shortLayerGroup.addLayer(createFieldOutlinePolygon(fieldOutlines.shortSingle[filter]))
-        if (fieldOutlines.shortStacked[filter]) shortLayerGroup.addLayer(createFieldOutlinePolygon(fieldOutlines.shortStacked[filter]))
-        layerControl.addOverlay(shortLayerGroup, filter, 'Field Outlines (Short)')
-    }
-}
-
-/**
- * Returns a L.polygon object for outline objects in FieldOutline class
- * @param {Object} outlineObj A specifific filter object of one of the five main parameters of FieldOutline class
- */
-const createFieldOutlinePolygon = (outlineObj) => {
-    return L.polygon(outlineObj.coordinates, {
-        color: outlineObj.color,
-        dashArray: outlineObj.dashArray,
-        weight: outlineObj.weight,
-        opacity: outlineObj.opacity,
-        fillOpacity: 0.0 
-    })
-}
 
 /**
  * Initializes the menu for selecting catalogs in the 'query' tab

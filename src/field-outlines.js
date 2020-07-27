@@ -15,6 +15,51 @@ class FieldOutlines {
     this.pointings = this._parsePointingCSV(pointingCSV)
   }
 
+  getPointingLayerGroup() {
+    let pointingLayerGroup = L.layerGroup()
+    for (let [name, props] of Object.entries(this.pointings)) {
+        let pointingBoundary = this._createFieldOutlinePolygon(props)
+        let textIcon = L.divIcon({
+            html: name,
+            className: 'pointing-label'
+        })
+        let pointingLabel = L.marker(pointingBoundary.getBounds().getCenter(), {icon: textIcon})
+        pointingLayerGroup.addLayer(pointingBoundary)
+        pointingLayerGroup.addLayer(pointingLabel)
+    }
+    return pointingLayerGroup
+  }
+
+
+  getLongOutlineLayerGroup(filterName) {
+    let layerGroup = L.layerGroup()
+    if (this.longSingle[filterName]) layerGroup.addLayer(this._createFieldOutlinePolygon(this.longSingle[filterName]))
+    if (this.longStacked[filterName]) layerGroup.addLayer(this._createFieldOutlinePolygon(this.longStacked[filterName]))
+    return layerGroup
+  }
+
+  getShortOutlineLayerGroup(filterName) {
+    let layerGroup = L.layerGroup()
+    if (this.shortSingle[filterName]) layerGroup.addLayer(this._createFieldOutlinePolygon(this.shortSingle[filterName]))
+    if (this.shortStacked[filterName]) layerGroup.addLayer(this._createFieldOutlinePolygon(this.shortStacked[filterName]))
+    return layerGroup
+  }
+
+
+  /**
+ * Returns a L.polygon object for outline objects in FieldOutline class
+ * @param {Object} outlineObj A specifific filter object of one of the five main parameters of FieldOutline class
+ */
+  _createFieldOutlinePolygon(outlineObj) {
+    return L.polygon(outlineObj.coordinates, {
+      color: outlineObj.color,
+      dashArray: outlineObj.dashArray,
+      weight: outlineObj.weight,
+      opacity: outlineObj.opacity,
+      fillOpacity: 0.0 
+  })
+}
+
   _parsePointingCSV(pointingArray) {
     let pointings = {}
     pointingArray.shift()
