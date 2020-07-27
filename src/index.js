@@ -147,7 +147,7 @@ const createPointingOverlays = () => {
         pointingLayerGroup.addLayer(pointingBoundary)
         pointingLayerGroup.addLayer(pointingLabel)
     }
-    layerControl.addOverlay(pointingLayerGroup,'NGVS Pointings', 'Pointings')
+    layerControl.addOverlay(pointingLayerGroup,'NGVS', 'Pointings')
 }
 
 /**

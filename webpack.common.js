@@ -1,15 +1,6 @@
 const path = require('path');
 
 module.exports = {
-  mode: 'development',
-  devtool: 'inline-source-map',
-  devServer: {
-    contentBase: path.join(__dirname, 'dist'),
-    host: '0.0.0.0',
-    port: 8085,
-    disableHostCheck: true,
-    historyApiFallback: true
-  },
   entry: './src/index.js',
   output: {
     filename: 'main.js',
