@@ -1,9 +1,20 @@
+/**
+ * @fileoverview This class is to render a search bar that allows a user to search
+ * for object names or coordinates, and plots the results as a marker on a leaflet
+ * map instance. It queries the cadc name resolving service to parse object names or
+ * coordinate pairs in a reasonable format into a location that can be plotted.
+ */
+
 class SearchBar {
   constructor(lMap) {
     this.lMap = lMap
     this.searchString = ''
   }
 
+  /**
+   * Renders searchbar inside a node element in the DOM
+   * @param {HTMLElement} node Node to which append searchbar to
+   */
   render(node) {
     let searchBar = document.createElement('div')
     searchBar.classList.add('input-field')
@@ -20,6 +31,7 @@ class SearchBar {
     searchBoxInput.addEventListener('keyup', (e) => {
       if (e.key === 'Enter') {
         this._performSearch()
+        searchBoxInput.value = ''
       } else {
         this.searchString = searchBoxInput.value
       }
@@ -29,13 +41,16 @@ class SearchBar {
     node.appendChild(searchBar)
   }
 
+  /**
+  * Method used when user searches for an object. If a search is succesful it updates
+  * the searchMarker in the map object. Otherwise notifies the user with a toast. 
+  */
   async _performSearch() {
     if (this.searchString === '') {
       this.lMap.clearSearchMarker()
     } else {
       try {
         let queryResults = await this._queryNameResolver()
-        console.log(queryResults)
         this.lMap.setSearchMarker(queryResults.name, queryResults.coordinates)
       } catch (e) {
         M.toast({html: e.message, classes:'red lighten-2'})
@@ -43,6 +58,10 @@ class SearchBar {
     }
   }
 
+  /**
+   * Queries the cadc name resolver service, if a result is returned from the api
+   * returns an object containing the name and coordinates of the search results
+   */
   async _queryNameResolver() {
     let response = await fetch(`https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/AdvancedSearch/unitconversion/Plane.position.bounds?term=${this.searchString}&resolver=all`)
     let resultJSON = await response.json();
@@ -53,6 +72,11 @@ class SearchBar {
     }
   }
 
+  /**
+   * Parses the resolveValue from the cadc name resolver into an object containing
+   * the name and coordinates of the resolveValue
+   * @param {string} resolveValue 
+   */
   _parseNameResolverResults(resolveValue) {
     const resolveValues = resolveValue.split('\n');
     let targetName = resolveValues[0].split(':')[1]

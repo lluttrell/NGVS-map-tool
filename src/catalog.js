@@ -17,7 +17,7 @@ class Catalog {
   }
 
   /**
-   * Initializes the catalog object. Queries database to obtain principle column names for the 
+   * Initializes    //host: 'localhost', the catalog object. Queries database to obtain principle column names for the 
    * catalog 
    */
   async init() {
