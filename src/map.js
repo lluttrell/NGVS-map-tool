@@ -18,7 +18,6 @@ class Map {
       attribution: 'SDSS Attribution',
       filter: this.tilesetFilter
     })
-  
     this.NGVSTileLayer = L.tileLayer.colorFilter(config.ngvsTileUrl, {
       attribution: 'NGVS Attribution',
       filter: this.tilesetFilter
@@ -62,15 +61,15 @@ class Map {
   }
 
 
-  moveSearchMarker(name, coordinates) {
-    searchMarker.setLatLng(this.toLatLng(coordinates));
-    searchMarker.bindTooltip(`${name}`)
-    searchMarker.setOpacity(1.0);
+  setSearchMarker(name, coordinates) {
+    this.searchMarker.setLatLng(this._toLatLng(coordinates));
+    this.searchMarker.bindTooltip(`${name}`)
+    this.searchMarker.setOpacity(1.0);
   }
 
 
   clearSearchMarker() {
-    searchMarker.setOpacity(0.0);
+    this.searchMarker.setOpacity(0.0);
   }
 
 
@@ -78,8 +77,8 @@ class Map {
     return L.control.mousePosition({
       position: 'bottomright',
       separator: ' | ',
-      lngFormatter: decimal_ra_formatter,
-      latFormatter: decimal_dec_formatter,
+      lngFormatter: lngFormatter,
+      latFormatter: latFormatter,
       lngFirst: true
     })
   }

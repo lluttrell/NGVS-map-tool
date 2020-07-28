@@ -9,31 +9,24 @@
   <header>
     <ul class="sidenav sidenav-fixed nav-mobile">
       <div class="container">
-      <li class="search">
-        <div class="search-wrapper">
-          <form class="input-field" id="search-form" enctype="multipart/form-data" autocomplete="off">
-            <i class="material-icons prefix">search</i>
-            <input id="search-box" name="search_string" placeholder="Object/Location Search" type="search">
-          </form>
-        </div>
-      </li>
-      <li>
-        <ul class="collapsible expandable">
-          <li>
-            <div class="collapsible-header"><i class="material-icons">place</i>Query Catalogs</div>
-            <div class="collapsible-body" id="query-tab-body"></div>
-          </li>
-          <li>
-            <div class="collapsible-header"><i class="material-icons">camera_alt</i>FITS Images</div>
-            <div class="collapsible-body" id="fits-tab-body"></div>
-          </li>
-          <li>
-            <div class="collapsible-header"><i class="material-icons">color_lens</i>Adjust Map</div>
-            <div class="collapsible-body" id="adjustment-tab-body"></div>
-          </li>
-        </ul>
-      </li>
-    </div>
+        <li id="search"></li>
+        <li>
+          <ul class="collapsible expandable">
+            <li>
+              <div class="collapsible-header"><i class="material-icons">place</i>Query Catalogs</div>
+              <div class="collapsible-body" id="query-tab-body"></div>
+            </li>
+            <li>
+              <div class="collapsible-header"><i class="material-icons">camera_alt</i>FITS Images</div>
+              <div class="collapsible-body" id="fits-tab-body"></div>
+            </li>
+            <li>
+              <div class="collapsible-header"><i class="material-icons">color_lens</i>Adjust Map</div>
+              <div class="collapsible-body" id="adjustment-tab-body"></div>
+            </li>
+          </ul>
+        </li>
+      </div>
     </ul>
     <div class="modal" id="object-modal">
       <div class="modal-content" id="object-modal-content"></div>

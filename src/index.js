@@ -3,48 +3,28 @@ import 'materialize-css/dist/js/materialize.min.js'
 import 'leaflet'
 import 'leaflet/dist/leaflet.css'
 import 'leaflet-mouse-position'
-import 'leaflet-mouse-position/src/L.Control.MousePosition.css'
 import 'leaflet-groupedlayercontrol'
 import 'leaflet.tilelayer.colorfilter'
 import SelectArea from 'leaflet-area-select'
 import './styles/main.css'
-import { hms_formatter, dms_formatter, decimal_dec_formatter, decimal_ra_formatter } from './coordinate-formatter'
 import { config } from '../app.config'
 import Catalog from './catalog'
-import FieldOutlines from './field-outlines'
 import FITSManager from './fits'
 import Map from './map'
+import SearchBar from './searchbar'
 
 const root = document.getElementsByTagName('html')[0]
 const fitsmgr = new FITSManager();
-const myMapObj = new Map();
-myMapObj.init();
+const leafletMap = new Map();
+leafletMap.init();
 
-const myMap = myMapObj.lMap;
+const searchBar = new SearchBar(leafletMap)
+searchBar.render(document.getElementById('search'))
+
+//const myMap = myMapObj.lMap;
 
 
-// adds search functionality to the searchbar
-const objectSearchForm = document.getElementById('search-form');
-const objectSearchBox = document.getElementById('search-box');
-objectSearchForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const searchString = objectSearchBox.value;
-    const response = await fetch(`https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/AdvancedSearch/unitconversion/Plane.position.bounds?term=${searchString}&resolver=all`)
-    const resultJSON = await response.json();
-    if (resultJSON.resolveStatus === "GOOD") {
-        // the resolveValue object is (strangely) not valid JSON so needs to be manually parsed
-        // this will need to be changed if the API changes
-        const resolveValues = resultJSON.resolveValue.split('\n');
-        let targetName = resolveValues[0].split(':')[1]
-        let targetDec = parseFloat(resolveValues[1].split(':')[1])
-        let targetRA = parseFloat(resolveValues[2].split(':')[1])
-        moveSearchMarker(targetName, [targetDec, targetRA]);
-    } else if(searchString === ''){
-        clearSearchMarker()
-    } else {
-        M.toast({html: 'Search Failed', classes:'red lighten-2'})
-    }
-})
+
 
 
 /**
@@ -578,8 +558,6 @@ class App {
 document.addEventListener('DOMContentLoaded', async function() {
 
     root.classList.add('in-progress')
-    createPointingOverlays();
-    createFilterOverlays();
     const appModel = new App()
     await appModel.init();
     initQueryTabBody(appModel)
