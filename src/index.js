@@ -12,249 +12,88 @@ import Catalog from './catalog'
 import FITSManager from './fits'
 import Map from './map'
 import SearchBar from './searchbar'
+import QueryTab from './query-tab'
 
 const root = document.getElementsByTagName('html')[0]
-const fitsmgr = new FITSManager();
-const leafletMap = new Map();
-leafletMap.init();
+// const initQueryTabBody = (appModel) => {
+//     let queryTabBody = document.getElementById('query-tab-body')
+//     if (appModel.catalogList.length == 0) {
+//         queryTabBody.innerHTML = '<div class="container"><p>There are no available catalogs</p></div>'
+//     }
+//     const selectMenu = document.createElement('select')
+//     selectMenu.id = 'query-tab-select-menu'
+//     queryTabBody.appendChild(selectMenu)
+//     initSelectMenu()
+//     for (let catObj of appModel.catalogList) {
+//         addCatalogToSelectMenu(catObj)
+//         let refineForm = document.createElement('form')
+//         refineForm.setAttribute('id', `${catObj.name}-form`)
+//         refineForm.setAttribute('class', 'refine-form hide row')
+//         for (let principleColumn of catObj.principleColumns) {
+//             refineForm.appendChild(createRefineField(catObj, principleColumn))
+//         }
+//         refineForm.appendChild(createButtonDiv(catObj))
+//         queryTabBody.appendChild(refineForm)
+//     }
+// }
 
-const searchBar = new SearchBar(leafletMap)
-searchBar.render(document.getElementById('search'))
+// /**
+//  * Adds a catalog name to the query-tab-select-menu
+//  * @param {Catalog} catalog Catalog to add to menu
+//  */
+// const addCatalogToSelectMenu = (catalog) => {
+//     const selectMenu = document.getElementById('query-tab-select-menu');
+//     let optionElement = document.createElement('option');
+//     optionElement.setAttribute('value', catalog.name);
+//     optionElement.innerHTML = catalog.name;
+//     selectMenu.appendChild(optionElement);
+//     M.FormSelect.init(selectMenu);
+// }
 
-//const myMap = myMapObj.lMap;
-
-
-
-
-
-/**
- * Initializes the menu for selecting catalogs in the 'query' tab
- */
-const initSelectMenu = () => {
-    const selectMenu = document.getElementById('query-tab-select-menu');
-    let defaultSelect = document.createElement('option');
-    defaultSelect.setAttribute('disabled',true);
-    defaultSelect.setAttribute('selected', true)
-    defaultSelect.setAttribute('value','')
-    defaultSelect.innerText = 'Select Catalog';
-    selectMenu.appendChild(defaultSelect);
-    selectMenu.addEventListener('change', changeCatalog);
-}
-
-const initQueryTabBody = (appModel) => {
-    let queryTabBody = document.getElementById('query-tab-body')
-    if (appModel.catalogList.length == 0) {
-        queryTabBody.innerHTML = '<div class="container"><p>There are no available catalogs</p></div>'
-    }
-    const selectMenu = document.createElement('select')
-    selectMenu.id = 'query-tab-select-menu'
-    queryTabBody.appendChild(selectMenu)
-    initSelectMenu()
-    for (let catObj of appModel.catalogList) {
-        addCatalogToSelectMenu(catObj)
-        let refineForm = document.createElement('form')
-        refineForm.setAttribute('id', `${catObj.name}-form`)
-        refineForm.setAttribute('class', 'refine-form hide row')
-        for (let principleColumn of catObj.principleColumns) {
-            refineForm.appendChild(createRefineField(catObj, principleColumn))
-        }
-        refineForm.appendChild(createButtonDiv(catObj))
-        queryTabBody.appendChild(refineForm)
-    }
-}
-
-/**
- * Adds a catalog name to the query-tab-select-menu
- * @param {Catalog} catalog Catalog to add to menu
- */
-const addCatalogToSelectMenu = (catalog) => {
-    const selectMenu = document.getElementById('query-tab-select-menu');
-    let optionElement = document.createElement('option');
-    optionElement.setAttribute('value', catalog.name);
-    optionElement.innerHTML = catalog.name;
-    selectMenu.appendChild(optionElement);
-    M.FormSelect.init(selectMenu);
-}
-
-/**
- * Switches view of refine forms to the form selected in the query-tab-select-menu
- */
-const changeCatalog = () => {
-    let selectMenu = document.getElementById('query-tab-select-menu');
-    let currentCatalogName = selectMenu.value;
-    let divs = document.getElementsByClassName('refine-form');
-    for (let div of divs) {
-        div.classList.add("hide");
-        if (div.id === `${currentCatalogName}-form`) {
-            div.classList.remove("hide");
-        }
-    }
-}
+// /**
+//  * Switches view of refine forms to the form selected in the query-tab-select-menu
+//  */
+// const changeCatalog = () => {
+//     let selectMenu = document.getElementById('query-tab-select-menu');
+//     let currentCatalogName = selectMenu.value;
+//     let divs = document.getElementsByClassName('refine-form');
+//     for (let div of divs) {
+//         div.classList.add("hide");
+//         if (div.id === `${currentCatalogName}-form`) {
+//             div.classList.remove("hide");
+//         }
+//     }
+// }
 
 
-/**
- * Creates a slider to be used for setting the marker size in the query menu
- * @param {String} catalogName Catalog name to create slider for
- */
-const createMarkerSizeSlider = (catalogName) => {
-    let markerSizeDiv = document.createElement('div');
-    markerSizeDiv.setAttribute('class','col s12');
-    let markerSizeSlider = document.createElement('input');
-    markerSizeSlider.setAttribute('type','range');
-    markerSizeSlider.setAttribute('min','100');
-    markerSizeSlider.setAttribute('max','5000');
-    markerSizeSlider.setAttribute('value','500');
-    markerSizeSlider.setAttribute('id',`${catalogName}-markerSizeSlider`);
-    let markerSizeLabel = document.createElement('label');
-    markerSizeLabel.setAttribute('for',`${catalogName}-markerSizeSlider`);
-    markerSizeLabel.innerHTML = 'Marker Size';
-    markerSizeDiv.appendChild(markerSizeSlider);
-    markerSizeDiv.appendChild(markerSizeLabel);
-    return markerSizeDiv;
-}
+// /**
+//  * Creates a slider to be used for setting the marker size in the query menu
+//  * @param {String} catalogName Catalog name to create slider for
+//  */
+// const createMarkerSizeSlider = (catalogName) => {
+//     let markerSizeDiv = document.createElement('div');
+//     markerSizeDiv.setAttribute('class','col s12');
+//     let markerSizeSlider = document.createElement('input');
+//     markerSizeSlider.setAttribute('type','range');
+//     markerSizeSlider.setAttribute('min','100');
+//     markerSizeSlider.setAttribute('max','5000');
+//     markerSizeSlider.setAttribute('value','500');
+//     markerSizeSlider.setAttribute('id',`${catalogName}-markerSizeSlider`);
+//     let markerSizeLabel = document.createElement('label');
+//     markerSizeLabel.setAttribute('for',`${catalogName}-markerSizeSlider`);
+//     markerSizeLabel.innerHTML = 'Marker Size';
+//     markerSizeDiv.appendChild(markerSizeSlider);
+//     markerSizeDiv.appendChild(markerSizeLabel);
+//     return markerSizeDiv;
+// }
 
-
-/**
- * Creates an input field for an individual principle column from an individual catalog
- * @param {Catalog} catalog catalog name for input field 
- * @param {string} principleColumn principle column name fo input field
- */
-const createRefineField = (catalog, principleColumn) => {
-    let inputField = document.createElement('div')
-    inputField.setAttribute('class', 'input-field col s6')
-    let input = document.createElement('input')
-    input.setAttribute('name', principleColumn)
-    input.setAttribute('type', 'text')
-    input.setAttribute('id', `${catalog.name}-${principleColumn}`)
-    input.addEventListener('input', () => {
-        catalog.refineParameters[principleColumn] = input.value;
-    })
-    let label = document.createElement('label')
-    label.setAttribute('for', `${catalog.name}-${principleColumn}`)
-    label.innerHTML = `${principleColumn.slice(9)}`
-    inputField.appendChild(label)
-    inputField.appendChild(input)
-    return inputField
-}
-
-
-/**
- * Creates the apply, clear, and download buttons for the refine section
- * @param {Catalog} catalog catalog to create buttons for
- * @param {string} catalogLayer le
- */
-const createButtonDiv = (catalog) => {
-    let buttonDiv = document.createElement('div')
-    buttonDiv.setAttribute('class', 'col s12 refine-btns')
-    let submitButton = document.createElement('input')
-    submitButton.setAttribute('value', 'apply')
-    submitButton.setAttribute('class', 'btn-small')
-    submitButton.setAttribute('type', 'button')
-    submitButton.addEventListener('click', async () => {
-        root.classList.add('in-progress')
-        await catalog.query();
-        renderCatalogQuery(catalog);
-        root.classList.remove('in-progress')
-    })
-    let downloadButton = document.createElement('input')
-    downloadButton.setAttribute('value', 'download')
-    downloadButton.setAttribute('type', 'button')
-    downloadButton.setAttribute('class', 'btn-small orange lighten-2')
-    downloadButton.addEventListener('click', async () => {
-        await catalog.query(false)
-        downloadQuery(catalog)
-    })
-    let clearButton = document.createElement('input')
-    clearButton.setAttribute('type', 'button')
-    clearButton.setAttribute('value', 'clear')
-    clearButton.setAttribute('class', 'btn-small red lighten-2')
-    clearButton.addEventListener('click', () => resetQueryForm(catalog))
-    buttonDiv.appendChild(submitButton)
-    buttonDiv.appendChild(downloadButton)
-    buttonDiv.appendChild(clearButton)
-    return buttonDiv
-}
-
-
-const renderCatalogQuery = (catalog) => {
-    layerControl.removeLayer(catalog.layerGroup)
-    myMap.removeLayer(catalog.layerGroup);
-    catalog.layerGroup.clearLayers();
-    for (let [name,lon,lat] of catalog.currentQuery) {
-        let coordinates = L.latLng(lat,lon)
-        let myMarker = L.circle(coordinates, {
-            radius: catalog.markerSize,
-            color: catalog.markerColor,
-            weight: 1})
-        myMarker.bindTooltip(`${name} (${catalog.name})`)                   
-        myMarker.on('click', () => displayObjectInformation(catalog, name));
-        myMarker.addTo(catalog.layerGroup);
-    }
-    catalog.layerGroup.addTo(myMap)
-    layerControl.addOverlay(catalog.layerGroup, catalog.name,'Catalog Queries');
-}
-
-/**
- * Downloads the currentDownload from a catalog in csv format
- * @param {Catalog} catalog
- */
-const downloadQuery = (catalog) => {
-    let currentDate = Date.now();
-    let blob = new Blob([catalog.currentDownload], {type: 'text/csv', endings:'native'});
-    let link = document.createElement('a');
-    link.href = window.URL.createObjectURL(blob);
-    link.download =`${catalog.name}-${currentDate}.csv`;
-    link.click();
-}
-
-const resetQueryForm = (catalog) => {
-    document.getElementById(`${catalog.name}-form`).reset();
-    myMap.removeLayer(catalog.layerGroup)
-    //catalogLayer.remove();
-    catalog.layerGroup.clearLayers();
-    layerControl.removeLayer(catalog.layerGroup);
-}
-
-/**
- * Displays information about a single object in a modal popup window
- * @param {string} catalogName 
- * @param {string} objectID 
- */
-const displayObjectInformation = async (catalog, objectID) => {
-    let modalElem = document.getElementById('object-modal')
-    let modalInstance = M.Modal.init(modalElem, {dismissible: true});
-    let modalBody = document.getElementById('object-modal-content')
-    modalBody.innerHTML = '<p>Retrieving selection from database</p>'
-    modalBody.innerHTML += '<div class="progress"><div class="indeterminate"></div></div>'
-    modalInstance.open();
-    await catalog.queryObject(objectID)
-    modalBody.innerHTML = ''
-    const modalTitle = document.createElement('h4')
-    modalTitle.innerHTML = objectID
-    modalBody.appendChild(modalTitle)
-    modalBody.appendChild(createObjectInformationTable(catalog))
-    
-}
-
-const createObjectInformationTable = (catalog) => {
-    let table = document.createElement('table')
-    table.classList.add('highlight')
-    let tableHead = document.createElement('thead')
-    tableHead.innerHTML = '<tr><th>Property</th><th>Value</th></tr>'
-    let tableBody = document.createElement('tbody')
-    for(let [key,value] of Object.entries(catalog.currentObjectQuery)) {
-        let row = document.createElement('tr');
-        let property = document.createElement('td');
-        property.innerHTML = key;
-        let propertyValue = document.createElement('td');
-        propertyValue.innerHTML = value;
-        row.appendChild(property);
-        row.appendChild(propertyValue);
-        tableBody.appendChild(row);
-    }
-    table.append(tableHead,tableBody)
-    return table
-}
+// const resetQueryForm = (catalog) => {
+//     document.getElementById(`${catalog.name}-form`).reset();
+//     myMap.removeLayer(catalog.layerGroup)
+//     //catalogLayer.remove();
+//     catalog.layerGroup.clearLayers();
+//     layerControl.removeLayer(catalog.layerGroup);
+// }
 
 const createFITSFilterSelectionButtons = () => {
     const buttonDiv = document.createElement('div')
@@ -540,18 +379,28 @@ class App {
     constructor() {
         this.catalogList = []
         this.currentCatalog = null
+        this.leafletMap = new Map();
     }
 
     async init() {
+        this.leafletMap.init();
         for (let [catalogName, color] of config.catalogList.map((e, i) => [e, config.colors[i]])) {
             try {
-                let catalog = new Catalog(catalogName, color);
+                let catalog = new Catalog(catalogName, color, this.leafletMap);
                 await catalog.init();
                 this.catalogList.push(catalog)
             } catch(e) {
                 M.toast({html: `Failed to load ${catalogName}: Permission Denied`, classes:'red lighten-2'})
             }
         }
+
+        const fitsmgr = new FITSManager();
+        
+        const searchBar = new SearchBar(this.leafletMap)
+        searchBar.render(document.getElementById('search'))
+
+        const queryTab = new QueryTab(this.catalogList)
+        queryTab.render(document.getElementById('query-tab-body'))
     }
 }
 
@@ -560,8 +409,6 @@ document.addEventListener('DOMContentLoaded', async function() {
     root.classList.add('in-progress')
     const appModel = new App()
     await appModel.init();
-    initQueryTabBody(appModel)
-    initAdjustmentTabBody();
     M.Collapsible.init(document.querySelectorAll('.collapsible'), {accordion: false});
     M.Tabs.init(document.getElementById('query-tab'));
     M.Sidenav.init(document.querySelectorAll('.sidenav'));
