@@ -14,14 +14,27 @@ class Map {
   constructor() {
     this.tilesetFilter = []
     this.fieldOutlines = new FieldOutlines();
-    this.SDSSTileLayer = L.tileLayer.colorFilter(config.skyTileUrl, {
-      attribution: 'SDSS Attribution',
-      filter: this.tilesetFilter
-    })
-    this.NGVSTileLayer = L.tileLayer.colorFilter(config.ngvsTileUrl, {
-      attribution: 'NGVS Attribution',
-      filter: this.tilesetFilter
-    })
+    this.tileSets = config.baseTileSets
+    for (let tileSet of this.tileSets) {
+      tileSet['tileLayer'] = L.tileLayer.colorFilter(tileSet.url, {
+        attribution: tileSet.attribution,
+        filter: this.tilesetFilter
+      })
+    }
+      // t['tileLayer'] = L.tileLayer.colorFilter(t.url, {
+      //     attribution: t.attribution,
+      //     filter: this.tilesetFilter
+      // })
+
+    console.log(this.tileSets)
+    // this.SDSSTileLayer = L.tileLayer.colorFilter(config.skyTileUrl, {
+    //   attribution: 'SDSS Attribution',
+    //   filter: this.tilesetFilter
+    // })
+    // this.NGVSTileLayer = L.tileLayer.colorFilter(config.ngvsTileUrl, {
+    //   attribution: 'NGVS Attribution',
+    //   filter: this.tilesetFilter
+    // })
 
     this.lMap = L.map('map-container', {
       center: config.defaultMapLocation,
@@ -29,7 +42,7 @@ class Map {
       minZoom: config.minZoom,
       maxZoom: config.maxZoom,
       selectArea: true,
-      layers: [this.SDSSTileLayer, this.NGVSTileLayer],
+      //layers: this.tileSets.filter(t => t.initiallyOpen),
       preferCanvas: true,
       attributionControl: false
     })
@@ -45,8 +58,10 @@ class Map {
   
   init() {
     this.searchMarker.addTo(this.lMap)
-    this.layerControl.addOverlay(this.SDSSTileLayer,'SDSS','Base Maps')
-    this.layerControl.addOverlay(this.NGVSTileLayer,'NGVS','Base Maps')
+    for (let tileSet of this.tileSets) {
+      this.layerControl.addOverlay(tileSet.tileLayer,tileSet.name,'Base Maps')
+    }
+    //this.layerControl.addOverlay(this.NGVSTileLayer,'NGVS','Base Maps')
     this.layerControl.addOverlay(this.fieldOutlines.getPointingLayerGroup(),'NGVS','Pointings')
     for (let filterName of config.filters) {
       this.layerControl.addOverlay(this.fieldOutlines.getLongOutlineLayerGroup(filterName), filterName, 'Field Outlines (Long)')

@@ -3,6 +3,19 @@
  */
 
 const config = {
+  'baseTileSets' : [
+    {
+      'name' : 'NGVS',
+      'url' : 'https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/data/pub/GSKY/M.{x}.{y}.{z}.png',
+      'attribution' : 'NGVS',
+      'initiallyOpen' : true
+    },
+    {
+      'name' : 'SDSS',
+      'url' : 'https://mw1.google.com/mw-planetary/sky/skytiles_v1/{x}_{y}_{z}.jpg',
+      'attribution' : 'Image Credit: DSS Consortium, SDSS, NASA/ESA <a href="https://www.google.com/intl/en-CA_US/help/terms_maps/">Terms of Use</a>',
+      'initiallyOpen' : true
+    }],
   'catalogList' : ['cfht.ngvsCatalog','cfht.ngvsGCXDCatalog','cfht.ngvsStarsXDCatalog'],
   'skyTileUrl' : 'https://mw1.google.com/mw-planetary/sky/skytiles_v1/{x}_{y}_{z}.jpg',
   'ngvsTileUrl' : 'https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/data/pub/GSKY/M.{x}.{y}.{z}.png',
@@ -39,6 +52,23 @@ const config = {
   'exposures' : ['short','long'],
   'individualPipelines' : ['raw', 'elixir', 'elixir-lsb'],
   'stackedPipelines' : ['l128','g002','g004'],
+  'tilesetFilters' : {
+    'saturation' : {
+      'minValue': 0,
+      'maxValue': 150,
+      'defaultValue': 100
+    },
+    'contrast' : {
+      'minValue': 0,
+      'maxValue': 150,
+      'defaultValue': 100
+    },
+    'brightness' : {
+      'minValue': 0,
+      'maxValue': 150,
+      'defaultValue': 100
+    },
+  },
   'defaultMapLocation' : [10.425,-7.037387],
   'defaultZoom' : 6,
   'minZoom' : 5,
