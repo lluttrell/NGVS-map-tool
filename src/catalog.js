@@ -164,7 +164,6 @@ class Catalog {
     let tableHead = document.createElement('thead')
     tableHead.innerHTML = '<tr><th>Property</th><th>Value</th></tr>'
     let tableBody = document.createElement('tbody')
-    console.log(this.currentObjectQuery)
     for(let [key,value] of Object.entries(this.currentObjectQuery)) {
         let row = document.createElement('tr');
         let property = document.createElement('td');

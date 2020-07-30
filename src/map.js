@@ -42,6 +42,7 @@ class Map {
     this.layerControl = L.control.groupedLayers(null, null, {collapsed: false})
   }
 
+  
   init() {
     this.searchMarker.addTo(this.lMap)
     this.layerControl.addOverlay(this.SDSSTileLayer,'SDSS','Base Maps')
