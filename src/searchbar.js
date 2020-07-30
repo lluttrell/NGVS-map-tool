@@ -1,5 +1,5 @@
 /**
- * @fileoverview This class is to render a search bar that allows a user to search
+ * @fileoverview This class is used to render a search bar that allows a user to search
  * for object names or coordinates, and plots the results as a marker on a leaflet
  * map instance. It queries the cadc name resolving service to parse object names or
  * coordinate pairs in a reasonable format into a location that can be plotted.

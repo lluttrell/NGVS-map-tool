@@ -2,9 +2,16 @@ import { parseSelectionToConditions } from './query-builder'
 import Papa from 'papaparse'
 import 'leaflet'
 
+/** @class Catalog represents a single catalog that can be queried and plotted on a Map */
 class Catalog {
-  constructor(name, markerColor=null, lMap) {
-    this.lMap = lMap
+  /**
+   * @constructor
+   * @param {string} name catalog name (eg. cfht.ngvsCatalog)
+   * @param {string} markerColor desired color for catalog markers
+   * @param {Map} mapObj Map to apply catalog markers to 
+   */
+  constructor(name, markerColor, mapObj) {
+    this.lMap = mapObj
     this.name = name;
     this.markerColor = markerColor;
     this.markerSize = 400;
@@ -24,7 +31,7 @@ class Catalog {
    */
   async init() {
     let queryString = `SELECT TOP 1 * FROM ${this.name}`
-    let queryURI = encodeURI(this.apiEndpointBase + queryString)
+    let queryURI = this.apiEndpointBase + encodeURIComponent(queryString)
     let response = await fetch(queryURI, { credentials: 'include'})
     if (response.status == 403) {
       throw new Error(`permission denied on table ${this.name}`)
@@ -37,22 +44,27 @@ class Catalog {
     return 1
   }
 
+  /**
+   * Sets currentObjectQuery to be an object containing all of the information about a particular
+   * astronomical object by querying the database
+   * @param {string} objectName Object name to query
+   */
   async queryObject(objectName) {
-    let queryString = `SELECT * FROM ${this.name} WHERE ${this.primaryKey} = '${objectName}'`
-    let queryURI = encodeURI(this.apiEndpointBase + queryString)
+    let queryString = `SELECT * FROM ${this.name} WHERE ${this.primaryKey}='${objectName}'`
+    let queryURI = this.apiEndpointBase + encodeURIComponent(queryString)
     let response = await fetch(queryURI, {credentials: 'include'})
     let csvText = await response.text()
-    let csvObj = Papa.parse(csvText, {
-      dynamicTyping: true,
-      header: true}).data[0]
+    let csvObj = Papa.parse(csvText, { dynamicTyping: true, header: true}).data[0]
     this.currentObjectQuery = csvObj
     return 1
   }
 
   /**
-  * queries database with (optional) constaints in refine parameters.
+  * queries database with (optional) constraints in refine parameters.
   * sets currentQuery to be an array containing name and coordinates of each object in the catalog
   * that satisfy the refine parameters
+  * @param {boolean} locationOnly If location only is set, selects only the object name, RA, DEC columns
+  *   otherwise selects all columns
   */
   async query(locationOnly=true) {
     let self = this;
@@ -83,7 +95,7 @@ class Catalog {
 
 
   /**
-  * Downloads the currentDownload from a catalog in csv format
+  * Downloads the information stored in currentDownload in csv format
   */
   async downloadQuery() {
     let currentDate = Date.now();
@@ -94,6 +106,10 @@ class Catalog {
     link.click();
   }
 
+  /**
+   * Plots the locations of the current currentQuery on lMap. Adds an even listener to each marker
+   * To create a modal when clicked.
+   */
   async addCurrentQueryToMap() {
     this.removeCurrentQueryFromMap()
     for (let [name,lon,lat] of this.currentQuery) {
@@ -110,6 +126,9 @@ class Catalog {
     this.lMap.layerControl.addOverlay(this.layerGroup, this.name,'Catalog Queries');
   }
 
+  /**
+   * Removes the currentQuery markers from the map
+   */
   removeCurrentQueryFromMap() {
     this.lMap.layerControl.removeLayer(this.layerGroup);
     this.lMap.lMap.removeLayer(this.layerGroup)
@@ -145,6 +164,7 @@ class Catalog {
     let tableHead = document.createElement('thead')
     tableHead.innerHTML = '<tr><th>Property</th><th>Value</th></tr>'
     let tableBody = document.createElement('tbody')
+    console.log(this.currentObjectQuery)
     for(let [key,value] of Object.entries(this.currentObjectQuery)) {
         let row = document.createElement('tr');
         let property = document.createElement('td');
@@ -159,10 +179,16 @@ class Catalog {
     return table
   }
 
+
   setRefineParameter(parameterName, parameterValue) {
     this.refineParameters[parameterName] = parameterValue;
   }
 
+  /**
+   * Gets the value of a refinements made for a parameter.
+   * If no refinements exsist, returns an empty string
+   * @param {string} parameterName Parameter to get the refinements for 
+   */
   getRefineParameterString(parameterName) {
     let parameterValue = this.refineParameters[parameterName]
     if (parameterValue === undefined) {
@@ -172,6 +198,9 @@ class Catalog {
     }
   }
 
+  /**
+   * Clears refinements for all parameters
+   */
   clearRefineParameters() {
     this.refineParameters = {}
   }

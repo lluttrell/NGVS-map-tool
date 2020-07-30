@@ -14,12 +14,6 @@ class CatalogQueryForm {
     this.refineFieldDiv.reset()
   }
 
-
-
-
-
-  
-
   _createRefineFieldForm() {
     let refineFieldDiv = document.createElement('form')
     refineFieldDiv.setAttribute('autocomplete','off')
