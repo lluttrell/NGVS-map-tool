@@ -44,7 +44,7 @@ class App {
         }
         
         const searchBar = new SearchBar(this.mapObj)
-        searchBar.render(document.getElementById('search-tab'))
+        searchBar.render(document.getElementById('search'))
 
         const queryTab = new QueryTab(this.catalogList)
         queryTab.render(document.getElementById('query-tab-body'))
