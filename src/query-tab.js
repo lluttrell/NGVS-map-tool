@@ -18,9 +18,10 @@ class QueryTab {
     } else {
       queryTabDiv.appendChild(this.catalogSelectMenu)
       queryTabDiv.appendChild(this.catalogQueryFormDiv)
+      M.FormSelect.init(this.catalogSelectMenu);
     }
     node.appendChild(queryTabDiv)
-    M.FormSelect.init(this.catalogSelectMenu);
+    
   }
 
   _createSelectMenu() {
