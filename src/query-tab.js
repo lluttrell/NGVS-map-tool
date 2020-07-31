@@ -13,12 +13,12 @@ class QueryTab {
 
   render(node) {
     let queryTabDiv = document.createElement('div')
+    queryTabDiv.classList.add('container')
     if (this.catalogList.length == 0) {
       queryTabDiv.innerHTML = '<div class="container"><p>There are no available catalogs</p></div>'
     } else {
       queryTabDiv.appendChild(this.catalogSelectMenu)
       queryTabDiv.appendChild(this.catalogQueryFormDiv)
-      M.FormSelect.init(this.catalogSelectMenu);
     }
     node.appendChild(queryTabDiv)
     

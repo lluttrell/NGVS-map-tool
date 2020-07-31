@@ -59,8 +59,9 @@ document.addEventListener('DOMContentLoaded', async function() {
     const appModel = new App()
     await appModel.init();
     M.Collapsible.init(document.querySelectorAll('.collapsible'), {accordion: false});
-    M.Tabs.init(document.getElementById('query-tab'));
-    M.Sidenav.init(document.querySelectorAll('.sidenav'));
+    M.Tabs.init(document.getElementById('query-tab'))
+    M.Sidenav.init(document.querySelectorAll('.sidenav'))
+    M.FormSelect.init(document.querySelectorAll('select'))
     root.classList.remove('in-progress')
 });
 

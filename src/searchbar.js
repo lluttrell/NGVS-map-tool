@@ -17,17 +17,11 @@ class SearchBar {
    */
   render(node) {
     let searchBar = document.createElement('div')
-    searchBar.classList.add('input-field')
-
-    let searchBoxImage = document.createElement('i')
-    searchBoxImage.classList.add('material-icons')
-    searchBoxImage.classList.add('prefix')
-    searchBoxImage.innerText = 'search'
-    searchBar.appendChild(searchBoxImage)
+    searchBar.classList.add('input-field','col','s10')
 
     let searchBoxInput = document.createElement('input')
+    searchBoxInput.id = 'searchbox-input'
     searchBoxInput.setAttribute('placeholder', 'Object/Location Search')
-    searchBoxInput.setAttribute('type', 'search')
     searchBoxInput.addEventListener('keyup', (e) => {
       if (e.key === 'Enter') {
         this._performSearch()
@@ -37,6 +31,11 @@ class SearchBar {
       }
     })
     searchBar.appendChild(searchBoxInput)
+    
+    let searchBoxImage = document.createElement('i')
+    searchBoxImage.classList.add('material-icons','prefix')
+    searchBoxImage.innerText = 'search'
+    searchBar.appendChild(searchBoxImage)
     
     node.appendChild(searchBar)
   }
