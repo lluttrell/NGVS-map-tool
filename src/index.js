@@ -18,34 +18,6 @@ import AdjustTab from './adjust-tab'
 
 const root = document.getElementsByTagName('html')[0]
 
-// const createTileAdjustmentSliders = (parameter, minValue, maxValue) => {
-//     let slider = document.createElement('p')
-//     slider.classList.add('range-field')
-//     let input = document.createElement('input')
-//     input.setAttribute('type','range')
-//     input.id = parameter
-//     input.setAttribute('min',minValue)
-//     input.setAttribute('max',maxValue)
-//     input.addEventListener('input',(e) => {
-//         NGVS_TILE_TILESET.updateFilter([`${e.target.id}:${e.target.value}%`])
-//     })
-//     let label = document.createElement('label')
-//     label.setAttribute('for', parameter)
-//     label.innerText = parameter
-//     slider.appendChild(input)
-//     slider.appendChild(label)
-//     return slider
-// }
-
-
-const initAdjustmentTabBody = () => {
-    let adjustmentTabBody = document.getElementById('adjustment-tab-body')
-    for (let prop of ['contrast','saturation','brightness']) {
-        let slider = createTileAdjustmentSliders(prop, 0, 100)
-        adjustmentTabBody.appendChild(slider)
-    }
-}
-
 class App {
     constructor() {
         this.catalogList = []
@@ -72,7 +44,7 @@ class App {
         }
         
         const searchBar = new SearchBar(this.mapObj)
-        searchBar.render(document.getElementById('search'))
+        searchBar.render(document.getElementById('search-tab'))
 
         const queryTab = new QueryTab(this.catalogList)
         queryTab.render(document.getElementById('query-tab-body'))
@@ -83,7 +55,6 @@ class App {
 }
 
 document.addEventListener('DOMContentLoaded', async function() {
-
     root.classList.add('in-progress')
     const appModel = new App()
     await appModel.init();
