@@ -6,16 +6,18 @@ class TilesetFilter {
     for (let filterProperty of Object.keys(this.filter)) {
       this.filter[filterProperty].currentValue = this.filter[filterProperty].defaultValue
     }
+    this.stringList = this._getFilterAsList()
   }
 
   adjustFilterProperty(propertyName, value) {
-    this.filterList[filterName].currentValue = value
+    this.filter[propertyName].currentValue = parseInt(value)
+    this.stringList = this._getFilterAsList()
   }
 
-  getFilterAsList() {
+  _getFilterAsList() {
     let filterList = []
     for (let [filterProperty, propertyInfo] of Object.entries(this.filter)) {
-      let stringRepresentation = `${filterProperty}:${filter[propertyInfo].currentValue}%`
+      let stringRepresentation = `${filterProperty}:${this.filter[filterProperty].currentValue}%`
       filterList.push(stringRepresentation)
     }
     return filterList

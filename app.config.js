@@ -3,19 +3,21 @@
  */
 
 const config = {
-  'baseTileSets' : [
-    {
-      'name' : 'NGVS',
-      'url' : 'https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/data/pub/GSKY/M.{x}.{y}.{z}.png',
-      'attribution' : 'NGVS',
-      'initiallyOpen' : true
-    },
-    {
-      'name' : 'SDSS',
-      'url' : 'https://mw1.google.com/mw-planetary/sky/skytiles_v1/{x}_{y}_{z}.jpg',
-      'attribution' : 'Image Credit: DSS Consortium, SDSS, NASA/ESA <a href="https://www.google.com/intl/en-CA_US/help/terms_maps/">Terms of Use</a>',
-      'initiallyOpen' : true
-    }],
+  'baseTileSets':
+    [
+      {
+        'name' : 'SDSS',
+        'url' : 'https://mw1.google.com/mw-planetary/sky/skytiles_v1/{x}_{y}_{z}.jpg',
+        'attribution' : 'Image Credit: DSS Consortium, SDSS, NASA/ESA <a href="https://www.google.com/intl/en-CA_US/help/terms_maps/">Terms of Use</a>',
+        'initiallyOpen' : true
+      },
+      {
+        'name' : 'NGVS',
+        'url' : 'https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/data/pub/GSKY/M.{x}.{y}.{z}.png',
+        'attribution' : 'NGVS',
+        'initiallyOpen' : true
+      }
+    ],
   'catalogList' : ['cfht.ngvsCatalog','cfht.ngvsGCXDCatalog','cfht.ngvsStarsXDCatalog'],
   'skyTileUrl' : 'https://mw1.google.com/mw-planetary/sky/skytiles_v1/{x}_{y}_{z}.jpg',
   'ngvsTileUrl' : 'https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/data/pub/GSKY/M.{x}.{y}.{z}.png',

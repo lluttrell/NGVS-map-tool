@@ -14,28 +14,28 @@ import SearchBar from './searchbar'
 import QueryTab from './query-tab'
 import FITSManager from './fits-manager'
 import FITSModal from './fits-modal'
+import AdjustTab from './adjust-tab'
 
 const root = document.getElementsByTagName('html')[0]
 
-
-const createTileAdjustmentSliders = (parameter, minValue, maxValue) => {
-    let slider = document.createElement('p')
-    slider.classList.add('range-field')
-    let input = document.createElement('input')
-    input.setAttribute('type','range')
-    input.id = parameter
-    input.setAttribute('min',minValue)
-    input.setAttribute('max',maxValue)
-    input.addEventListener('input',(e) => {
-        NGVS_TILE_TILESET.updateFilter([`${e.target.id}:${e.target.value}%`])
-    })
-    let label = document.createElement('label')
-    label.setAttribute('for', parameter)
-    label.innerText = parameter
-    slider.appendChild(input)
-    slider.appendChild(label)
-    return slider
-}
+// const createTileAdjustmentSliders = (parameter, minValue, maxValue) => {
+//     let slider = document.createElement('p')
+//     slider.classList.add('range-field')
+//     let input = document.createElement('input')
+//     input.setAttribute('type','range')
+//     input.id = parameter
+//     input.setAttribute('min',minValue)
+//     input.setAttribute('max',maxValue)
+//     input.addEventListener('input',(e) => {
+//         NGVS_TILE_TILESET.updateFilter([`${e.target.id}:${e.target.value}%`])
+//     })
+//     let label = document.createElement('label')
+//     label.setAttribute('for', parameter)
+//     label.innerText = parameter
+//     slider.appendChild(input)
+//     slider.appendChild(label)
+//     return slider
+// }
 
 
 const initAdjustmentTabBody = () => {
@@ -76,6 +76,9 @@ class App {
 
         const queryTab = new QueryTab(this.catalogList)
         queryTab.render(document.getElementById('query-tab-body'))
+
+        const adjustTab = new AdjustTab(this.mapObj)
+        adjustTab.render(document.getElementById('adjustment-tab-body'))
     }
 }
 
