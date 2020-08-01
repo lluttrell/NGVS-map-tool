@@ -92,7 +92,7 @@ class FITSModal {
             if (!e.target.checked) {
               this.fitsmgr.selectedExposures = this.fitsmgr.selectedExposures.filter(f => f != exposure)
             } else {
-              this.fitsmgrlet modalFooter = document.getElementById('download-modal-footer').selectedExposures.push(exposure)
+              this.fitsmgr.selectedExposures.push(exposure)
             }
             this._refreshFITSSelectionOverview();
         })
@@ -180,7 +180,7 @@ class FITSModal {
         overviewPanel.classList.add('red-text')
         overviewPanel.innerText = 'There are no images available in the selected region that match your selection criteria'
     } else {
-        overviewPanel.inlet modalFooter = document.getElementById('download-modal-footer')nerText = `Selection contains ${this.fitsmgr.downloadList.length} images`
+        overviewPanel.innerText = `Selection contains ${this.fitsmgr.downloadList.length} images`
     }
     selectionOverviewDiv.appendChild(overviewPanel)
     if (this.fitsmgr.downloadList.length != 0) {
