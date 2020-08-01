@@ -45,7 +45,7 @@ class FITSModal {
     individualTitle.innerText = 'Single Images'
     modalBody.appendChild(individualTitle)
     modalBody.appendChild(this._createFITSIndividualSelectionButtons())
-    modalBody.appendChild(this._createFITSSelectionOverview())  
+    modalBody.appendChild(this._createFITSSelectionOverview())
   }
 
 
@@ -92,7 +92,7 @@ class FITSModal {
             if (!e.target.checked) {
               this.fitsmgr.selectedExposures = this.fitsmgr.selectedExposures.filter(f => f != exposure)
             } else {
-              this.fitsmgr.selectedExposures.push(exposure)
+              this.fitsmgrlet modalFooter = document.getElementById('download-modal-footer').selectedExposures.push(exposure)
             }
             this._refreshFITSSelectionOverview();
         })
@@ -180,7 +180,7 @@ class FITSModal {
         overviewPanel.classList.add('red-text')
         overviewPanel.innerText = 'There are no images available in the selected region that match your selection criteria'
     } else {
-        overviewPanel.innerText = `Selection contains ${this.fitsmgr.downloadList.length} images`
+        overviewPanel.inlet modalFooter = document.getElementById('download-modal-footer')nerText = `Selection contains ${this.fitsmgr.downloadList.length} images`
     }
     selectionOverviewDiv.appendChild(overviewPanel)
     if (this.fitsmgr.downloadList.length != 0) {
@@ -215,9 +215,15 @@ class FITSModal {
 
 
   _openDownloadManager() {
-    //let modal = document.getElementById('download-mgr-modal')
-    //let modalInstance = M.Modal.init(modal, {dismissible: true});
     let modalBody = document.getElementById('download-modal-content')
+    let modalFooter = document.getElementById('download-modal-footer')
+    
+    let closeButton = document.createElement('button')
+    closeButton.classList.add('btn-small','red','lighten-2')
+    closeButton.innerText = 'Go Back'
+    modalFooter.appendChild(closeButton)
+    
+    
     modalBody.innerText = ''
     let iframe = document.createElement('iframe')
     iframe.name = 'download-mgr-iframe'
@@ -225,8 +231,7 @@ class FITSModal {
     modalBody.appendChild(iframe)
     let formElement = this.fitsmgr.getDownloadManagerForm('download-mgr-iframe')
     iframe.appendChild(formElement)
-    formElement.submit();
-    //modalInstance.open()
+    formElement.submit();    
   }
 
 
