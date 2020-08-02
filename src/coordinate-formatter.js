@@ -15,7 +15,7 @@ const decimal_ra_formatter = (num, precision=4) => {
   if (num <= -180 || num >= 360) {
     throw new RangeError('Coordinate must be between -180 and 360.')
   } else if (num < 0) {
-    num = (num*-1)+180;
+    num = 180 - num;
   }
   return num.toFixed(precision)
 };
@@ -62,7 +62,7 @@ const hms_formatter = (num, precision=0) => {
   if (num <= -180 || num >= 360) {
     throw new RangeError('Coordinate must be between -180 and 360.')
   } else if(num < 0) {
-    num = (num*-1)+180;
+    num = 180 - num;
   }
   let hrs = Math.floor(num/15);
   let min = Math.floor((num/15 - hrs) * 60);
