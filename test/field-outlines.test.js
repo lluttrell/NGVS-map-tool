@@ -1,9 +1,11 @@
 import FieldOutlines from '../src/field-outlines'
 
 // ignore the actual imports (untested for now)
-jest.mock('../src/long_filter_outlines.csv', () => jest.fn())
-jest.mock('../src/short_filter_outlines.csv', () => jest.fn())
-jest.mock('../src/ngvs_pointings.csv', () => jest.fn())
+jest.mock('../src/assets/field_outlines_long_single.csv', () => jest.fn())
+jest.mock('../src/assets/field_outlines_short_single.csv', () => jest.fn())
+jest.mock('../src/assets/field_outlines_long_stacked.csv', () => jest.fn())
+jest.mock('../src/assets/field_outlines_short_stacked.csv', () => jest.fn())
+jest.mock('../src/assets/ngvs_pointings.csv', () => jest.fn())
 
 describe('test _parsePolygon', () => {
   test('test valid string', () => {
