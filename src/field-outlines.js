@@ -20,8 +20,10 @@ class FieldOutlines {
     for (let [name, props] of Object.entries(this.pointings)) {
         let pointingBoundary = this._createFieldOutlinePolygon(props)
         let textIcon = L.divIcon({
-            html: name,
-            className: 'pointing-label'
+            html: name.replace(/(NGVS|M87)/,''),
+            className: 'pointing-label',
+            iconAnchor: [13,5]
+
         })
         let pointingLabel = L.marker(pointingBoundary.getBounds().getCenter(), {icon: textIcon})
         pointingLayerGroup.addLayer(pointingBoundary)
