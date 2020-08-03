@@ -65,9 +65,10 @@ class CatalogQueryForm {
       this.loaderOn()
       await this.catalog.query(true)
       if (this.catalog.getResultsLength() != 0) {
+        M.toast({html: `Query returned ${this.catalog.getResultsLength()} objects`, classes:'teal'})
         this.catalog.addCurrentQueryToMap()
       } else {
-        M.toast({html: 'Query returned no results', classes:'red lighten-2'})
+        M.toast({html: 'Query matched no objects', classes:'red lighten-2'})
       }
       this.loaderOff()
     })
