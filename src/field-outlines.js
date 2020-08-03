@@ -22,7 +22,7 @@ class FieldOutlines {
         let textIcon = L.divIcon({
             html: name.replace(/(NGVS|M87)/,''),
             className: 'pointing-label',
-            iconAnchor: [13,5]
+            iconAnchor: [13,7]
 
         })
         let pointingLabel = L.marker(pointingBoundary.getBounds().getCenter(), {icon: textIcon})
