@@ -73,10 +73,11 @@ class Catalog {
     for (const parameter in this.refineParameters) {
         if (this.refineParameters[parameter] !== '') {
           queryString += parseSelectionToConditions(this.refineParameters[parameter], parameter)
+          queryString += ' AND '
           parametersExist = true
         }
     }
-    if (parametersExist) queryString = `WHERE ${queryString}`;
+    if (parametersExist) queryString = `WHERE ${queryString.slice(0,-4)}`;
     if (locationOnly) {
       queryString = `SELECT ${self.primaryKey}, principleRA, principleDEC from ${self.name} ${queryString}`
     } else {
@@ -89,7 +90,7 @@ class Catalog {
     csvArray = csvArray.slice(2,-3)
     self.currentQuery = csvArray;
     self.currentDownload = csvText;
-
+  
     return 1
   }
 
