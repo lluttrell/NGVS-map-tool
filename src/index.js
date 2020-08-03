@@ -24,9 +24,16 @@ class App {
         this.currentCatalog = null
         this.mapObj = new Map();
         this.fitsmgr = new FITSManager();
+        this.sidebar = document.getElementById('nav-mobile')
     }
 
     async init() {
+        // display a loading bar initially
+        let pageLoadingBar = document.createElement('div')
+        pageLoadingBar.classList.add('progress', 'container')
+        pageLoadingBar.innerHTML = '<div class="indeterminate"></div>'
+        this.sidebar.appendChild(pageLoadingBar)
+        
         this.mapObj.init();
         this.mapObj.lMap.on('areaselected', (e) => {
             let fitsModal = new FITSModal(e.bounds, this.fitsmgr)
@@ -51,11 +58,14 @@ class App {
 
         const adjustTab = new AdjustTab(this.mapObj)
         adjustTab.render(document.getElementById('adjustment-tab-body'))
+
+        // show collapsible list only after their contents are availible and remove loader
+        document.getElementById('collapsible-list').classList.remove('hidden')
+        this.sidebar.removeChild(pageLoadingBar)
     }
 }
 
 document.addEventListener('DOMContentLoaded', async function() {
-    root.classList.add('in-progress')
     const appModel = new App()
     await appModel.init();
     M.Collapsible.init(document.querySelectorAll('.collapsible'), {accordion: false});

@@ -65,6 +65,10 @@ will-change: unset;
     border-color: #cccccc
 }
 
+.hidden {
+    display: none;
+}
+
 #download-mgr-iframe {
     border: none;
     width: 100%;
