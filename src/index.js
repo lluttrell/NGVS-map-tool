@@ -15,6 +15,7 @@ import QueryTab from './query-tab'
 import FITSManager from './fits-manager'
 import FITSModal from './fits-modal'
 import AdjustTab from './adjust-tab'
+import FITSTab from './fits-tab'
 
 class App {
     constructor() {
@@ -56,6 +57,9 @@ class App {
 
         const adjustTab = new AdjustTab(this.mapObj)
         adjustTab.render(document.getElementById('adjustment-tab-body'))
+
+        const fitsTab = new FITSTab(this.mapObj, this.fitsmgr)
+        fitsTab.render(document.getElementById('fits-tab-body'))
 
         // fix to add colors to collapsible list
         let collapsibleHeaders = document.getElementsByClassName('collapsible-header')

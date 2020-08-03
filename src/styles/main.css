@@ -81,6 +81,10 @@ will-change: unset;
     z-index: 300;
 }
 
+.sidenav .collapsible-body p {
+    line-height: 120%;
+}
+
 #download-mgr-iframe {
     border: none;
     width: 100%;

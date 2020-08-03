@@ -39,7 +39,7 @@ const config = {
       'opacity' : 1.0
     },
   },
-  'pointingOutlineColor' : 'lightgray',
+  'pointingOutlineColor' : 'gray',
   'fieldColors' : {
     'u' : 'indigo',
     'b' : 'blue',
