@@ -50,11 +50,6 @@ will-change: unset;
     margin-left: 2rem;
 }
 
-
-.in-progress * {
-    cursor: wait !important;
-}
-
 .pointing-label {
     color: yellow;
 }

@@ -16,8 +16,6 @@ import FITSManager from './fits-manager'
 import FITSModal from './fits-modal'
 import AdjustTab from './adjust-tab'
 
-const root = document.getElementsByTagName('html')[0]
-
 class App {
     constructor() {
         this.catalogList = []
@@ -72,6 +70,5 @@ document.addEventListener('DOMContentLoaded', async function() {
     M.Tabs.init(document.getElementById('query-tab'))
     M.Sidenav.init(document.querySelectorAll('.sidenav'))
     M.FormSelect.init(document.querySelectorAll('select'))
-    root.classList.remove('in-progress')
 });
 
