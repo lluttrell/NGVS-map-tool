@@ -80,7 +80,7 @@ will-change: unset;
     top: auto !important;
     right: auto !important;
     bottom: 90%;
-    left:20%;
+    left: 330px;
 }
 
 #map-container {

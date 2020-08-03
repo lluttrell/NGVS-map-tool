@@ -35,6 +35,10 @@ class SearchBar {
     let searchBoxImage = document.createElement('i')
     searchBoxImage.classList.add('material-icons','prefix')
     searchBoxImage.innerText = 'search'
+    searchBar.addEventListener('click', () => {
+      this._performSearch()
+      searchBoxInput.value = ''
+    })
     searchBar.appendChild(searchBoxImage)
     
     node.appendChild(searchBar)
