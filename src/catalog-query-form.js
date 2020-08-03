@@ -2,11 +2,13 @@ class CatalogQueryForm {
   constructor(catalog) {
     this.catalog = catalog
     this.refineFieldDiv = this._createRefineFieldForm()
+    this.progressDiv = document.createElement('div')
     this.refineButtonDiv = this._createButtonDiv()
   }
 
   render(node) {
     node.appendChild(this.refineFieldDiv)
+    node.appendChild(this.progressDiv)
     node.appendChild(this.refineButtonDiv)
   }
 
@@ -60,8 +62,14 @@ class CatalogQueryForm {
     submitButton.setAttribute('class', 'btn-small')
     submitButton.setAttribute('type', 'button')
     submitButton.addEventListener('click', async () => {
+      this.loaderOn()
       await this.catalog.query(true)
-      this.catalog.addCurrentQueryToMap()
+      if (this.catalog.getResultsLength() != 0) {
+        this.catalog.addCurrentQueryToMap()
+      } else {
+        M.toast({html: 'Query returned no results', classes:'red lighten-2'})
+      }
+      this.loaderOff()
     })
     
     let downloadButton = document.createElement('input')
@@ -69,8 +77,14 @@ class CatalogQueryForm {
     downloadButton.setAttribute('type', 'button')
     downloadButton.setAttribute('class', 'btn-small orange lighten-2')
     downloadButton.addEventListener('click', async () => {
+      this.loaderOn()
       await this.catalog.query(false)
-      this.catalog.downloadQuery()
+      if (this.catalog.getResultsLength() != 0) {
+        this.catalog.downloadQuery()
+      } else {
+        M.toast({html: 'Query returned no results', classes:'red lighten-2'})
+      }
+      this.loaderOff()
     })
     
     let clearButton = document.createElement('input')
@@ -88,6 +102,17 @@ class CatalogQueryForm {
     buttonDiv.appendChild(clearButton)
     return buttonDiv
   }
+
+  loaderOn() {
+    this.progressDiv.classList.add('progress')
+    this.progressDiv.innerHTML = '<div class="indeterminate"></div>'
+  }
+
+  loaderOff() {
+    this.progressDiv.classList.remove('progress')
+    this.progressDiv.innerHTML = ''
+  }
+
 
 }
 

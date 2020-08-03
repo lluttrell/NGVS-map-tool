@@ -203,6 +203,10 @@ class Catalog {
   clearRefineParameters() {
     this.refineParameters = {}
   }
+
+  getResultsLength() {
+    return this.currentQuery.length
+  }
 }
 
 export default Catalog
