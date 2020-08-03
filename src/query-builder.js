@@ -7,6 +7,11 @@
  */
 const rangeToSQL = (inputString, attributeName) => {
   let [lowerBound, upperBound] = inputString.split(/\.{2}/)
+  if (attributeName === 'principleRA') {
+    let oldLowerBound = lowerBound
+    lowerBound = correctRA(upperBound)
+    upperBound = correctRA(oldLowerBound)
+  }
   return `(${attributeName} >= ${lowerBound} AND ${attributeName} <= ${upperBound})`
 }
 
@@ -19,6 +24,10 @@ const rangeToSQL = (inputString, attributeName) => {
  */
 const comparisonToSQL = (inputString, attributeName) => {
   let [,delimiter, value] = inputString.split(/(<(?!=)|>(?!=)|<=|>=)/)
+  if (attributeName === 'principleRA') {
+    delimiter = correctRADelimiter(delimiter)
+    value = correctRA(value)
+  }
   return `${attributeName} ${delimiter} ${value}`
 }
 
@@ -47,6 +56,16 @@ const parseSelectionToConditions = (selectionString, attributeName) => {
     .map(r => `${attributeName} = ${r}`)
   
   return [].concat(ranges, comparisons, singles).join(' OR ')
+}
+
+const correctRA = (coordinate) => {
+  return 180 - coordinate
+}
+
+const correctRADelimiter = (delimiter) => {
+  if (delimiter.includes('<')) return delimiter.replace('<','>')
+  if (delimiter.includes('>')) return delimiter.replace('>','<')
+  return delimiter
 }
 
 export { parseSelectionToConditions, rangeToSQL, comparisonToSQL }

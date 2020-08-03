@@ -10,7 +10,7 @@ jest.mock('../src/assets/ngvs_pointings.csv', () => jest.fn())
 describe('test _parsePolygon', () => {
   test('test valid string', () => {
     let validString = 'polygon 171.25 15.14 171.24 16.14'
-    expect(FieldOutlines._parsePolygon(validString)).toStrictEqual([[171.25, 15.14], [171.24, 16.14]])
+    expect(FieldOutlines._parsePolygon(validString)).toStrictEqual([[15.14, 171.25], [16.14, 171.24]])
   })
 
   test('test invalid string (no polygon identifier)', () => {
