@@ -18,14 +18,16 @@ class FieldOutlines {
   getPointingLayerGroup() {
     let pointingLayerGroup = L.layerGroup()
     for (let [name, props] of Object.entries(this.pointings)) {
-        let pointingBoundary = this._createFieldOutlinePolygon(props)
+        let pointingBoundary = this._createFieldOutlinePolygon(props,'pointingPane')
         let textIcon = L.divIcon({
             html: name.replace(/(NGVS|M87)/,''),
             className: 'pointing-label',
             iconAnchor: [13,7]
-
         })
-        let pointingLabel = L.marker(pointingBoundary.getBounds().getCenter(), {icon: textIcon})
+        let pointingLabel = L.marker(pointingBoundary.getBounds().getCenter(), {
+          icon: textIcon,
+          pane: 'pointingPane'
+        })
         pointingLayerGroup.addLayer(pointingBoundary)
         pointingLayerGroup.addLayer(pointingLabel)
     }
@@ -52,13 +54,14 @@ class FieldOutlines {
  * Returns a L.polygon object for outline objects in FieldOutline class
  * @param {Object} outlineObj A specifific filter object of one of the five main parameters of FieldOutline class
  */
-  _createFieldOutlinePolygon(outlineObj) {
+  _createFieldOutlinePolygon(outlineObj, pane='overlayPane') {
     return L.polygon(outlineObj.coordinates, {
       color: outlineObj.color,
       dashArray: outlineObj.dashArray,
       weight: outlineObj.weight,
       opacity: outlineObj.opacity,
-      fillOpacity: 0.0 
+      fillOpacity: 0.0,
+      pane: pane
   })
 }
 

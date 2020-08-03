@@ -77,7 +77,9 @@ will-change: unset;
     border-bottom: 3px solid #ffcdd2;
 }
 
-
+.leaflet-pointing-pane {
+    z-index: 300;
+}
 
 #download-mgr-iframe {
     border: none;
