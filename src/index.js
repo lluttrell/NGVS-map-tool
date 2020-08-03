@@ -57,6 +57,20 @@ class App {
         const adjustTab = new AdjustTab(this.mapObj)
         adjustTab.render(document.getElementById('adjustment-tab-body'))
 
+        // fix to add colors to collapsible list
+        let collapsibleHeaders = document.getElementsByClassName('collapsible-header')
+        for (let element of collapsibleHeaders) {
+            element.addEventListener('click', () => {
+                if (element.classList.contains('red','lighten-4')) {
+                    element.classList.remove('red','lighten-4')
+                    // element.parentElement.classList.remove('open')
+                } else {
+                    element.classList.add('red','lighten-4')
+                    // element.parentElement.classList.add('open')
+                }
+            })
+        }
+
         // show collapsible list only after their contents are availible and remove loader
         document.getElementById('collapsible-list').classList.remove('hidden')
         this.sidebar.removeChild(pageLoadingBar)

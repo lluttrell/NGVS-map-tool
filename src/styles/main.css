@@ -64,6 +64,21 @@ will-change: unset;
     display: none;
 }
 
+.sidenav .collapsible-header:hover {
+    background-color: #ffcdd2;
+}
+
+.sidenav .collapsible-body {
+    padding: 10px 0px;
+    margin: 10px 5px;
+}
+
+#collapsible-list li.active {
+    border-bottom: 3px solid #ffcdd2;
+}
+
+
+
 #download-mgr-iframe {
     border: none;
     width: 100%;
