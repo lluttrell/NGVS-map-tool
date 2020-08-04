@@ -118,7 +118,9 @@ class Catalog {
         let myMarker = L.circle(coordinates, {
             radius: this.markerSize,
             color: this.markerColor,
-            weight: 1})
+            weight: 1,
+            pane: 'catalogPane'
+          })
         myMarker.bindTooltip(`${name} (${this.name})`)                   
         myMarker.on('click', () => this.displayObjectInformation(name));
         myMarker.addTo(this.layerGroup);

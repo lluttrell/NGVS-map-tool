@@ -67,10 +67,8 @@ class App {
             element.addEventListener('click', () => {
                 if (element.classList.contains('red','lighten-4')) {
                     element.classList.remove('red','lighten-4')
-                    // element.parentElement.classList.remove('open')
                 } else {
                     element.classList.add('red','lighten-4')
-                    // element.parentElement.classList.add('open')
                 }
             })
         }

@@ -51,8 +51,9 @@ class Map {
     for (let tileSet of this.tileSets) {
       this.layerControl.addOverlay(tileSet.tileLayer,tileSet.name,'Base Maps')
     }
-    let pointingPane = this.lMap.createPane('pointingPane')
-
+    this.lMap.createPane('pointingPane')
+    this.lMap.createPane('catalogPane')
+    
     this.layerControl.addOverlay(this.fieldOutlines.getPointingLayerGroup(),'NGVS','Pointings')
     for (let filterName of config.filters) {
       this.layerControl.addOverlay(this.fieldOutlines.getLongOutlineLayerGroup(filterName), filterName, 'Field Outlines (Long)')
@@ -65,6 +66,7 @@ class Map {
     L.control.attribution({
       position: 'bottomleft'
     }).addTo(this.lMap);
+
   }
 
 

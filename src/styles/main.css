@@ -2,6 +2,7 @@ header, main, footer {
     padding-left: 320px;
 }
 
+
 ul.sidenav {
     width: 320px;
 }
@@ -79,6 +80,10 @@ will-change: unset;
 
 .leaflet-pointing-pane {
     z-index: 300;
+}
+
+.leaflet-catalog-pane {
+    z-index: 1000;
 }
 
 .sidenav .collapsible-body p {
