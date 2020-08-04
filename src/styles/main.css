@@ -90,6 +90,11 @@ will-change: unset;
     line-height: 120%;
 }
 
+.range-field {
+    width: 90%;
+    margin: 0 7% 0 3%
+}
+
 #download-mgr-iframe {
     border: none;
     width: 100%;

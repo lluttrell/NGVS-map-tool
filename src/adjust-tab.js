@@ -1,5 +1,6 @@
 import { config } from '../app.config'
-
+import 'materialize-css/dist/css/materialize.min.css'
+import 'materialize-css/dist/js/materialize.min.js'
 
 class AdjustTab {
   constructor(mapObj) {
@@ -8,10 +9,13 @@ class AdjustTab {
 
 
   render(node) {
+    let formElement = document.createElement('form')
+    formElement.setAttribute('action',"#")
     for (let [property, values] of Object.entries(config.tilesetFilters)) {
       let slider = this._createTileAdjustmentSliders(property, values.minValue, values.maxValue, values.defaultValue)
-      node.appendChild(slider)
+      formElement.appendChild(slider)
     }
+    node.appendChild(formElement)
   }
 
   _createTileAdjustmentSliders(parameter, minValue, maxValue, defaultValue) {
