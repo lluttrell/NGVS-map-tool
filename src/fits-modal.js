@@ -12,6 +12,8 @@ class FITSModal {
     this.fitsmgr = fitsmgr
     this.bottomLeftCoordinate = areaBounds.getSouthWest()
     this.topRightCoordinate = areaBounds.getNorthEast()
+    this.modalBody = document.getElementById('download-modal-content')
+    this.modalFooter = document.getElementById('download-modal-footer')
   }
 
 
@@ -24,28 +26,36 @@ class FITSModal {
     modalInstance.open();
 
     await this.fitsmgr.getPublisherIdAtRegion(this.bottomLeftCoordinate, this.topRightCoordinate)
+    this._renderModalBodyContent()
     
-    modalBody.innerHTML = ''
+    
+  }
+
+  _renderModalBodyContent() {
+    this.modalBody.innerHTML = ''
     const modalTitle = document.createElement('h4')
     modalTitle.innerHTML = 'FITS Image Selection'
-    modalBody.appendChild(modalTitle)
+    this.modalBody.appendChild(modalTitle)
     const filterTitle = document.createElement('h6')
     filterTitle.innerText = 'Filters'
-    modalBody.appendChild(filterTitle)
-    modalBody.appendChild(this._createFITSFilterSelectionButtons())
+    this.modalBody.appendChild(filterTitle)
+    this.modalBody.appendChild(this._createFITSFilterSelectionButtons())
     const exposureTitle = document.createElement('h6')
     exposureTitle.innerText = 'Exposures'
-    modalBody.appendChild(exposureTitle)
-    modalBody.appendChild(this._createFITSExposureSelectionButtons())
+    this.modalBody.appendChild(exposureTitle)
+    this.modalBody.appendChild(this._createFITSExposureSelectionButtons())
     const stackedTitle = document.createElement('h6')
     stackedTitle.innerText = 'Stacked Images'
-    modalBody.appendChild(stackedTitle)
-    modalBody.appendChild(this._createFITSStackedSelectionButtons())
+    this.modalBody.appendChild(stackedTitle)
+    this.modalBody.appendChild(this._createFITSStackedSelectionButtons())
     const individualTitle = document.createElement('h6')
     individualTitle.innerText = 'Single Images'
-    modalBody.appendChild(individualTitle)
-    modalBody.appendChild(this._createFITSIndividualSelectionButtons())
-    modalBody.appendChild(this._createFITSSelectionOverview())
+    this.modalBody.appendChild(individualTitle)
+    this.modalBody.appendChild(this._createFITSIndividualSelectionButtons())
+    this.modalBody.appendChild(this._createFITSSelectionOverview())
+    
+    this.modalFooter.innerHTML = ''
+    this.modalFooter.appendChild(this._createDownloadButton())
   }
 
 
@@ -66,7 +76,7 @@ class FITSModal {
             } else {
               this.fitsmgr.selectedFilters.push(filter)
             }
-            this._refreshFITSSelectionOverview();
+            this._refreshModalContent();
         })
         const name = document.createElement('span')
         name.innerText = filter
@@ -94,7 +104,7 @@ class FITSModal {
             } else {
               this.fitsmgr.selectedExposures.push(exposure)
             }
-            this._refreshFITSSelectionOverview();
+            this._refreshModalContent();
         })
         const name = document.createElement('span')
         name.innerText = exposure
@@ -122,7 +132,7 @@ class FITSModal {
             } else {
               this.fitsmgr.selectedStackedPipelines.push(pipeline)
             }
-            this._refreshFITSSelectionOverview();
+            this._refreshModalContent();
         })
         const name = document.createElement('span')
         name.innerText = pipeline
@@ -149,7 +159,7 @@ class FITSModal {
             } else {
               this.fitsmgr.selectedIndividualPipelines.push(pipeline)
             }
-            this._refreshFITSSelectionOverview();
+            this._refreshModalContent();
         })
         const name = document.createElement('span')
         name.innerText = pipeline
@@ -180,25 +190,24 @@ class FITSModal {
         overviewPanel.classList.add('red-text')
         overviewPanel.innerText = 'There are no images available in the selected region that match your selection criteria'
     } else {
-        overviewPanel.innerText = `Selection contains ${this.fitsmgr.downloadList.length} images`
+        overviewPanel.innerText = `Selection contains ${this.fitsmgr.downloadList.length} images (${(this.fitsmgr.getDownloadListSize() / 1e9).toFixed(2)} GB)`
     }
     selectionOverviewDiv.appendChild(overviewPanel)
     if (this.fitsmgr.downloadList.length != 0) {
-        const downloadButton = document.createElement('button')
-        downloadButton.innerText='Download Selection'
-        downloadButton.classList.add('btn-flat','teal','white-text','lighten-2','fits-selection-dl-btn')
-        downloadButton.addEventListener('click', (e) => {
-            this._openDownloadManager() 
-        })
-        selectionOverviewDiv.appendChild(downloadButton)
-        const downloadTextButton = document.createElement('button')
-        downloadTextButton.innerText='Download URL List'
-        downloadTextButton.classList.add('btn-flat','red','white-text','lighten-2','fits-selection-dl-btn')
-        downloadTextButton.addEventListener('click', () => { this.fitsmgr.downloadSelectionURLList() })
-        selectionOverviewDiv.appendChild(downloadTextButton)
-        selectionOverviewDiv.appendChild(this._createFITSImageTable())
+      selectionOverviewDiv.appendChild(this._createFITSImageTable())
     }
     return selectionOverviewDiv
+  }
+
+  _createDownloadButton() {
+    const downloadButton = document.createElement('button')
+    downloadButton.innerText='Download Selection'
+    downloadButton.classList.add('btn-flat','teal','white-text','lighten-2','fits-selection-dl-btn')
+    downloadButton.addEventListener('click', (e) => {
+        this._openDownloadManager() 
+    })
+    if (this.fitsmgr.downloadList.length == 0) downloadButton.classList.add('disabled')
+    return downloadButton
   }
 
 
@@ -206,32 +215,34 @@ class FITSModal {
    * Updates the download list in the fits manager, and re-renders the selection table.
    * Modal must be already created to use this method
    */
-  _refreshFITSSelectionOverview() {
+  _refreshModalContent() {
     this.fitsmgr.updateDownloadList()
     const fitsSelectionOverview = document.getElementById('fits-selection-overview')
     fitsSelectionOverview.innerText = ''
     fitsSelectionOverview.appendChild(this._createFITSSelectionOverview())
+    this.modalFooter.innerText = ''
+    this.modalFooter.appendChild(this._createDownloadButton())
   }
 
 
-  _openDownloadManager() {
-    let modalBody = document.getElementById('download-modal-content')
-    let modalFooter = document.getElementById('download-modal-footer')
-    
-    let closeButton = document.createElement('button')
-    closeButton.classList.add('btn-small','red','lighten-2')
-    closeButton.innerText = 'Go Back'
-    modalFooter.appendChild(closeButton)
-    
-    
-    modalBody.innerText = ''
+  _openDownloadManager() {    
+    this.modalBody.innerText = ''
     let iframe = document.createElement('iframe')
     iframe.name = 'download-mgr-iframe'
     iframe.id = 'download-mgr-iframe'
-    modalBody.appendChild(iframe)
+    this.modalBody.appendChild(iframe)
     let formElement = this.fitsmgr.getDownloadManagerForm('download-mgr-iframe')
     iframe.appendChild(formElement)
     formElement.submit();    
+
+    this.modalFooter.innerText = ''
+    let closeButton = document.createElement('button')
+    closeButton.classList.add('btn','red','lighten-2')
+    closeButton.innerText = 'Go Back'
+    closeButton.addEventListener('click', (e) => {
+      this._renderModalBodyContent()
+    })
+    this.modalFooter.appendChild(closeButton)
   }
 
 
