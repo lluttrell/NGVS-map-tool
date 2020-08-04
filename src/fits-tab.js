@@ -20,7 +20,7 @@ class FITSTab {
 
   createSelectAreaButton() {
     let button = document.createElement('button')
-    button.classList.add('btn-small','center-align')
+    button.classList.add('btn-small')
     button.innerText = 'List Images In Current Map View'
     button.addEventListener('click', () => {
       let bounds = this.mapObj.lMap.getBounds()
