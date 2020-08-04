@@ -14,7 +14,7 @@ class FITSTab {
 
   createHelpParagraph() {
     let paragraph = document.createElement('p')
-    paragraph.innerText = 'While holding Ctrl, click and drag a box to display FITS Images for the region. '
+    paragraph.innerText = 'While holding Shift, click and drag a box to display FITS Images for the region. '
     return paragraph
   }
 

@@ -51,6 +51,7 @@ class Map {
     for (let tileSet of this.tileSets) {
       this.layerControl.addOverlay(tileSet.tileLayer,tileSet.name,'Base Maps')
     }
+    this.lMap.selectArea.setShiftKey(true)
     this.lMap.createPane('pointingPane')
     this.lMap.createPane('catalogPane')
     
