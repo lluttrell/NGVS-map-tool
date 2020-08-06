@@ -7,7 +7,7 @@ const createLoader = (message=null) => {
   let loader = document.createElement('div')
   if (message) {
     let loaderMessage = document.createElement('p')
-    loaderMessage.innerText = 'message'
+    loaderMessage.innerText = message
     loader.appendChild(loaderMessage)
   }
 
