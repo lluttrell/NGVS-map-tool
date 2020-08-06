@@ -1,0 +1,8 @@
+#login-warning-modal {
+  height: 15rem;
+  max-width: 35rem;
+}
+
+#login-warning-modal .btn {
+  margin: 6px 6px;
+}

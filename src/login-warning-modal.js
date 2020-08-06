@@ -1,10 +1,11 @@
+import './styles/login-warning-modal.css'
+
 class LoginWarningModal {
   constructor() {
     this.modal = document.createElement('div')
     this.modal.classList.add('modal','modal-fixed-footer')
-    this.modal.id = 'login-modal'
+    this.modal.id = 'login-warning-modal'
     this.modalInstance = M.Modal.init(this.modal, { dismissible: false })
-
   }
 
   render(node) {
