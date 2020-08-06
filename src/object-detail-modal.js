@@ -3,7 +3,7 @@ import { createLoader } from './utils/loader.js'
 
 class ObjectDetailModal extends Modal {
   constructor(catalog, objectID) {
-    super(true, false)
+    super(false, true)
     this.catalog = catalog
     this.objectID = objectID
   }
