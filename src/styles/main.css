@@ -101,6 +101,15 @@ will-change: unset;
     height: 95%;
 }
 
+#login-modal {
+    height: 15rem;
+    max-width: 35rem;
+}
+
+#login-modal .btn {
+    margin: 6px 6px;
+}
+
 #download-modal {
     width: 50%;
     height: 80%;

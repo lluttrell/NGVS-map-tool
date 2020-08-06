@@ -16,6 +16,7 @@ import FITSManager from './fits-manager'
 import FITSModal from './fits-modal'
 import AdjustTab from './adjust-tab'
 import FITSTab from './fits-tab'
+import LoginWarningModal from './login-warning-modal'
 
 class App {
     constructor() {
@@ -24,6 +25,7 @@ class App {
         this.mapObj = new Map();
         this.fitsmgr = new FITSManager();
         this.sidebar = document.getElementById('nav-mobile')
+        this.permissionDeniedErrors = []
     }
 
     async init() {
@@ -33,20 +35,25 @@ class App {
         pageLoadingBar.innerHTML = '<div class="indeterminate"></div>'
         this.sidebar.appendChild(pageLoadingBar)
         
+        // create and initialize map object
         this.mapObj.init();
         this.mapObj.lMap.on('areaselected', (e) => {
             let fitsModal = new FITSModal(e.bounds, this.fitsmgr)
             fitsModal.render()
         })
 
-        for (let [catalogName, color] of config.catalogList.map((e, i) => [e, config.colors[i]])) {
-            try {
-                let catalog = new Catalog(catalogName, color, this.mapObj);
-                await catalog.init();
-                this.catalogList.push(catalog)
-            } catch(e) {
-                M.toast({html: `Failed to load ${catalogName}: Permission Denied`, classes:'red lighten-2'})
-            }
+        let permissionDeniedErrors = await this._initCatalogs()
+
+        if (permissionDeniedErrors.length && !localStorage.getItem('ignoreLogin')) {
+            let loginWarningModal = new LoginWarningModal()
+            loginWarningModal.render(document.getElementById('modal-container'))
+        } else if (permissionDeniedErrors.length) {
+            let errorMessage = permissionDeniedErrors.reduce((acc, val) => acc + val + '<br>','')
+            M.toast({
+                html: errorMessage,
+                classes:'red lighten-2',
+                displayLength: 8000
+            })
         }
         
         const searchBar = new SearchBar(this.mapObj)
@@ -65,10 +72,10 @@ class App {
         let collapsibleHeaders = document.getElementsByClassName('collapsible-header')
         for (let element of collapsibleHeaders) {
             element.addEventListener('click', () => {
-                if (element.classList.contains('red','lighten-4')) {
-                    element.classList.remove('red','lighten-4')
+                if (element.classList.contains('red','lighten-3')) {
+                    element.classList.remove('red','lighten-3')
                 } else {
-                    element.classList.add('red','lighten-4')
+                    element.classList.add('red','lighten-3')
                 }
             })
         }
@@ -76,6 +83,21 @@ class App {
         // show collapsible list only after their contents are availible and remove loader
         document.getElementById('collapsible-list').classList.remove('hidden')
         this.sidebar.removeChild(pageLoadingBar)
+    }
+
+    async _initCatalogs() {
+        let permissionDeniedErrors = []
+        // initialize the catalogs in parallel
+        await Promise.allSettled(config.catalogs.map(async (catalog) => {
+            try {
+                let catObj = new Catalog(catalog.name, catalog.markerColor, this.mapObj)
+                await catObj.init()
+                this.catalogList.push(catObj)
+            } catch (e) {
+                permissionDeniedErrors.push(e.message)
+            }
+        }))
+        return permissionDeniedErrors
     }
 }
 

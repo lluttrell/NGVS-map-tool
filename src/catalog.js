@@ -34,14 +34,13 @@ class Catalog {
     let queryURI = this.apiEndpointBase + encodeURIComponent(queryString)
     let response = await fetch(queryURI, { credentials: 'include'})
     if (response.status == 403) {
-      throw new Error(`permission denied on table ${this.name}`)
+      throw new Error(`Loading ${this.name} failed: Permission denied`)
     }
     let csvText = await response.text()
     this.primaryKey = csvText.split(',')[0];
     this.principleColumns = csvText
       .split(',')
       .filter((attributeName) => attributeName.includes('principle'));
-    return 1
   }
 
   /**
