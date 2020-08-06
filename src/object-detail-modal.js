@@ -1,37 +1,49 @@
-import 'materialize-css/dist/css/materialize.min.css'
-import 'materialize-css/dist/js/materialize.min.js'
+import Modal from './modal'
 import { createLoader } from './utils/loader.js'
 
-class ObjectDetailModal {
+class ObjectDetailModal extends Modal {
   constructor(catalog, objectID) {
+    super(true, false)
     this.catalog = catalog
     this.objectID = objectID
-    this.modal = document.createElement('div')
-    this.modalInstance = M.Modal.init(this.modal)
   }
 
-  render(node) {
+  async render(node) {
     node.innerText = ''
-    createLoader('Retrieving selection from database')
+    node.appendChild(this.modal)
+    this.setModalContent(createLoader('Retrieving selection from database'))
+    this.modalInstance.open()
+    await this.catalog.queryObject(this.objectID)
+    this.setModalContent(this._createModalTitle())
+    this.appendModalContent(this._createObjectInformationTable())
   }
 
-  _createModalBody() {
-    let modalBody = document.createElement('div')
-    modalBody.classList.add('modal-content')
-    return modalBody
+  _createModalTitle() {
+    const modalTitle = document.createElement('h4')
+    modalTitle.innerText = this.objectID
+    return modalTitle
   }
 
-  _createModalFooter() {
-    let modalFooter = document.createElement('div')
-    modalFooter.classList.add('modal-footer')
-    return modalFooter
+  _createObjectInformationTable() {
+    let table = document.createElement('table')
+    table.classList.add('highlight')
+    let tableHead = document.createElement('thead')
+    tableHead.innerHTML = '<tr><th>Property</th><th>Value</th></tr>'
+    let tableBody = document.createElement('tbody')
+    for(let [key,value] of Object.entries(this.catalog.currentObjectQuery)) {
+        let row = document.createElement('tr');
+        let property = document.createElement('td');
+        property.innerHTML = key;
+        let propertyValue = document.createElement('td');
+        propertyValue.innerHTML = value;
+        row.appendChild(property);
+        row.appendChild(propertyValue);
+        tableBody.appendChild(row);
+    }
+    table.append(tableHead,tableBody)
+    return table
   }
 
-  // node.innerText = ''
-  // this.modal.appendChild(this._createModalBody())
-  // this.modal.appendChild(this._createModalFooter())
-  // node.appendChild(this.modal)
-  // this.modalInstance.open()
 }
 
 export default ObjectDetailModal

@@ -1,6 +1,7 @@
-import { parseSelectionToConditions } from './query-builder'
-import Papa from 'papaparse'
 import 'leaflet'
+import Papa from 'papaparse'
+import ObjectDetailModal from './object-detail-modal';
+import { parseSelectionToConditions } from './query-builder'
 
 /** @class Catalog represents a single catalog that can be queried and plotted on a Map */
 class Catalog {
@@ -141,42 +142,10 @@ class Catalog {
   * Displays information about a single object in a modal popup window
   * @param {string} objectID 
   */
-  async displayObjectInformation(objectID) {
-    let modalElem = document.getElementById('object-modal')
-    let modalInstance = M.Modal.init(modalElem, {dismissible: true});
-    let modalBody = document.getElementById('object-modal-content')
-    modalBody.innerHTML = '<p>Retrieving selection from database</p>'
-    modalBody.innerHTML += '<div class="progress"><div class="indeterminate"></div></div>'
-    modalInstance.open();
-    await this.queryObject(objectID)
-    modalBody.innerHTML = ''
-    const modalTitle = document.createElement('h4')
-    modalTitle.innerHTML = objectID
-    modalBody.appendChild(modalTitle)
-    modalBody.appendChild(this.createObjectInformationTable()) 
+  displayObjectInformation(objectID) {
+    let objectDetailModal = new ObjectDetailModal(this, objectID)
+    objectDetailModal.render(document.getElementById('modal-container'))
   }
-
-
-  createObjectInformationTable() {
-    let table = document.createElement('table')
-    table.classList.add('highlight')
-    let tableHead = document.createElement('thead')
-    tableHead.innerHTML = '<tr><th>Property</th><th>Value</th></tr>'
-    let tableBody = document.createElement('tbody')
-    for(let [key,value] of Object.entries(this.currentObjectQuery)) {
-        let row = document.createElement('tr');
-        let property = document.createElement('td');
-        property.innerHTML = key;
-        let propertyValue = document.createElement('td');
-        propertyValue.innerHTML = value;
-        row.appendChild(property);
-        row.appendChild(propertyValue);
-        tableBody.appendChild(row);
-    }
-    table.append(tableHead,tableBody)
-    return table
-  }
-
 
   setRefineParameter(parameterName, parameterValue) {
     this.refineParameters[parameterName] = parameterValue;
