@@ -117,21 +117,3 @@ will-change: unset;
     height: 100%;
 }
 
-#searchbox-input {
-    border-bottom: none!important;
-    box-shadow: none!important;
-    margin: 0;
-  }
-
-  ::-webkit-input-placeholder { /* Chrome/Opera/Safari */
-    color:#777;
-  }
-  ::-moz-placeholder { /* Firefox 19+ */
-    color: #777;
-  }
-  :-ms-input-placeholder { /* IE 10+ */
-    color:#777;
-  }
-  :-moz-placeholder { /* Firefox 18- */
-    color:#777;
-  }
