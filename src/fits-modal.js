@@ -1,6 +1,9 @@
 import { config } from '../app.config'
 import 'leaflet'
 
+/**
+ * @todo Refactor this so it extends Modal
+ */
 class FITSModal {
   /**
    * Class used to render a pop-up modal that allows 
