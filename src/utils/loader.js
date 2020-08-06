@@ -1,7 +1,8 @@
 
 /**
  * Returns a div that contains an indeterminate loading bar with an (optional) message above it
- * @param {string} message message to display above the loading bar 
+ * @param {string} message message to display above the loading bar
+ * @return {HTMLElement} HTML div containing message and loading bar
  */
 const createLoader = (message=null) => {
   let loader = document.createElement('div')

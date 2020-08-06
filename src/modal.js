@@ -25,6 +25,7 @@ class Modal {
 
   /**
    * Creates a modalContent section for modal
+   * @return {HTMLElement} div for modalContent
    */
   _createModalContent() {
     let modalContent = document.createElement('div')
@@ -32,8 +33,9 @@ class Modal {
     return modalContent
   }
 
-    /**
+  /**
    * Creates a modalFooter section for modal
+   * @return {HTMLElement} div for modalFooter
    */
   _createModalFooter() {
     let modalFooter = document.createElement('div')

@@ -1,10 +1,22 @@
 import Modal from './modal'
 import './styles/login-warning-modal.css'
+/**
+ * Class representing a modal that prompts user to login to CADC
+ * @extends Modal
+ */
 class LoginWarningModal extends Modal {
+
+  /**
+   * Creates a LoginWarningModal
+   */
   constructor() {
     super(true, true)
   }
 
+  /**
+   * Replaces contents of node with rendering of ObjectDetailModal
+   * @param {HTMLElement} node node in which to display modal
+   */
   render(node) {
     node.innerText = ''
     node.appendChild(this.modal)
@@ -14,20 +26,30 @@ class LoginWarningModal extends Modal {
     this.modalInstance.open()
   }
 
+  /**
+   * Adds warning message and ignore button to the modalContent 
+   */
   _addModalContent() {
     let warningParagraph = document.createElement('p')
     warningParagraph.innerText = `You do not have access to some of the available resources. If you have a CADC account, please ensure you are logged in.`
     this.appendModalContent(warningParagraph)
-    this.appendModalContent(this._createIgnoreButton())
+    this.appendModalContent(this._createIgnoreLabel())
   }
 
+  /**
+   * Adds redirect and dismiss button to the modalFooter
+   */
   _addModalFooter() {
     this.appendModalFooter(this._createDismissButton())
     this.appendModalFooter(this._createLoginButton())
   }
 
-  _createIgnoreButton() {
-    let ignoreButton = document.createElement('label')
+  /**
+   * Creates an ignore checkbox and message. Toggles the ignoreItem property in local storage
+   * @return {HTMLElement} HTML label element with a checkbox and message
+   */
+  _createIgnoreLabel() {
+    let ignoreLabel = document.createElement('label')
     let input = document.createElement('input')
     input.setAttribute('type','checkbox')
     input.addEventListener('change', (e) => {
@@ -40,10 +62,14 @@ class LoginWarningModal extends Modal {
     
     let span = document.createElement('span')
     span.innerText = 'Do not show this message again'
-    ignoreButton.append(input, span)
-    return ignoreButton
+    ignoreLabel.append(input, span)
+    return ignoreLabel
   }
 
+  /**
+   * Creates a button that destroys the modal instance
+   * @return {HTMLElement} HTML button element
+   */
   _createDismissButton() {
     let dismissButton = document.createElement('button')
     dismissButton.classList.add('btn','red','lighten-2')
@@ -52,6 +78,10 @@ class LoginWarningModal extends Modal {
     return dismissButton
   }
 
+    /**
+   * Creates a button that redirects users to the CADC login page
+   * @return {HTMLElement} HTML anchor element with link to CADC page
+   */
   _createLoginButton() {
     let loginButton = document.createElement('a')
     let currentURL = encodeURIComponent(window.location)
