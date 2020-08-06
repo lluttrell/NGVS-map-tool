@@ -1,39 +1,29 @@
+import Modal from './modal'
 import './styles/login-warning-modal.css'
-
-class LoginWarningModal {
+class LoginWarningModal extends Modal {
   constructor() {
-    this.modal = document.createElement('div')
-    this.modal.classList.add('modal','modal-fixed-footer')
-    this.modal.id = 'login-warning-modal'
-    this.modalInstance = M.Modal.init(this.modal, { dismissible: false })
+    super(true, true)
   }
 
   render(node) {
     node.innerText = ''
-    this.modal.appendChild(this._createModalBody())
-    this.modal.appendChild(this._createModalFooter())
     node.appendChild(this.modal)
+    this.modal.id = 'login-warning-modal'
+    this._addModalContent()
+    this._addModalFooter()
     this.modalInstance.open()
   }
 
-  _createModalBody() {
-    let modalContent = document.createElement('div')
-    modalContent.classList.add('modal-content')
-
+  _addModalContent() {
     let warningParagraph = document.createElement('p')
     warningParagraph.innerText = `You do not have access to some of the available resources. If you have a CADC account, please ensure you are logged in.`
-    modalContent.appendChild(warningParagraph)
-
-    modalContent.appendChild(this._createIgnoreButton())
-    return modalContent
+    this.appendModalContent(warningParagraph)
+    this.appendModalContent(this._createIgnoreButton())
   }
 
-  _createModalFooter() {
-    let modalFooter = document.createElement('div')
-    modalFooter.classList.add('modal-footer')
-    modalFooter.appendChild(this._createDismissButton())
-    modalFooter.appendChild(this._createLoginButton())
-    return modalFooter
+  _addModalFooter() {
+    this.appendModalFooter(this._createDismissButton())
+    this.appendModalFooter(this._createLoginButton())
   }
 
   _createIgnoreButton() {
