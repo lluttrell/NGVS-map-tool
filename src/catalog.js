@@ -55,7 +55,6 @@ class Catalog {
     let csvText = await response.text()
     let csvObj = Papa.parse(csvText, { dynamicTyping: true, header: true}).data[0]
     this.currentObjectQuery = csvObj
-    return 1
   }
 
   /**
@@ -89,15 +88,13 @@ class Catalog {
     csvArray = csvArray.slice(2,-3)
     self.currentQuery = csvArray;
     self.currentDownload = csvText;
-  
-    return 1
   }
 
 
   /**
   * Downloads the information stored in currentDownload in csv format
   */
-  async downloadQuery() {
+  downloadQuery() {
     let currentDate = Date.now();
     let blob = new Blob([this.currentDownload], {type: 'text/csv', endings:'native'});
     let link = document.createElement('a');
@@ -110,7 +107,7 @@ class Catalog {
    * Plots the locations of the current currentQuery on lMap. Adds an even listener to each marker
    * To create a modal when clicked.
    */
-  async addCurrentQueryToMap() {
+  addCurrentQueryToMap() {
     this.removeCurrentQueryFromMap()
     for (let [name,lon,lat] of this.currentQuery) {
         let coordinates = L.latLng(lat,lon)
