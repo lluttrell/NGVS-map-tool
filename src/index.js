@@ -33,7 +33,7 @@ class App {
         this.mapObj.init();
         this.mapObj.lMap.on('areaselected', (e) => {
             let fitsModal = new FITSModal(e.bounds, this.fitsmgr)
-            fitsModal.render()
+            fitsModal.render(document.getElementById('modal-container'))
         })
 
         let permissionDeniedErrors = await this._initCatalogs()
