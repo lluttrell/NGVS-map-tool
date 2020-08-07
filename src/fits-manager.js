@@ -25,10 +25,10 @@ class FITSManager {
     this.availableExposures = new Set()
     this.availableIndividualPipelines = new Set()
     this.availableStackedPipelines = new Set()
-    this.selectedFilters = config.filters
-    this.selectedExposures = config.exposures
-    this.selectedIndividualPipelines = config.individualPipelines
-    this.selectedStackedPipelines = config.stackedPipelines
+    this.filters = config.fitsImageCategories.filters.parameters
+    this.exposures = config.fitsImageCategories.exposures.parameters
+    this.individualPipelines = config.fitsImageCategories.individualPipelines.parameters
+    this.stackedPipelines = config.fitsImageCategories.stackedPipelines.parameters
   }
 
   /**
@@ -66,11 +66,11 @@ class FITSManager {
    */
   updateDownloadList() {
     this.downloadList = this.currentQuery
-      .filter(link => this.selectedFilters.includes(link.filter))
-      .filter(link => this.selectedExposures.includes(link.exposure))
+      .filter(link => this.filters.includes(link.filter))
+      .filter(link => this.exposures.includes(link.exposure))
       .filter((link) => {
-        return this.selectedIndividualPipelines.includes(link.pipeline) 
-          || this.selectedStackedPipelines.includes(link.pipeline)
+        return this.individualPipelines.includes(link.pipeline) 
+          || this.stackedPipelines.includes(link.pipeline)
       })
   }
 

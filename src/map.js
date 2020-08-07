@@ -56,7 +56,7 @@ class Map {
     this.lMap.createPane('catalogPane')
     
     this.layerControl.addOverlay(this.fieldOutlines.getPointingLayerGroup(),'NGVS','Pointings')
-    for (let filterName of config.filters) {
+    for (let filterName of config.fitsImageCategories.filters.parameters) {
       this.layerControl.addOverlay(this.fieldOutlines.getLongOutlineLayerGroup(filterName), filterName, 'Field Outlines (Long)')
       this.layerControl.addOverlay(this.fieldOutlines.getShortOutlineLayerGroup(filterName), filterName, 'Field Outlines (Short)')
     }
