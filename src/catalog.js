@@ -1,6 +1,7 @@
 import 'leaflet'
 import Papa from 'papaparse'
 import ObjectDetailModal from './object-detail-modal';
+import GalaxyDetailModal from './galaxy-detail-modal'
 import { parseSelectionToConditions } from './query-builder'
 
 /** @class Catalog represents a single catalog that can be queried and plotted on a Map */
@@ -143,8 +144,13 @@ class Catalog {
   * @param {string} objectID 
   */
   displayObjectInformation(objectID) {
-    let objectDetailModal = new ObjectDetailModal(this, objectID)
-    objectDetailModal.render(document.getElementById('modal-container'))
+    let detailModal
+    if (this.name == 'cfht.ngvsCatalog') {
+      detailModal = new GalaxyDetailModal(this, objectID)
+    } else {
+      detailModal = new ObjectDetailModal(this, objectID)
+    }
+    detailModal.render(document.getElementById('modal-container'))
   }
 
   setRefineParameter(parameterName, parameterValue) {
