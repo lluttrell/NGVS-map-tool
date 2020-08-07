@@ -137,15 +137,14 @@ class FieldOutlines {
   /**
    * Parses a string representing a filter name and returns the string if the filter is defined in the configuration file 
    * @param {string} filterString String to parse
+  _parseOutlines() {
+    return true
+  }
    */
   static _parseFilterName(filterString) {
     let filterName = filterString.split('.')[0]
-    if (!config.filters.includes(filterName)) throw new Error(`Invalid Filter Name: ${filterName} is not defined in app.config`)
+    if (!config.fitsImageCategories.filters.parameters.includes(filterName)) throw new Error(`Invalid Filter Name: ${filterName} is not defined in app.config`)
     return filterName
-  }
-
-  _parseOutlines() {
-    return true
   }
 }
 
