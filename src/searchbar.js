@@ -31,20 +31,19 @@ class SearchBar {
     searchBoxInput.classList.add('materialize-textarea')
     searchBoxInput.id = 'searchbox-input'
     searchBoxInput.setAttribute('placeholder', 'Object/Location Search')
-    searchBoxInput.addEventListener('keyup', (e) => {
+    searchBoxInput.addEventListener('keyup', async (e) => {
       if (e.key === 'Enter') {
-        this._updateSearchHistory()
-        this._performSearch()
         searchBoxInput.value = ''
+        this._updateSearchHistory()
+        await this._performSearch()
       } else if (e.key === 'ArrowUp'){
         this._incrementSearchHistoryPosition()
         searchBoxInput.value = this.searchHistory[this.searchHistoryPosition]
       } else if (e.key === 'ArrowDown'){
         this._decrementSearchHistoryPosition()
         searchBoxInput.value = this.searchHistory[this.searchHistoryPosition]
-      } else {
-        this.searchBoxContent = searchBoxInput.value
       }
+      this.searchBoxContent = searchBoxInput.value
     })
     searchBar.appendChild(searchBoxInput)
     
