@@ -12,8 +12,8 @@ class ObjectDetailModal extends Modal {
    * @param {Catalog} catalog Catalog to which object belongs to
    * @param {string} objectID ID of object
    */
-  constructor(catalog, objectID) {
-    super(false, true)
+  constructor(catalog, objectID, fixedFooter=false) {
+    super(fixedFooter, true)
     this.catalog = catalog
     this.objectID = objectID
   }

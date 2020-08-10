@@ -1,10 +1,12 @@
 import { config } from '../app.config'
+import { createLoader } from './utils/loader.js'
+import Modal from './modal'
 import 'leaflet'
 
 /**
  * @todo Refactor this so it extends Modal
  */
-class FITSModal {
+class FITSModal extends Modal {
   /**
    * Class used to render a pop-up modal that allows 
    * @constructor
@@ -12,167 +14,68 @@ class FITSModal {
    * @param {FITSManager} fitsmgr FITSManager used for querying and remembering user input state
    */
   constructor(areaBounds, fitsmgr) {
+    super(true, true)
     this.fitsmgr = fitsmgr
     this.bottomLeftCoordinate = areaBounds.getSouthWest()
     this.topRightCoordinate = areaBounds.getNorthEast()
-    this.modalBody = document.getElementById('download-modal-content')
-    this.modalFooter = document.getElementById('download-modal-footer')
+    this.availableImageDiv = document.createElement('div')
   }
 
-
-  async render() {
-    let elem = document.getElementById('download-modal')
-    let modalInstance = M.Modal.init(elem, {dismissible: true});
-    let modalBody = document.getElementById('download-modal-content')
-    modalBody.innerHTML = '<p>Retrieving selection from database</p>'
-    modalBody.innerHTML += '<div class="progress"><div class="indeterminate"></div></div>'
-    modalInstance.open();
-
+  async render(node) {
+    node.innerText = ''
+    node.appendChild(this.modal)
+    this.setModalContent(createLoader('Retrieving available FITS Images'))
+    this.modalInstance.open();
     await this.fitsmgr.getPublisherIdAtRegion(this.bottomLeftCoordinate, this.topRightCoordinate)
-    this._renderModalBodyContent()
-    
-    
+    this._renderMainModalContent()
   }
 
-  _renderModalBodyContent() {
-    this.modalBody.innerHTML = ''
-    const modalTitle = document.createElement('h4')
+  _renderMainModalContent() {
+    this.modalContent.innerHTML = ''
+    let modalTitle = document.createElement('h4')
     modalTitle.innerHTML = 'FITS Image Selection'
-    this.modalBody.appendChild(modalTitle)
-    const filterTitle = document.createElement('h6')
-    filterTitle.innerText = 'Filters'
-    this.modalBody.appendChild(filterTitle)
-    this.modalBody.appendChild(this._createFITSFilterSelectionButtons())
-    const exposureTitle = document.createElement('h6')
-    exposureTitle.innerText = 'Exposures'
-    this.modalBody.appendChild(exposureTitle)
-    this.modalBody.appendChild(this._createFITSExposureSelectionButtons())
-    const stackedTitle = document.createElement('h6')
-    stackedTitle.innerText = 'Stacked Images'
-    this.modalBody.appendChild(stackedTitle)
-    this.modalBody.appendChild(this._createFITSStackedSelectionButtons())
-    const individualTitle = document.createElement('h6')
-    individualTitle.innerText = 'Single Images'
-    this.modalBody.appendChild(individualTitle)
-    this.modalBody.appendChild(this._createFITSIndividualSelectionButtons())
-    this.modalBody.appendChild(this._createFITSSelectionOverview())
-    
-    this.modalFooter.innerHTML = ''
-    this.modalFooter.appendChild(this._createDownloadButton())
-  }
-
-
-  _createFITSFilterSelectionButtons() {
-    const buttonDiv = document.createElement('div')
-    for (const filter of config.filters) {
-        const button = document.createElement('label')
-        button.classList.add('fits-selection-label')
-        const checkbox = document.createElement('input')
-        checkbox.setAttribute('type','checkbox')
-        checkbox.classList.add('filled-in')
-        if (!this.fitsmgr.availableFilters.has(filter)) checkbox.setAttribute('disabled','disabled')
-        if (this.fitsmgr.selectedFilters.includes(filter)) checkbox.setAttribute('checked','checked')
-        checkbox.addEventListener('change', (e) => {
-            if (!e.target.checked) {
-              // this is really confusing as there are two filters and i'm using the filter function
-              this.fitsmgr.selectedFilters = this.fitsmgr.selectedFilters.filter(f => f != filter)
-            } else {
-              this.fitsmgr.selectedFilters.push(filter)
-            }
-            this._refreshModalContent();
-        })
-        const name = document.createElement('span')
-        name.innerText = filter
-        button.appendChild(checkbox)
-        button.appendChild(name)
-        buttonDiv.appendChild(button)
+    this.modalContent.appendChild(modalTitle)
+    for (let [key, value] of Object.entries(config.fitsImageCategories)) {
+      this.appendModalContent(this._createSelectionCheckboxes(key, value))
     }
-    return buttonDiv
+    this.availableImageDiv = this._createFITSSelectionOverview()
+    this.appendModalContent(this.availableImageDiv)
+    this.setModalFooter(this._createDownloadButton())
   }
 
-
-  _createFITSExposureSelectionButtons() {
-    const buttonDiv = document.createElement('div')
-    for (const exposure of config.exposures) {
-        const button = document.createElement('label')
-        button.classList.add('fits-selection-label')
-        const checkbox = document.createElement('input')
-        checkbox.setAttribute('type','checkbox')
-        checkbox.classList.add('filled-in')
-        if (!this.fitsmgr.availableExposures.has(exposure)) checkbox.setAttribute('disabled','disabled')
-        if (this.fitsmgr.selectedExposures.includes(exposure)) checkbox.setAttribute('checked','checked')
-        checkbox.addEventListener('change', (e) => {
-            if (!e.target.checked) {
-              this.fitsmgr.selectedExposures = this.fitsmgr.selectedExposures.filter(f => f != exposure)
-            } else {
-              this.fitsmgr.selectedExposures.push(exposure)
-            }
-            this._refreshModalContent();
-        })
-        const name = document.createElement('span')
-        name.innerText = exposure
-        button.appendChild(checkbox)
-        button.appendChild(name)
-        buttonDiv.appendChild(button)
+  _createSelectionCheckboxes(selectionCategory, categoryInfo ) {
+    let selectionCheckboxDiv = document.createElement('div')
+    let divTitle = document.createElement('h6')
+    divTitle.innerText = categoryInfo.title
+    selectionCheckboxDiv.appendChild(divTitle)
+    for (let parameter of categoryInfo.parameters) {
+      selectionCheckboxDiv.appendChild(this._createSelectionCheckbox(selectionCategory, parameter))
     }
-    return buttonDiv
+    return selectionCheckboxDiv
   }
 
-
-  _createFITSStackedSelectionButtons() {
-    const buttonDiv = document.createElement('div')
-    for (const pipeline of config.stackedPipelines) {
-        const button = document.createElement('label')
-        button.classList.add('fits-selection-label')
-        const checkbox = document.createElement('input')
-        checkbox.setAttribute('type','checkbox')
-        checkbox.classList.add('filled-in')
-        if (!this.fitsmgr.availableStackedPipelines.has(pipeline)) checkbox.setAttribute('disabled','disabled')
-        if (this.fitsmgr.selectedStackedPipelines.includes(pipeline)) checkbox.setAttribute('checked','checked')
-        checkbox.addEventListener('change', (e) => {
-            if (!e.target.checked) {
-              this.fitsmgr.selectedStackedPipelines = this.fitsmgr.selectedStackedPipelines.filter(f => f != pipeline)
-            } else {
-              this.fitsmgr.selectedStackedPipelines.push(pipeline)
-            }
-            this._refreshModalContent();
-        })
-        const name = document.createElement('span')
-        name.innerText = pipeline
-        button.appendChild(checkbox)
-        button.appendChild(name)
-        buttonDiv.appendChild(button)
-    }
-    return buttonDiv
+  _createSelectionCheckbox(selectionCategory, parameter) {
+    let label = document.createElement('label')
+    label.classList.add('fits-selection-label')
+    let checkbox = document.createElement('input')
+    checkbox.setAttribute('type','checkbox')
+    checkbox.classList.add('filled-in')
+    if (!this.fitsmgr['available' + selectionCategory[0].toUpperCase() + selectionCategory.slice(1)].has(parameter)) checkbox.setAttribute('disabled','disabled')
+    if (this.fitsmgr[selectionCategory].includes(parameter)) checkbox.setAttribute('checked','checked')
+    checkbox.addEventListener('change', (e) => {
+      if (!e.target.checked) {
+        this.fitsmgr[selectionCategory] = this.fitsmgr[selectionCategory].filter(f => f != parameter)
+      } else {
+        this.fitsmgr[selectionCategory].push(parameter)
+      }
+      this._refreshModalContent();
+    })
+    label.appendChild(checkbox)
+    let name = document.createElement('span')
+    name.innerText = parameter
+    label.appendChild(name)
+    return label
   }
-
-  _createFITSIndividualSelectionButtons() {
-    const buttonDiv = document.createElement('div')
-    for (const pipeline of config.individualPipelines) {
-        const button = document.createElement('label')
-        button.classList.add('fits-selection-label')
-        const checkbox = document.createElement('input')
-        checkbox.setAttribute('type','checkbox')
-        checkbox.classList.add('filled-in')
-        if (!this.fitsmgr.availableIndividualPipelines.has(pipeline)) checkbox.setAttribute('disabled','disabled')
-        if (this.fitsmgr.selectedIndividualPipelines.includes(pipeline)) checkbox.setAttribute('checked','checked')
-        checkbox.addEventListener('change', (e) => {
-            if (!e.target.checked) {
-              this.fitsmgr.selectedIndividualPipelines = this.fitsmgr.selectedIndividualPipelines.filter(f => f != pipeline)
-            } else {
-              this.fitsmgr.selectedIndividualPipelines.push(pipeline)
-            }
-            this._refreshModalContent();
-        })
-        const name = document.createElement('span')
-        name.innerText = pipeline
-        button.appendChild(checkbox)
-        button.appendChild(name)
-        buttonDiv.appendChild(button)
-    }
-    return buttonDiv
-  }
-
 
   /**
    * Constructs a div containing information about the currently created download list in the
@@ -220,32 +123,27 @@ class FITSModal {
    */
   _refreshModalContent() {
     this.fitsmgr.updateDownloadList()
-    const fitsSelectionOverview = document.getElementById('fits-selection-overview')
-    fitsSelectionOverview.innerText = ''
-    fitsSelectionOverview.appendChild(this._createFITSSelectionOverview())
-    this.modalFooter.innerText = ''
-    this.modalFooter.appendChild(this._createDownloadButton())
+    this.availableImageDiv.innerText = ''
+    this.availableImageDiv.appendChild(this._createFITSSelectionOverview())
   }
 
 
   _openDownloadManager() {    
-    this.modalBody.innerText = ''
     let iframe = document.createElement('iframe')
     iframe.name = 'download-mgr-iframe'
     iframe.id = 'download-mgr-iframe'
-    this.modalBody.appendChild(iframe)
+    this.setModalContent(iframe)
     let formElement = this.fitsmgr.getDownloadManagerForm('download-mgr-iframe')
     iframe.appendChild(formElement)
     formElement.submit();    
 
-    this.modalFooter.innerText = ''
     let closeButton = document.createElement('button')
     closeButton.classList.add('btn','red','lighten-2')
     closeButton.innerText = 'Go Back'
     closeButton.addEventListener('click', (e) => {
-      this._renderModalBodyContent()
+      this._renderMainModalContent()
     })
-    this.modalFooter.appendChild(closeButton)
+    this.setModalFooter(closeButton)
   }
 
 

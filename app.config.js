@@ -63,10 +63,24 @@ const config = {
     'z' : 'darkred',
     'k' : 'dimgray'
   },
-  'filters' : ['u','g','r','i','z','k'],
-  'exposures' : ['short','long'],
-  'individualPipelines' : ['raw', 'elixir', 'elixir-lsb'],
-  'stackedPipelines' : ['l128','g002','g004'],
+  'fitsImageCategories': {
+    'filters' : {
+      'title' : 'Filters',  
+      'parameters' : ['u','g','r','i','z','k'],
+    },
+    'exposures' : {
+      'title' : 'Filters',
+      'parameters' : ['short','long']
+    },
+    'individualPipelines' : {
+      'title' : 'Single Images',
+      'parameters' : ['raw', 'elixir', 'elixir-lsb']
+    },
+    'stackedPipelines' : {
+      'title' : 'Stacked Images',
+      'parameters' : ['l128','g002','g004']
+    }
+  },
   'tilesetFilters' : {
     'saturation' : {
       'minValue': 0,

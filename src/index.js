@@ -33,7 +33,7 @@ class App {
         this.mapObj.init();
         this.mapObj.lMap.on('areaselected', (e) => {
             let fitsModal = new FITSModal(e.bounds, this.fitsmgr)
-            fitsModal.render()
+            fitsModal.render(document.getElementById('modal-container'))
         })
 
         let permissionDeniedErrors = await this._initCatalogs()
@@ -66,10 +66,10 @@ class App {
         let collapsibleHeaders = document.getElementsByClassName('collapsible-header')
         for (let element of collapsibleHeaders) {
             element.addEventListener('click', () => {
-                if (element.classList.contains('red','lighten-3')) {
-                    element.classList.remove('red','lighten-3')
+                if (element.classList.contains('red','lighten-4')) {
+                    element.classList.remove('red','lighten-4')
                 } else {
-                    element.classList.add('red','lighten-3')
+                    element.classList.add('red','lighten-4')
                 }
             })
         }
