@@ -70,6 +70,7 @@ class SearchBar {
       this.searchHistory.length = config.searchHistoryLength
     }
     window.localStorage.setItem('searchHistory', JSON.stringify(this.searchHistory))
+    this.searchHistoryPosition = 0
   }
 
   /**
@@ -81,7 +82,7 @@ class SearchBar {
       this.layerGroup.clearLayers()
     } else {
       this.layerGroup.clearLayers()
-      for (let searchString of this.searchBoxContent.split(/\b\s/)) {
+      for (let searchString of this.searchBoxContent.split(/\b\s+\b/)) {
         try {
           let queryResults = await this._queryNameResolver(searchString)
           this.layerGroup.addLayer(this._createSearchMarker(queryResults.name, queryResults.coordinates))
