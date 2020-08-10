@@ -51,10 +51,6 @@ class SearchBar {
     let searchBoxImage = document.createElement('i')
     searchBoxImage.classList.add('material-icons','prefix')
     searchBoxImage.innerText = 'search'
-    // searchBar.addEventListener('click', () => {
-    //   this._performSearch()
-    //   searchBoxInput.value = ''
-    // })
     searchBar.appendChild(searchBoxImage)
     
     node.appendChild(searchBar)
@@ -102,9 +98,9 @@ class SearchBar {
    */
   async _queryNameResolver(searchString) {
     let response = await fetch(`https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/AdvancedSearch/unitconversion/Plane.position.bounds?term=${searchString}&resolver=all`)
-    let resultJSON = await response.json();
-    if (resultJSON.resolveStatus === "GOOD") {
-      return this._parseNameResolverResults(resultJSON.resolveValue)
+    let resultObj = await response.json();
+    if (resultObj.resolveStatus === "GOOD") {
+      return this._parseNameResolverResults(resultObj)
     } else {
       throw new Error(`Search for ${searchString} failed`)
     }
@@ -113,15 +109,15 @@ class SearchBar {
   /**
    * Parses the resolveValue from the cadc name resolver into an object containing
    * the name and coordinates of the resolveValue
-   * @param {string} resolveValue 
+   * @param {Object} resultObj
    */
-  _parseNameResolverResults(resolveValue) {
-    const resolveValues = resolveValue.split('\n');
-    let targetName = resolveValues[0].split(':')[1]
+  _parseNameResolverResults(resultObj) {
+    let resolveValue = resultObj.resolveValue
+    let resolveValues = resolveValue.split('\n');
     let targetDec = parseFloat(resolveValues[1].split(':')[1])
     let targetRA = parseFloat(resolveValues[2].split(':')[1])
     return {
-      name: targetName,
+      name: resultObj.resolveTarget,
       coordinates: [targetDec, targetRA]
     }
   }
