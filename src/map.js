@@ -37,17 +37,11 @@ class Map {
       attributionControl: false
     })
 
-    this.searchMarker = L.marker([0,0], {
-      "opacity" : 0.0,
-      "icon": this._createMarkerIcon('yellow')
-    })
-
     this.layerControl = L.control.groupedLayers(null, null, {collapsed: false})
   }
 
   
   init() {
-    this.searchMarker.addTo(this.lMap)
     for (let tileSet of this.tileSets) {
       this.layerControl.addOverlay(tileSet.tileLayer,tileSet.name,'Base Maps')
     }
@@ -71,17 +65,6 @@ class Map {
   }
 
 
-  setSearchMarker(name, coordinates) {
-    this.searchMarker.setLatLng(this._toLatLng(coordinates));
-    this.searchMarker.bindTooltip(`${name}`)
-    this.searchMarker.setOpacity(1.0);
-  }
-
-
-  clearSearchMarker() {
-    this.searchMarker.setOpacity(0.0);
-  }
-
   adjustTilesetFilter(property, value) {
     this.tilesetFilter.adjustFilterProperty(property, value)
     for (let tileSet of this.tileSets) {
@@ -100,29 +83,6 @@ class Map {
     })
   }
 
-
-  _toLatLng(coordinates) {
-    let dec = coordinates[0]
-    let ra = coordinates[1];
-    if (ra > 180) { ra = 180 - ra};
-    return L.latLng([dec,ra]);
-  }
-
-
-  /**
-   * Returns a leaflet marker icon
-   * @param {string} color icon color (red, blue, green, yellow, black)
-   */
-  _createMarkerIcon(color) {
-    return new L.Icon({
-        iconUrl: `https://cdn.rawgit.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-${color}.png`,
-        shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
-        iconSize: [25, 41],
-        iconAnchor: [12, 41],
-        popupAnchor: [1, -34],
-        shadowSize: [41, 41]
-    })
-  }
 }
 
 export default Map
