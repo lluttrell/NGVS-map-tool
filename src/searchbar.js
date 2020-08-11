@@ -22,7 +22,7 @@ class SearchBar {
 
     let searchBoxInput = document.createElement('input')
     searchBoxInput.id = 'searchbox-input'
-    searchBoxInput.setAttribute('placeholder', 'Object/Location Search')
+    searchBoxInput.setAttribute('placeholder', 'Location Search')
     searchBoxInput.addEventListener('keyup', (e) => {
       if (e.key === 'Enter') {
         this._performSearch()
@@ -35,7 +35,7 @@ class SearchBar {
     
     let searchBoxImage = document.createElement('i')
     searchBoxImage.classList.add('material-icons','prefix')
-    searchBoxImage.innerText = 'search'
+    searchBoxImage.innerText = 'add_location_alt'
     searchBar.addEventListener('click', () => {
       this._performSearch()
       searchBoxInput.value = ''
