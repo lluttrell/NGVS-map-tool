@@ -52,6 +52,8 @@ const config = {
       'opacity' : 1.0
     },
   },
+  'searchMarkerColor' : 'orange', // options: blue, gold, red, green, orange, yellow, violet, grey, black
+  'searchHistoryLength' : 100,
   'pointingOutlineColor' : 'gray',
   'fieldColors' : {
     'u' : 'indigo',
