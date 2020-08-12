@@ -86,17 +86,17 @@ const config = {
   'tilesetFilters' : {
     'saturation' : {
       'minValue': 0,
-      'maxValue': 150,
+      'maxValue': 200,
       'defaultValue': 100
     },
     'contrast' : {
       'minValue': 0,
-      'maxValue': 150,
+      'maxValue': 200,
       'defaultValue': 100
     },
     'brightness' : {
       'minValue': 0,
-      'maxValue': 150,
+      'maxValue': 200,
       'defaultValue': 100
     },
   },
