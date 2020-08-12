@@ -11,6 +11,7 @@ import FITSModal from './fits-modal'
 import AdjustTab from './adjust-tab'
 import FITSTab from './fits-tab'
 import LoginWarningModal from './login-warning-modal'
+import HelpTab from './help-tab'
 
 class App {
     constructor() {
@@ -62,14 +63,17 @@ class App {
         const fitsTab = new FITSTab(this.mapObj, this.fitsmgr)
         fitsTab.render(document.getElementById('fits-tab-body'))
 
+        const helpTab = new HelpTab()
+        helpTab.render(document.getElementById('help-tab-body'))
+
         // fix to add colors to collapsible list
         let collapsibleHeaders = document.getElementsByClassName('collapsible-header')
         for (let element of collapsibleHeaders) {
             element.addEventListener('click', () => {
-                if (element.classList.contains('red','lighten-4')) {
-                    element.classList.remove('red','lighten-4')
+                if (element.classList.contains('red','lighten-2')) {
+                    element.classList.remove('red','lighten-2')
                 } else {
-                    element.classList.add('red','lighten-4')
+                    element.classList.add('red','lighten-2')
                 }
             })
         }

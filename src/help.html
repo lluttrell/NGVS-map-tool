@@ -1,119 +1,129 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- Compiled and minified CSS -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
-
-    <!-- Compiled and minified JavaScript -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
-  <title>Document</title>
-  <style>
-    body {
-      max-width: 600px;
-      margin: 1rem 1rem;
-    }
-    code {
-      color: #004d40;
-      margin: 0 0.5rem;
-    }
-  </style>
-</head>
-<body>
-  <h4 class="red-text text-lighten-2">Application Overview</h5>
-  <p>The NGVS Search tool has three main components:</p>
+<h4 class="red-text text-lighten-2">Application Overview</h5>
+  <p>The NGVS Search tool has five main components:</p>
   <ul class="collection">
     <a class="collection-item" href="#map-help">Map Pane</a>
     <a class="collection-item" href="#sidebar-help">Sidebar</a>
     <a class="collection-item" href="#overlay-pane-help">Overlay Pane</a>
+    <a class="collection-item" href="#object-popup-help">Object Detail Popup</a>
+    <a class="collection-item" href="#fits-popup-help">FITS Image Popup</a>
   </ul>
-
-<section id="map-help">
-  <h4 class="red-text text-lighten-2">Map Pane</h4>
-  <p>The Map pane contains an interactive </p>
-</section>
-
-<section id="sidebar-help">
-  <h4 class="red-text text-lighten-2">Sidebar</h4>
-  <h5 class="teal-text text-lighten-1">Location Search</h5>
-  <p>Location Search uses the <a href="http://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/cadc-target-resolver/" target="_blank">
-    CADC target name resolver</a> to plot the location of one or more objects as markers on the map. 
-    Multiple markers can be plotted simultaneously by separating object names by spaces.</p>
-  <p>Comma separated RA/Dec pairs in either decimal or HMS/DMS format is also supported.</p>
-  <p>To remove search markers submit an empty search.</p>
   
-  <blockquote>Example. Add three markers to map: <code>m84 12:30:01, 12:01:04 m87</code></blockquote>
-  
-  <h5 class="teal-text text-lighten-1">Query Catalogs</h5>
-  <p>The Query Catalog section can be used to plot objects from various catalogs in the map pane.
-    Catalog information can also be downloaded in csv format. To apply a catalog query on the map, 
-    select the catalog from the drop-down menu and click apply. Note that very large catalogs may slow
-    down the browser. It is reccomended to <a href="#query-refine-help">refine queries</a> in these cases.
-    To download the catalog queries in csv format, click the download button.
-  </p>
-  <h6 id="query-refine-help" class="teal-text text-lighten-1">Refining queries</h6>
-  <p>After selecting a catalog, a list of various parameters are displayed that can be used to refine
-    the objects that are displayed on the map (or included in the download). 
-  </p>
-
-  <p>Numerical ranges are entered by separating the lower limit from the upper limit separated by two periods.</p>
-  <blockquote>Example. Restrict the query to RA values between 187 and 188: <code>"187..188"</code></blockquote> 
-
-  <p>Single inequalities are entered by using the operator followed by the value. 
-  </p>
-
-  
-  <blockquote>Example. Restrict the query to class_spec values of 3 and above: <code>>= 3</code> or <code>> 2</code>.</blockquote>
-
-  <p>Equalities are entered by entering the value alone.</p>
-  <blockquote>Example. Restrict query to objects with a nucleus of 1: <code>1</code></blockquote> 
-
-  <p>Multiple refinements for each parameter can be added by separating the refinements by commas.</p>
-  <blockquote>Example. Multiple RA restrictions: <code>187..188, >= 190</code></blockquote> 
-
-  <h5 class="teal-text text-lighten-1">FITS Images</h5>
-    <p>All of the available FITS images for a region can be listed my holding shift while clicking and dragging
-      a box around the desired region in the <a href="#map-pane-help">map pane</a>. Alternatively all FITS
-      images available in the current map pane view can be listed by clicking "List Images In Current Map View".
+  <section id="map-help">
+    <h4 class="red-text text-lighten-2">Map Pane</h4>
+    <p>The Map pane contains an interactive map that displays the layers selected in the 
+      <a href="#overlay-pane-help">overlay pane</a>. To pan around the map use the arrow keys. To zoom
+      use the scroll wheel or the controls in the upper left corner of the pane. The position of the mouse
+      cursor is displayed in the bottom-right corner of the pane. To view available FITS images for a region
+      on the map. Hold Shift to click and drag a selection box over the desired region.
     </p>
-  <h5 class="teal-text text-lighten-1">Adjust Map</h5>
-  <p>The Adjust Map section contains sliders that can adjust the display of background tiles in the map pane.
-    This can be used to enhance visibility of objects or markers.</p>
-
-</section>
-
-<section id="overlay-pane-help">
-  <h4 class="red-text text-lighten-2
+    </p>
+  </section>
   
+  <section id="sidebar-help">
+    <h4 class="red-text text-lighten-2">Sidebar</h4>
+    <h5 class="teal-text text-lighten-1">Location Search</h5>
+    <p>Location Search uses the <a href="http://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/cadc-target-resolver/" target="_blank">
+      CADC target name resolver</a> to plot the location of one or more objects as markers on the map. 
+      Multiple markers can be plotted simultaneously by separating object names by spaces.</p>
+    <p>Comma separated RA/Dec pairs in either decimal or HMS/DMS format is also supported.</p>
+    <p>To remove search markers submit an empty search.</p>
+    
+    <blockquote>Example. Add three markers to map: <code>m84 12:30:01, 12:01:04 m87</code></blockquote>
+    
+    <h5 class="teal-text text-lighten-1" id="query-help">Query Catalogs</h5>
+    <p>The Query Catalog section can be used to plot objects from various catalogs in the map pane.
+      Catalog information can also be downloaded in csv format. To apply a catalog query on the map, 
+      select the catalog from the drop-down menu and click apply. Note that very large catalogs may slow
+      down the browser. It is reccomended to <a href="#query-refine-help">refine queries</a> in these cases.
+      To download the catalog queries in csv format, click the download button.
+    </p>
+    <h6 class="teal-text text-darken-2">Available Catalogs</h6>
+    <p>The following catalogues can be displayed, queried and downloaded:</p>
+    <ul class="collection">
+      <li class="collection-item">cfht.ngvsCatalog: all certain, likely and probable galaxies belonging to the Virgo cluster</li>
+      <li class="collection-item">cfht.ngvsGCXDCatalog: Globular Clusters belonging to Virgo</li>
+      <li class="collection-item">cfht.ngvsStarsXDCatalog: foreground stars</li>
+    </ul>
+      
+      
+    <h6 class="teal-text text-darken-2" id="query-refine-help" >Refining Queries</h6>
+    <p>After selecting a catalog, a list of various parameters are displayed that can be used to refine
+      the objects that are displayed on the map (or included in the download). 
+    </p>
   
+    <p>Numerical ranges are entered by separating the lower limit from the upper limit separated by two periods.</p>
+    <blockquote>Example. Restrict the queryin spit to RA values between 187 and 188: <code>"187..188"</code></blockquote> 
   
+    <p>Single inequalities are entered by using the operator followed by the value. 
+    </p>
   
+    
+    <blockquote>Example. Restrict the query to class_spec values of 3 and above: <code>>= 3</code> or <code>> 2</code>.</blockquote>
   
-  F">Overlay Pane</h4>
-  <p>The overlay pane is located in the top right section of the map pane. It contains groups of checkboxed
-    that are used to toggle the visibility of various map overlays.
-  </p>
-  <h5 class="teal-text text-lighten-1">Base Maps</h5>
-  <p>The Base Map section toggles the background images on the map. By default the map shows NGVS images where
-   available with SDSS images covering the rest of the map. Adjustments to the background images can be made
-  using the <a href="#adjust-map-help">adjust map</a> tab in the <a href="#sidebar-help">sidebar.</a></p>
-  <h5 class="teal-text text-lighten-1">Pointings</h5>
-  <p>The pointings section displays the name and outlines of the NGVS pointings. Note that any
-    <a href="#field-outlines-help">field outline</a> overlays will render on top of the NGVS pointing outlines.
-  </p>
-  <h5 class="teal-text text-lighten-1">Field Outlines</h5>
-  <p>The field outline sections display the outlines where FITS images are available for each filter.
-    There are separate sections for long and short exposures. Outlines where stacked images are available
-    are shown as bold solid lines. Outlines where single images are available are shown as dotted lines.
-  </p>
-  <p>The field outlines are applied in the order that the checkboxes are toggled. In the case where two
-    outlines are overlapping, the one that was most recently toggled on the map will be displayed.
-  </p>
-  <h5 class="teal-text text-lighten-1">Queries</h5>
-  <p>The query section is used to quickly toggle visibility of any <a href="#query-help">catalog queries</a>
-  that have been applied on the map. By default the map has no queries applied, and the section will
-  not be visible.</p>
-</section>
-</body>
-</html>
+    <p>Equalities are entered by entering the value alone.</p>
+    <blockquote>Example. Restrict query to objects with a nucleus of 1: <code>1</code></blockquote> 
+  
+    <p>Multiple refinements for each parameter can be added by separating the refinements by commas.</p>
+    <blockquote>Example. Multiple RA restrictions: <code>187..188, >= 190</code></blockquote> 
+  
+    <h5 class="teal-text text-lighten-1">FITS Images</h5>
+      <p>All of the available FITS images for a region can be listed my holding shift while clicking and dragging
+        a box around the desired region in the <a href="#map-pane-help">map pane</a>. Alternatively all FITS
+        images available in the current map pane view can be listed by clicking "List Images In Current Map View".
+      </p>
+    <h5 class="teal-text text-lighten-1">Adjust Map</h5>
+    <p>The Adjust Map section contains sliders that can adjust the display of background tiles in the map pane.
+      This can be used to enhance visibility of objects or markers.</p>
+  
+  </section>
+  
+  <section id="overlay-pane-help">
+    <h4 class="red-text text-lighten-2">Overlay Pane</h4>
+    <p>The overlay pane is located in the top right section of the map pane. It contains groups of checkboxed
+      that are used to toggle the visibility of various map overlays.
+    </p>
+    <h5 class="teal-text text-lighten-1">Base Maps</h5>
+    <p>The Base Map section toggles the background images on the map. By default the map shows NGVS images where
+     available with SDSS images covering the rest of the map. Adjustments to the background images can be made
+    using the <a href="#adjust-map-help">adjust map</a> tab in the <a href="#sidebar-help">sidebar.</a></p>
+    <h5 class="teal-text text-lighten-1">Pointings</h5>
+    <p>The pointings section displays the name and outlines of the NGVS pointings. Note that any
+      <a href="#field-outlines-help">field outline</a> overlays will render on top of the NGVS pointing outlines.
+    </p>
+    <h5 class="teal-text text-lighten-1">Field Outlines</h5>
+    <p>The field outline sections display the outlines where FITS images are available for each filter.
+      There are separate sections for long and short exposures. Outlines where stacked images are available
+      are shown as bold solid lines. Outlines where single images are available are shown as dotted lines.
+    </p>
+    <p>The field outlines are applied in the order that the checkboxes are toggled. In the case where two
+      outlines are overlapping, the one that was most recently toggled on the map will be displayed.
+    </p>
+    <h5 class="teal-text text-lighten-1">Queries</h5>
+    <p>The query section is used to quickly toggle visibility of any <a href="#query-help">catalog queries</a>
+    that have been applied on the map. By default the map has no queries applied, and the section will
+    not be visible.</p>
+  </section>
+  
+  <section id="object-popup-help">
+    <h4 class="red-text text-lighten-2">Object Detail Popup</h4>
+    <p>The object detail popup displays information about individual objects. It can be accesed by clicking
+      on the marker icon for an object that is displayed in the map pane. The popup displays a table with 
+      all information about the object.
+    </p>
+  
+    <p>For objects in the cfht.ngvsCatalog, the popup also contains links to related downloads for that object.</p>
+  </section>
+  
+  <section id="fits-popup-help">
+    <h4 class="red-text text-lighten-2">FITS Image Popup</h4>
+    <p>The FITS Image popup displays a list of fits images available for a given region in the plane of the sky.
+      It can be accessed by holding shift and clicking to drag a box around the desired region. Alternatively it
+      can be accessed by using the button in the FITS Images tab in the <a href="#sidebar-help">sidebar</a>. 
+    </p>
+  
+    <p>The popup includes checkboxes that can be used to refine the image selection. A preview of the entire selection
+      is shown in a table, with links available for the individual files. The entire selection can be downloaded by 
+      clicking the "download selection button". This displays the CADC download manager page for the given selection.
+      Instructions for the download manager are shown on this page.
+    </p>
+  </section>
