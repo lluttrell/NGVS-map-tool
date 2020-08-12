@@ -28,26 +28,6 @@ class CatalogQueryForm {
     return refineFieldDiv
   }
 
-  _createRefineFormHeader() {
-    let headerDiv = document.createElement('div')
-    headerDiv.classList.add('teal-text','lighten-2')
-    
-    let header = document.createElement('h6')
-    header.innerText = 'Refine Query'
-    
-    let headerImage = document.createElement('i')
-    headerImage.classList.add('material-icons','tooltipped')
-    headerImage.innerText = 'help'
-    let tooltipHTML =   
-    `<p>Restrict queries by adding constraints to various parameters</p>
-    <p>Ranges: <code>x..y</code> where x < y</p>
-    <p>Inequalities: <code>< x</code></p>
-    <p>Multiple refinments: <code>x, y..z</code></p>`
-    M.Tooltip.init(headerImage, {html: tooltipHTML})
-    headerDiv.append(header, headerImage)
-    return headerDred lighten-2iv
-  }
-
   /**
   * Creates an input field for an individual principle column for the catalog
   * @param {string} principleColumn principle column name for input field
