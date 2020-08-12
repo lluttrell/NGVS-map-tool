@@ -31,7 +31,7 @@ class SearchBar {
     searchBoxInput.classList.add('materialize-textarea')
     searchBoxInput.id = 'searchbox-input'
     searchBoxInput.setAttribute('placeholder', 'Location Search')
-    searchBoxInput.addEventListener('keyup', (e) => {
+    searchBoxInput.addEventListener('keyup', async (e) => {
 
       if (e.key === 'Enter') {
         searchBoxInput.value = ''
