@@ -124,7 +124,12 @@ class Catalog {
         myMarker.addTo(this.layerGroup);
     }
     this.layerGroup.addTo(this.lMap.lMap)
-    this.lMap.layerControl.addOverlay(this.layerGroup, this.name,'Catalog Queries');
+    this.lMap.layerControl.addOverlay(
+      this.layerGroup,
+      this.name
+        .replace('cfht.ngvs','')
+        .replace(/\bCatalog/,'ngvsCatalog'),
+      'Catalog Queries');
   }
 
   /**

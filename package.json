@@ -16,6 +16,7 @@
     "css-loader": "^3.6.0",
     "csv-loader": "^3.0.3",
     "file-loader": "^6.0.0",
+    "html-loader": "^1.1.0",
     "jest": "^26.1.0",
     "leaflet-groupedlayercontrol": "git+https://github.com/lluttrell/leaflet-groupedlayercontrol.git",
     "style-loader": "^1.2.1",

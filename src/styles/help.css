@@ -1,0 +1,12 @@
+.help-div {
+  max-height: 500px;
+  overflow: scroll;
+}
+
+.help-div h4 {
+  font-size: 1.64rem;
+}
+
+.help-div h5, h6 {
+  font-size: 1.15rem;
+}

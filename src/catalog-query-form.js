@@ -16,6 +16,7 @@ class CatalogQueryForm {
     this.refineFieldDiv.reset()
   }
 
+
   _createRefineFieldForm() {
     let refineFieldDiv = document.createElement('form')
     refineFieldDiv.setAttribute('autocomplete','off')
@@ -33,8 +34,8 @@ class CatalogQueryForm {
   */
   _createRefineField(principleColumn) {
     let inputField = document.createElement('div')
-    inputField.setAttribute('class', 'input-field col s6')
-    
+    inputField.classList.add('input-field','col','s6')
+    inputField.setAttribute('data-position','right')
     let input = document.createElement('input')
     input.setAttribute('name', principleColumn)
     input.setAttribute('type', 'text')

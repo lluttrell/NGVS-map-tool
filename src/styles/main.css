@@ -2,6 +2,9 @@ header, main, footer {
     padding-left: 320px;
 }
 
+#title h4 {
+    margin: 1.5rem 0 1.5rem 0;
+}
 
 ul.sidenav {
     width: 320px;
@@ -18,6 +21,11 @@ ul.sidenav {
     .sidenav.sidenav-fixed {
            transform: translateX(0) !important;
     }
+}
+
+.header-help {
+    position: absolute;
+    right: 0px;
 }
 
 .container {
@@ -66,7 +74,7 @@ will-change: unset;
 }
 
 .sidenav .collapsible-header:hover {
-    background-color: #ffcdd2;
+    background-color: #e57373;
 }
 
 .sidenav .collapsible-body {
@@ -75,7 +83,7 @@ will-change: unset;
 }
 
 #collapsible-list li.active {
-    border-bottom: 3px solid #ffcdd2;
+    border-bottom: 3px solid #e57373;
 }
 
 .leaflet-pointing-pane {

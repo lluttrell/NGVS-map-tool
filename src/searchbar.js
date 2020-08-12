@@ -30,8 +30,9 @@ class SearchBar {
     let searchBoxInput = document.createElement('textarea')
     searchBoxInput.classList.add('materialize-textarea')
     searchBoxInput.id = 'searchbox-input'
-    searchBoxInput.setAttribute('placeholder', 'Object/Location Search')
+    searchBoxInput.setAttribute('placeholder', 'Location Search')
     searchBoxInput.addEventListener('keyup', async (e) => {
+
       if (e.key === 'Enter') {
         searchBoxInput.value = ''
         this._updateSearchHistory()
@@ -49,7 +50,11 @@ class SearchBar {
     
     let searchBoxImage = document.createElement('i')
     searchBoxImage.classList.add('material-icons','prefix')
-    searchBoxImage.innerText = 'search'
+    searchBoxImage.innerText = 'add_location_alt'
+    searchBar.addEventListener('click', () => {
+      this._performSearch()
+      searchBoxInput.value = ''
+    })
     searchBar.appendChild(searchBoxImage)
     
     node.appendChild(searchBar)
