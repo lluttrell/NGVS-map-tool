@@ -1,4 +1,4 @@
-import 'leaflet'
+import * as L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 import 'leaflet-mouse-position'
 import 'leaflet-mouse-position/src/L.Control.MousePosition.css'
@@ -9,6 +9,7 @@ import { config } from '../app.config'
 import { hms_formatter, dms_formatter, decimal_dec_formatter, decimal_ra_formatter } from './coordinate-formatter'
 import FieldOutlines from './field-outlines'
 import TilesetFilter from './tileset-filter'
+import './styles/map.css'
 
 
 class Map {

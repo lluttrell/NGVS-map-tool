@@ -46,19 +46,6 @@ will-change: unset;
     margin-bottom: 0.1rem;
 }
 
-.refine-btns {
-    display: flex;
-    justify-content: space-around;
-}
-
-.fits-selection-label {
-    margin-right: 1rem;
-}
-
-.fits-selection-dl-btn {
-    margin-left: 2rem;
-}
-
 .pointing-label {
     color: lightgray;
 }
@@ -86,13 +73,6 @@ will-change: unset;
     border-bottom: 3px solid #e57373;
 }
 
-.leaflet-pointing-pane {
-    z-index: 300;
-}
-
-.leaflet-catalog-pane {
-    z-index: 1000;
-}
 
 .sidenav .collapsible-body p {
     line-height: 120%;
@@ -121,7 +101,5 @@ will-change: unset;
     left: 330px;
 }
 
-#map-container {
-    height: 100%;
-}
+
 

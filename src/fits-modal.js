@@ -2,6 +2,7 @@ import { config } from '../app.config'
 import { createLoader } from './utils/loader.js'
 import Modal from './modal'
 import 'leaflet'
+import './styles/fits-modal.css'
 
 /**
  * @todo Refactor this so it extends Modal

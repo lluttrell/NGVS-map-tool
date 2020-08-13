@@ -1,4 +1,4 @@
-import 'leaflet'
+import * as L from 'leaflet'
 import Papa from 'papaparse'
 import ObjectDetailModal from './object-detail-modal';
 import GalaxyDetailModal from './galaxy-detail-modal'

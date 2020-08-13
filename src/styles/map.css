@@ -1,0 +1,12 @@
+#map-container {
+  height: 100%;
+  background: #333;
+}
+
+.leaflet-pointing-pane {
+  z-index: 300;
+}
+
+.leaflet-catalog-pane {
+  z-index: 1000;
+}

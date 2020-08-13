@@ -20,7 +20,7 @@ class CatalogQueryForm {
   _createRefineFieldForm() {
     let refineFieldDiv = document.createElement('form')
     refineFieldDiv.setAttribute('autocomplete','off')
-    refineFieldDiv.setAttribute('class', 'refine-form row')
+    refineFieldDiv.classList.add('refine-form','row')
     for (let principleColumn of this.catalog.principleColumns) {
       refineFieldDiv.appendChild(this._createRefineField(principleColumn))
     }
@@ -57,7 +57,7 @@ class CatalogQueryForm {
   */
   _createButtonDiv() {
     let buttonDiv = document.createElement('div')
-    buttonDiv.setAttribute('class', 'col s12 refine-btns')
+    buttonDiv.classList.add('col','s12','refine-btns')
     let submitButton = document.createElement('input')
     submitButton.setAttribute('value', 'apply')
     submitButton.setAttribute('class', 'btn-small')
@@ -77,7 +77,7 @@ class CatalogQueryForm {
     let downloadButton = document.createElement('input')
     downloadButton.setAttribute('value', 'download')
     downloadButton.setAttribute('type', 'button')
-    downloadButton.setAttribute('class', 'btn-small orange lighten-2')
+    downloadButton.classList.add('btn-small','orange','lighten-2')
     downloadButton.addEventListener('click', async () => {
       this.loaderOn()
       await this.catalog.query(false)
@@ -114,7 +114,6 @@ class CatalogQueryForm {
     this.progressDiv.classList.remove('progress')
     this.progressDiv.innerHTML = ''
   }
-
 
 }
 
