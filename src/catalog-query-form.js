@@ -1,3 +1,4 @@
+import './styles/catalog-query-form.css'
 class CatalogQueryForm {
   constructor(catalog) {
     this.catalog = catalog
