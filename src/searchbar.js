@@ -31,30 +31,26 @@ class SearchBar {
     searchBoxInput.classList.add('materialize-textarea')
     searchBoxInput.id = 'searchbox-input'
     searchBoxInput.setAttribute('placeholder', 'Location Search')
-    searchBoxInput.addEventListener('keyup', async (e) => {
-
-      if (e.key === 'Enter') {
+    searchBoxInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault()
+        this.searchBoxContent = searchBoxInput.value
         searchBoxInput.value = ''
-        this._updateSearchHistory()
-        await this._performSearch()
-      } else if (e.key === 'ArrowUp'){
+        if (this.searchBoxContent != '') this._updateSearchHistory()
+        this._performSearch()
+      } else if (e.key === 'ArrowUp' && e.ctrlKey){
         this._incrementSearchHistoryPosition()
         searchBoxInput.value = this.searchHistory[this.searchHistoryPosition]
-      } else if (e.key === 'ArrowDown'){
+      } else if (e.key === 'ArrowDown' && e.ctrlKey){
         this._decrementSearchHistoryPosition()
         searchBoxInput.value = this.searchHistory[this.searchHistoryPosition]
       }
-      this.searchBoxContent = searchBoxInput.value
     })
     searchBar.appendChild(searchBoxInput)
     
     let searchBoxImage = document.createElement('i')
     searchBoxImage.classList.add('material-icons','prefix')
     searchBoxImage.innerText = 'add_location_alt'
-    searchBar.addEventListener('click', () => {
-      this._performSearch()
-      searchBoxInput.value = ''
-    })
     searchBar.appendChild(searchBoxImage)
     
     node.appendChild(searchBar)
@@ -82,19 +78,20 @@ class SearchBar {
   * the searchMarker in the map object. Otherwise notifies the user with a toast. 
   */
   async _performSearch() {
-    if (this.searchBoxContent === '') {
-      this.layerGroup.clearLayers()
-    } else {
-      this.layerGroup.clearLayers()
-      for (let searchString of this.searchBoxContent.split(/\b\s+\b/)) {
-        try {
-          let queryResults = await this._queryTargetResolver(searchString)
-          this.layerGroup.addLayer(this._createSearchMarker(queryResults))
-        } catch (e) {
-          M.toast({html: e.message, classes:'red lighten-2'})
-        }
+    this.layerGroup.clearLayers()
+    // splits text area along newlines and filters out blank lines
+    let searchArray = this.searchBoxContent
+      .split(/\r?\n/)
+      .filter(s => /\S/.test(s))
+    console.log(searchArray)  
+    searchArray.forEach(async (searchString) => {
+      try {
+        let queryResults = await this._queryTargetResolver(searchString)
+        this.layerGroup.addLayer(this._createSearchMarker(queryResults))
+      } catch (e) {
+        M.toast({html: e.message, classes:'red lighten-2'})
       }
-    }
+    })
   }
 
   /**
@@ -107,6 +104,7 @@ class SearchBar {
     if (result.error) throw new Error(`Search for ${searchString} failed`)
     return result
   }
+
 
   _createSearchMarker(queryResults) {
     let coordinates = [queryResults.dec, queryResults.ra]
