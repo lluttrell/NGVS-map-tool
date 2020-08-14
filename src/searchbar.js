@@ -38,10 +38,12 @@ class SearchBar {
         searchBoxInput.value = ''
         if (this.searchBoxContent != '') this._updateSearchHistory()
         this._performSearch()
-      } else if (e.key === 'ArrowUp' && e.ctrlKey){
+      } else if (e.key === 'ArrowUp' && e.shiftKey){
+        e.preventDefault()
         this._incrementSearchHistoryPosition()
         searchBoxInput.value = this.searchHistory[this.searchHistoryPosition]
-      } else if (e.key === 'ArrowDown' && e.ctrlKey){
+      } else if (e.key === 'ArrowDown' && e.shiftKey){
+        e.preventDefault()
         this._decrementSearchHistoryPosition()
         searchBoxInput.value = this.searchHistory[this.searchHistoryPosition]
       }
