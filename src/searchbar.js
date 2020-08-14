@@ -88,8 +88,8 @@ class SearchBar {
       this.layerGroup.clearLayers()
       for (let searchString of this.searchBoxContent.split(/\b\s+\b/)) {
         try {
-          let queryResults = await this._queryNameResolver(searchString)
-          this.layerGroup.addLayer(this._createSearchMarker(queryResults.name, queryResults.coordinates))
+          let queryResults = await this._queryTargetResolver(searchString)
+          this.layerGroup.addLayer(this._createSearchMarker(queryResults))
         } catch (e) {
           M.toast({html: e.message, classes:'red lighten-2'})
         }
@@ -101,35 +101,17 @@ class SearchBar {
    * Queries the cadc name resolver service, if a result is returned from the api
    * returns an object containing the name and coordinates of the search results
    */
-  async _queryNameResolver(searchString) {
-    let response = await fetch(`https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/AdvancedSearch/unitconversion/Plane.position.bounds?term=${searchString}&resolver=all`)
-    let resultObj = await response.json();
-    if (resultObj.resolveStatus === "GOOD") {
-      return this._parseNameResolverResults(resultObj)
-    } else {
-      throw new Error(`Search for ${searchString} failed`)
-    }
+  async _queryTargetResolver(searchString) {
+    let response = await fetch(`https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/cadc-target-resolver/find?target=${searchString}&service=all&format=json`)
+    let result = await response.json();
+    if (result.error) throw new Error(`Search for ${searchString} failed`)
+    return result
   }
 
-  /**
-   * Parses the resolveValue from the cadc name resolver into an object containing
-   * the name and coordinates of the resolveValue
-   * @param {Object} resultObj
-   */
-  _parseNameResolverResults(resultObj) {
-    let resolveValue = resultObj.resolveValue
-    let resolveValues = resolveValue.split('\n');
-    let targetDec = parseFloat(resolveValues[1].split(':')[1])
-    let targetRA = parseFloat(resolveValues[2].split(':')[1])
-    return {
-      name: resultObj.resolveTarget,
-      coordinates: [targetDec, targetRA]
-    }
-  }
-
-  _createSearchMarker(name, coordinates) {
+  _createSearchMarker(queryResults) {
+    let coordinates = [queryResults.dec, queryResults.ra]
     let searchMarker = L.marker(this._toLatLng(coordinates), {
-      title: name,
+      title: queryResults.target,
       icon: this._createMarkerIcon(config.searchMarkerColor)
     })
     return searchMarker
