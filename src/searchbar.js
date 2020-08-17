@@ -101,7 +101,10 @@ class SearchBar {
    * returns an object containing the name and coordinates of the search results
    */
   async _queryTargetResolver(searchString) {
-    let response = await fetch(`https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/cadc-target-resolver/find?target=${searchString}&service=all&format=json`)
+    // note: the targetResolver does not seem to accept coordinates with more than one space between
+    // RA and Dec components. If this is fixed upstream the replace function should be able to be removed
+    let searchURIComponent = encodeURIComponent(searchString.replace(/\s\s+/g,' '))
+    let response = await fetch(`https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/cadc-target-resolver/find?target=${searchURIComponent}&service=all&format=json`)
     let result = await response.json()
     if (result.error) throw new Error(`Search for ${searchString} failed`)
     return result
