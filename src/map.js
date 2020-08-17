@@ -38,13 +38,20 @@ class Map {
       attributionControl: false
     })
 
-    this.layerControl = L.control.groupedLayers(null, null, {collapsed: false})
+    this.layerControl = L.control.groupedLayers(null, null, {
+      collapsed: false,
+      exclusiveGroups: ['NGVS Base Maps']
+      })
   }
 
   
   init() {
     for (let tileSet of this.tileSets) {
-      this.layerControl.addOverlay(tileSet.tileLayer,tileSet.name,'Base Maps')
+      if (tileSet.exclusive) {
+        this.layerControl.addOverlay(tileSet.tileLayer,tileSet.name,'NGVS Base Maps')
+      } else {
+        this.layerControl.addOverlay(tileSet.tileLayer,tileSet.name,'SDSS Background')
+      }
     }
     this.lMap.selectArea.setShiftKey(true)
     this.lMap.createPane('pointingPane')

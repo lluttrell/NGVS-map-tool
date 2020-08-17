@@ -9,13 +9,50 @@ const config = {
         'name' : 'SDSS',
         'url' : 'https://mw1.google.com/mw-planetary/sky/skytiles_v1/{x}_{y}_{z}.jpg',
         'attribution' : 'Image Credit: DSS Consortium, SDSS, NASA/ESA <a href="https://www.google.com/intl/en-CA_US/help/terms_maps/">Terms of Use</a>',
-        'initiallyOpen' : true
+        'initiallyOpen' : true,
+        'exclusive' : false
       },
       {
         'name' : 'NGVS',
         'url' : 'https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/data/pub/GSKY/M.{x}.{y}.{z}.png',
         'attribution' : 'NGVS',
-        'initiallyOpen' : true
+        'initiallyOpen' : true,
+        'exclusive' : true
+      },
+      {
+        'name' : 'u',
+        'url' : 'https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/files/vault/sgwyn/gsky/U.{x}.{y}.{z}.png',
+        'attribution' : 'NGVS',
+        'initiallyOpen' : false,
+        'exclusive' : true
+      },
+      {
+        'name' : 'g',
+        'url' : 'https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/files/vault/sgwyn/gsky/G.{x}.{y}.{z}.png',
+        'attribution' : 'NGVS',
+        'initiallyOpen' : false,
+        'exclusive' : true
+      },
+      {
+        'name' : 'r',
+        'url' : 'https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/files/vault/sgwyn/gsky/R.{x}.{y}.{z}.png',
+        'attribution' : 'NGVS',
+        'initiallyOpen' : false,
+        'exclusive' : true
+      },
+      {
+        'name' : 'i',
+        'url' : 'https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/files/vault/sgwyn/gsky/I.{x}.{y}.{z}.png',
+        'attribution' : 'NGVS',
+        'initiallyOpen' : false,
+        'exclusive' : true
+      },
+      {
+        'name' : 'z',
+        'url' : 'https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/files/vault/sgwyn/gsky/Z.{x}.{y}.{z}.png',
+        'attribution' : 'NGVS',
+        'initiallyOpen' : false,
+        'exclusive' : true
       }
     ],
   'catalogs' : [
