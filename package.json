@@ -4,7 +4,7 @@
   "description": "",
   "scripts": {
     "test": "jest",
-    "build": "node src/fetch-field-outlines && webpack --config webpack.prod.js",
+    "build": "node src/utils/fetch-field-outlines && webpack --config webpack.prod.js",
     "start": "webpack-dev-server --open --config webpack.dev.js"
   },
   "keywords": [],

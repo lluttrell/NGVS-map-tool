@@ -1,5 +1,16 @@
 import './styles/catalog-query-form.css'
+
+
+/**
+ * CatalogQueryForm creates a form contianing text fields for each principle column for a Catalog
+ * object. The form allows users to set refinement parameters for the Catalog object. The form contains
+ * buttons to call apply/download functions in the Catalog Object
+ */
 class CatalogQueryForm {
+  /**
+   * Creates a new instance of CatalogQueryForm
+   * @param {Catalog} catalog Catalog to create form for 
+   */
   constructor(catalog) {
     this.catalog = catalog
     this.refineFieldDiv = this._createRefineFieldForm()
@@ -7,17 +18,29 @@ class CatalogQueryForm {
     this.refineButtonDiv = this._createButtonDiv()
   }
 
+
+  /**
+   * Renders the form as a children of the node element
+   * @param {HTMLElement} node element to append query form to
+   */
   render(node) {
     node.appendChild(this.refineFieldDiv)
     node.appendChild(this.progressDiv)
     node.appendChild(this.refineButtonDiv)
   }
 
+
+  /**
+   * Resets the HTML Fork
+   */
   _resetRefineFieldForm() {
     this.refineFieldDiv.reset()
   }
 
 
+  /**
+   * @return {HTMLElement} HTML Form Element containing all the refine text inputs
+   */
   _createRefineFieldForm() {
     let refineFieldDiv = document.createElement('form')
     refineFieldDiv.setAttribute('autocomplete','off')
@@ -25,9 +48,10 @@ class CatalogQueryForm {
     for (let principleColumn of this.catalog.principleColumns) {
       refineFieldDiv.appendChild(this._createRefineField(principleColumn))
     }
-    M.updateTextFields();
+    M.updateTextFields()
     return refineFieldDiv
   }
+
 
   /**
   * Creates an input field for an individual principle column for the catalog
@@ -52,6 +76,7 @@ class CatalogQueryForm {
     inputField.appendChild(input)
     return inputField
   }
+
 
   /**
   * Creates the apply, clear, and download buttons for the refine section
@@ -106,16 +131,23 @@ class CatalogQueryForm {
     return buttonDiv
   }
 
+
+  /**
+   * Turns on the form loading bar
+   */
   loaderOn() {
     this.progressDiv.classList.add('progress')
     this.progressDiv.innerHTML = '<div class="indeterminate"></div>'
   }
 
+
+  /**
+   * Turns off the form loading bar
+   */
   loaderOff() {
     this.progressDiv.classList.remove('progress')
     this.progressDiv.innerHTML = ''
   }
-
 }
 
 export default CatalogQueryForm

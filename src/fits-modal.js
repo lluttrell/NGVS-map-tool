@@ -4,13 +4,14 @@ import Modal from './modal'
 import 'leaflet'
 import './styles/fits-modal.css'
 
+
 /**
- * @todo Refactor this so it extends Modal
+ * FITS Modal is a class that renders a modal displaying an interactive list of fits images available
+ * for a given spatial region.
  */
 class FITSModal extends Modal {
   /**
-   * Class used to render a pop-up modal that allows 
-   * @constructor
+   * Creates an instance of FITSModal
    * @param {L.Bounds} areaBounds Leaflet Bounds object representing region selected by user
    * @param {FITSManager} fitsmgr FITSManager used for querying and remembering user input state
    */
@@ -21,16 +22,25 @@ class FITSModal extends Modal {
     this.topRightCoordinate = areaBounds.getNorthEast()
     this.availableImageDiv = document.createElement('div')
   }
+  
 
+  /**
+   * Replaces contents of node with rendering of FITSModal
+   * @param {HTMLElement} node node to render FITSModal in
+   */
   async render(node) {
     node.innerText = ''
     node.appendChild(this.modal)
     this.setModalContent(createLoader('Retrieving available FITS Images'))
-    this.modalInstance.open();
+    this.modalInstance.open()
     await this.fitsmgr.getPublisherIdAtRegion(this.bottomLeftCoordinate, this.topRightCoordinate)
     this._renderMainModalContent()
   }
 
+
+  /**
+   * Displays rendering of 'main' modal page in the modalContent and modalFooter elements.
+   */
   _renderMainModalContent() {
     this.modalContent.innerHTML = ''
     let modalTitle = document.createElement('h4')
@@ -44,6 +54,11 @@ class FITSModal extends Modal {
     this.setModalFooter(this._createDownloadButton())
   }
 
+
+  /**
+   * Creates a div containting a list of checkboxes for each selection category
+   * @returns {HTMLElement} HTMLDivElement containing list of checkboxes to select fits image parameters
+   */
   _createSelectionCheckboxes(selectionCategory, categoryInfo ) {
     let selectionCheckboxDiv = document.createElement('div')
     let divTitle = document.createElement('h6')
@@ -55,6 +70,13 @@ class FITSModal extends Modal {
     return selectionCheckboxDiv
   }
 
+
+  /**
+   * Creates an individual checkbox for a single parameter in a given category. Checkbox adds or removes
+   * parameter from the selectionCategory list in the FITSManager accociated with this FITSModal. 
+   * @param {string} selectionCategory name of selection category. eg. 'exposures'
+   * @param {string} parameter name of parameter. eg. 'short'
+   */
   _createSelectionCheckbox(selectionCategory, parameter) {
     let label = document.createElement('label')
     label.classList.add('fits-selection-label')
@@ -69,7 +91,7 @@ class FITSModal extends Modal {
       } else {
         this.fitsmgr[selectionCategory].push(parameter)
       }
-      this._refreshModalContent();
+      this._refreshModalContent()
     })
     label.appendChild(checkbox)
     let name = document.createElement('span')
@@ -78,10 +100,12 @@ class FITSModal extends Modal {
     return label
   }
 
+
   /**
    * Constructs a div containing information about the currently created download list in the
    * fitsmanager. If there is one or more images available for download, also shows a table with
-   * details of each file
+   * details of each file.
+   * @returns {HTMLElement} HTMLDivElement with content of FITS Selection Overview
    */
   _createFITSSelectionOverview() {
     const selectionOverviewDiv = document.createElement('div')
@@ -106,6 +130,11 @@ class FITSModal extends Modal {
     return selectionOverviewDiv
   }
 
+
+  /**
+   * Creates a 'download' button which opens the CADC download manager when clicked
+   * @returns {HTMLElement} HTML Button Element
+   */
   _createDownloadButton() {
     const downloadButton = document.createElement('button')
     downloadButton.innerText='Download Selection'
@@ -129,6 +158,10 @@ class FITSModal extends Modal {
   }
 
 
+  /**
+   * Replaces content of FITSModal with an iframe containing the CADC download manager page, and a
+   * back button to return to 'main' screen of the FITSModal
+   */
   _openDownloadManager() {    
     let iframe = document.createElement('iframe')
     iframe.name = 'download-mgr-iframe'
@@ -136,7 +169,7 @@ class FITSModal extends Modal {
     this.setModalContent(iframe)
     let formElement = this.fitsmgr.getDownloadManagerForm('download-mgr-iframe')
     iframe.appendChild(formElement)
-    formElement.submit();    
+    formElement.submit()    
 
     let closeButton = document.createElement('button')
     closeButton.classList.add('btn','red','lighten-2')
@@ -152,6 +185,7 @@ class FITSModal extends Modal {
    * Constructs a table element for the table containing links and information about
    * the availiable fits images for the current selection. For internal use in the 
    * createFITSSelectionOverview method
+   * @returns {HTMLElement} HTML Table element with information about each available fits image
    */
   _createFITSImageTable() {
     const table = document.createElement('table')
@@ -167,20 +201,20 @@ class FITSModal extends Modal {
     table.appendChild(tableHead)
     const tableBody = document.createElement('tbody')
     for (let link of this.fitsmgr.downloadList) {
-        const row = document.createElement('tr');
-        const filterCol = document.createElement('td');
-        filterCol.innerText = link.filter;
-        const processingCol = document.createElement('td');
-        processingCol.innerText = link.pipeline;
-        const exposureCol = document.createElement('td');
-        exposureCol.innerText = link.exposure;
-        const pointingCol = document.createElement('td');
-        pointingCol.innerText = link.pointing;
-        const stackedCol = document.createElement('td');
-        stackedCol.innerText = link.stacked;
-        const linkCol = document.createElement('td');
-        linkCol.innerHTML = `<a href='${link.url}'>${link.productID}</a>`;
-        row.append(filterCol, exposureCol, stackedCol, processingCol, pointingCol, linkCol);
+        const row = document.createElement('tr')
+        const filterCol = document.createElement('td')
+        filterCol.innerText = link.filter
+        const processingCol = document.createElement('td')
+        processingCol.innerText = link.pipeline
+        const exposureCol = document.createElement('td')
+        exposureCol.innerText = link.exposure
+        const pointingCol = document.createElement('td')
+        pointingCol.innerText = link.pointing
+        const stackedCol = document.createElement('td')
+        stackedCol.innerText = link.stacked
+        const linkCol = document.createElement('td')
+        linkCol.innerHTML = `<a href='${link.url}'>${link.productID}</a>`
+        row.append(filterCol, exposureCol, stackedCol, processingCol, pointingCol, linkCol)
         tableBody.appendChild(row)
     }
     table.appendChild(tableBody)

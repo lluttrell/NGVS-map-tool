@@ -102,7 +102,7 @@ class SearchBar {
    */
   async _queryTargetResolver(searchString) {
     let response = await fetch(`https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/cadc-target-resolver/find?target=${searchString}&service=all&format=json`)
-    let result = await response.json();
+    let result = await response.json()
     if (result.error) throw new Error(`Search for ${searchString} failed`)
     return result
   }
@@ -119,9 +119,9 @@ class SearchBar {
 
   _toLatLng(coordinates) {
     let dec = coordinates[0]
-    let ra = coordinates[1];
-    if (ra > 180) { ra = 180 - ra };
-    return L.latLng([dec,ra]);
+    let ra = coordinates[1]
+    if (ra > 180) { ra = 180 - ra }
+    return L.latLng([dec,ra])
   }
 
    /**

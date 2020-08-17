@@ -1,6 +1,7 @@
 import * as L from 'leaflet'
+import { config } from '../app.config'
 import Papa from 'papaparse'
-import ObjectDetailModal from './object-detail-modal';
+import ObjectDetailModal from './object-detail-modal'
 import GalaxyDetailModal from './galaxy-detail-modal'
 import { parseSelectionToConditions } from './query-builder'
 
@@ -14,17 +15,16 @@ class Catalog {
    */
   constructor(name, markerColor, mapObj) {
     this.lMap = mapObj
-    this.name = name;
-    this.markerColor = markerColor;
-    this.markerSize = 400;
-    this.principleColumns = null;
-    this.primaryKey = null;
-    this.refineParameters = {};
-    this.currentQuery = null;
-    this.currentObjectQuery = null;
-    this.currentDownload = null;
+    this.name = name
+    this.markerColor = markerColor
+    this.principleColumns = null
+    this.primaryKey = null
+    this.refineParameters = {}
+    this.currentQuery = null
+    this.currentObjectQuery = null
+    this.currentDownload = null
     this.layerGroup = L.layerGroup()
-    this.apiEndpointBase = 'https://ws-cadc.canfar.net/youcat/sync?LANG=ADQL&FORMAT=csv&QUERY='
+    this.apiEndpointBase = config.endpoints.youcat
   }
 
   /**
@@ -39,10 +39,10 @@ class Catalog {
       throw new Error(`Loading ${this.name} failed: Permission denied`)
     }
     let csvText = await response.text()
-    this.primaryKey = csvText.split(',')[0];
+    this.primaryKey = csvText.split(',')[0]
     this.principleColumns = csvText
       .split(',')
-      .filter((attributeName) => attributeName.includes('principle'));
+      .filter((attributeName) => attributeName.includes('principle'))
   }
 
   /**
@@ -67,7 +67,7 @@ class Catalog {
   *   otherwise selects all columns
   */
   async query(locationOnly=true) {
-    let self = this;
+    let self = this
     let queryString = ''
     let parametersExist = false
     for (const parameter in this.refineParameters) {
@@ -77,7 +77,7 @@ class Catalog {
           parametersExist = true
         }
     }
-    if (parametersExist) queryString = `WHERE ${queryString.slice(0,-4)}`;
+    if (parametersExist) queryString = `WHERE ${queryString.slice(0,-4)}`
     if (locationOnly) {
       queryString = `SELECT ${self.primaryKey}, principleRA, principleDEC from ${self.name} ${queryString}`
     } else {
@@ -85,11 +85,11 @@ class Catalog {
     }
     let queryURI = encodeURI(this.apiEndpointBase + queryString)
     let response = await fetch(queryURI, {credentials: 'include'})
-    let csvText  = await response.text();
+    let csvText  = await response.text()
     let csvArray = Papa.parse(csvText, {dynamicTyping: true}).data
     csvArray = csvArray.slice(2,-3)
-    self.currentQuery = csvArray;
-    self.currentDownload = csvText;
+    self.currentQuery = csvArray
+    self.currentDownload = csvText
   }
 
 
@@ -97,12 +97,12 @@ class Catalog {
   * Downloads the information stored in currentDownload in csv format
   */
   downloadQuery() {
-    let currentDate = Date.now();
-    let blob = new Blob([this.currentDownload], {type: 'text/csv', endings:'native'});
-    let link = document.createElement('a');
-    link.href = window.URL.createObjectURL(blob);
-    link.download =`${this.name}-${currentDate}.csv`;
-    link.click();
+    let currentDate = Date.now()
+    let blob = new Blob([this.currentDownload], {type: 'text/csv', endings:'native'})
+    let link = document.createElement('a')
+    link.href = window.URL.createObjectURL(blob)
+    link.download =`${this.name}-${currentDate}.csv`
+    link.click()
   }
 
   /**
@@ -114,14 +114,14 @@ class Catalog {
     for (let [name,lon,lat] of this.currentQuery) {
         let coordinates = L.latLng(lat,lon)
         let myMarker = L.circle(coordinates, {
-            radius: this.markerSize,
+            radius: config.catalogMarkerSize,
             color: this.markerColor,
             weight: 1,
             pane: 'catalogPane'
           })
         myMarker.bindTooltip(`${name} (${this.name})`)                   
-        myMarker.on('click', () => this.displayObjectInformation(name));
-        myMarker.addTo(this.layerGroup);
+        myMarker.on('click', () => this.displayObjectInformation(name))
+        myMarker.addTo(this.layerGroup)
     }
     this.layerGroup.addTo(this.lMap.lMap)
     this.lMap.layerControl.addOverlay(
@@ -129,14 +129,14 @@ class Catalog {
       this.name
         .replace('cfht.ngvs','')
         .replace(/\bCatalog/,'ngvsCatalog'),
-      'Catalog Queries');
+      'Catalog Queries')
   }
 
   /**
    * Removes the currentQuery markers from the map
    */
   removeCurrentQueryFromMap() {
-    this.lMap.layerControl.removeLayer(this.layerGroup);
+    this.lMap.layerControl.removeLayer(this.layerGroup)
     this.lMap.lMap.removeLayer(this.layerGroup)
     // layerGroup.clearLayers() is freezing the browser and I can't find a workaround
     // I am reassigning layergroup to a new layerGroup object and it seems like the 
@@ -159,7 +159,7 @@ class Catalog {
   }
 
   setRefineParameter(parameterName, parameterValue) {
-    this.refineParameters[parameterName] = parameterValue;
+    this.refineParameters[parameterName] = parameterValue
   }
 
   /**
@@ -183,6 +183,9 @@ class Catalog {
     this.refineParameters = {}
   }
 
+  /**
+   * Returns the number of objects in the current query
+   */
   getResultsLength() {
     return this.currentQuery.length
   }
