@@ -106,7 +106,7 @@ const config = {
     'z' : 'darkred',
     'k' : 'dimgray'
   },
-  'fitsImageCategories': {
+  'fitsImageCategoriesstudy music': {
     'filters' : {
       'title' : 'Filters',  
       'parameters' : ['u','g','r','i','z','k'],
