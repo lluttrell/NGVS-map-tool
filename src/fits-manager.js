@@ -36,11 +36,10 @@ class FITSManager {
    * @param {number[]} coordinates coordinate of selection
    */
   async getPublisherIdAtPoint(coordinates) {
-    let queryString = this.baseQuery;
+    let queryString = this.baseQuery
     queryString += ` AND 1=CONTAINS(POINT('ICRS',${coordinates[1]},${coordinates[0]}), p.position_bounds)`
     this._query(queryString)
     await this._query(queryString)
-    return 1
   }
 
   /**
@@ -49,20 +48,20 @@ class FITSManager {
    * @param {number[]} topRightCoords top right coordinate of selection area
    */
   async getPublisherIdAtRegion(bottomLeftCoords, topRightCoords) {
-    const minDec = bottomLeftCoords.lat;
-    const minRA = decimal_ra_formatter(bottomLeftCoords.lng,8);
-    const maxDec = topRightCoords.lat;
-    const maxRA = decimal_ra_formatter(topRightCoords.lng,8);
-    let queryString = this.baseQuery;
+    const minDec = bottomLeftCoords.lat
+    const minRA = decimal_ra_formatter(bottomLeftCoords.lng,8)
+    const maxDec = topRightCoords.lat
+    const maxRA = decimal_ra_formatter(topRightCoords.lng,8)
+    let queryString = this.baseQuery
     const regionPolygon = `POLYGON('ICRS', ${minRA}, ${minDec}, ${minRA}, ${maxDec}, ${maxRA}, ${maxDec}, ${maxRA}, ${minDec})`
     queryString += ` AND 1=INTERSECTS(${regionPolygon}, p.position_bounds)`
     await this._query(queryString)
-    return 1
   }
 
   /**
    * Filters the current query to contain only image links that are currently targeted
    * by the selection variables. Sets downloadList to contain only these links
+   * @return {Array} List containing updated download 
    */
   updateDownloadList() {
     this.downloadList = this.currentQuery
@@ -79,23 +78,23 @@ class FITSManager {
    */
   downloadSelectionURLList() {
     let urlString = this.downloadList.reduce((acc, li) => acc + `${li.url}\n`,'')
-    let currentDate = Date.now();
-    let blob = new Blob([urlString], {type:'text/plain', endings:'native'});
-    let link = document.createElement('a');
-    link.href = window.URL.createObjectURL(blob);
-    link.download =`ngvs-urllist-${currentDate}.txt`;
-    link.click();
+    let currentDate = Date.now()
+    let blob = new Blob([urlString], {type:'text/plain', endings:'native'})
+    let link = document.createElement('a')
+    link.href = window.URL.createObjectURL(blob)
+    link.download =`ngvs-urllist-${currentDate}.txt`
+    link.click()
   }
 
   /**
    * Creates returns an html form element that will open the download manager landing page on submission
    * @param {string} formTarget target attribute for the html form
+   * @return {HTMLElement} HTML Form element that to open download manager
    */
   getDownloadManagerForm(formTarget='_blank') {
-    let downloadManagerPath = 'https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/downloadManager/download?'
     let form = document.createElement('form')
     form.method = 'post'
-    form.action = downloadManagerPath
+    form.action = config.endpoints.downloadManager
     form.target = formTarget
     for (let publisherID of this.downloadList.map(li => li.publisherID)) {
       let input = document.createElement('input')
@@ -118,6 +117,7 @@ class FITSManager {
    * and determines the category that the image belongs to. Adds the category to the
    * currently available sets, and returns an object representing the category  
    * @param {Object} fitsImageData 
+   * @returns {Object} Returns object containing information about a single fits image
    */
   _buildAssetObject(fitsImageData) {
     let url = fitsImageData.accessURL
@@ -162,15 +162,14 @@ class FITSManager {
     this.availableIndividualPipelines.clear()
     this.availableStackedPipelines.clear()
     let encodedQuery = encodeURIComponent(queryString)
-    const queryResult = await fetch(`https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/argus/sync?LANG=ADQL&QUERY=${encodedQuery}&FORMAT=csv`)
-    const response = await queryResult.text();
+    const queryResult = await fetch(config.endpoints.argus + encodedQuery)
+    const response = await queryResult.text()
     const responseArray = Papa.parse(response, {header: true})
-    responseArray.data.pop();
+    responseArray.data.pop()
     for (let fitsImageData of responseArray.data) {
       this.currentQuery.push(this._buildAssetObject(fitsImageData))
     }
-    this.updateDownloadList();
-    return 1;
+    this.updateDownloadList()
   }
 }
 

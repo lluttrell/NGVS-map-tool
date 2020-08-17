@@ -24,7 +24,7 @@ class Catalog {
     this.currentObjectQuery = null
     this.currentDownload = null
     this.layerGroup = L.layerGroup()
-    this.apiEndpointBase = config.catalogEndpoint
+    this.apiEndpointBase = config.endpoints.youcat
   }
 
   /**

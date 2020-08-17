@@ -70,10 +70,12 @@ const config = {
     }
   ],
   'catalogMarkerSize': 500,
-  'catalogEndpoint' : 'https://ws-cadc.canfar.net/youcat/sync?LANG=ADQL&FORMAT=csv&QUERY=',
-  'skyTileUrl' : 'https://mw1.google.com/mw-planetary/sky/skytiles_v1/{x}_{y}_{z}.jpg',
-  'ngvsTileUrl' : 'https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/data/pub/GSKY/M.{x}.{y}.{z}.png',
-  'colors' : ['yellow','red','blue','orange','teal','purple','lightgreen'],
+  'endpoints' : {
+    'downloadManager' : 'https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/downloadManager/download?',
+    'youcat' : 'https://ws-cadc.canfar.net/youcat/sync?LANG=ADQL&FORMAT=csv&QUERY=',
+    'argus' : 'https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/argus/sync?LANG=ADQL&FORMAT=csv&QUERY='
+
+  },
   'fieldLineStyles' : {
     'single': {
       'dashArray': '1, 4',
