@@ -48,7 +48,7 @@ class FITSTab {
     button.addEventListener('click', () => {
       let bounds = this.mapObj.lMap.getBounds()
       let fitsModal = new FITSModal(bounds, this.fitsmgr)
-      fitsModal.render(document.getElementById('modal-container'));
+      fitsModal.render(document.getElementById('modal-container'))
     })
     return button
   }

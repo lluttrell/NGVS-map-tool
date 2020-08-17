@@ -23,8 +23,8 @@ class Map {
    * Creates an instance of Map
    */
   constructor() {
-    this.fieldOutlines = new FieldOutlines();
-    this.tilesetFilter = new TilesetFilter();
+    this.fieldOutlines = new FieldOutlines()
+    this.tilesetFilter = new TilesetFilter()
     
     this.tileSets = config.baseTileSets
     for (let tileSet of this.tileSets) {
@@ -81,7 +81,7 @@ class Map {
     
     L.control.attribution({
       position: 'bottomleft'
-    }).addTo(this.lMap);
+    }).addTo(this.lMap)
 
   }
 

@@ -1,9 +1,9 @@
-import longOutlineSingleCSV from './assets/field_outlines_long_single.csv';
-import shortOutlineSingleCSV from './assets/field_outlines_short_single.csv';
-import longOutlineStackedCSV from './assets/field_outlines_long_stacked.csv';
-import shortOutlineStackedCSV from './assets/field_outlines_short_stacked.csv';
-import pointingCSV from './assets/ngvs_pointings.csv';
-import { config } from '../app.config';
+import longOutlineSingleCSV from './assets/field_outlines_long_single.csv'
+import shortOutlineSingleCSV from './assets/field_outlines_short_single.csv'
+import longOutlineStackedCSV from './assets/field_outlines_long_stacked.csv'
+import shortOutlineStackedCSV from './assets/field_outlines_short_stacked.csv'
+import pointingCSV from './assets/ngvs_pointings.csv'
+import { config } from '../app.config'
 
 class FieldOutlines {
 

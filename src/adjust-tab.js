@@ -16,7 +16,7 @@ class AdjustTab {
   }
 
   /**
-   * Renders AjustTab as a child element in node
+   * Renders AdjustTab as a child element in node
    * @param {HTMLElement} node node in which to render AdjustTab
    */
   render(node) {

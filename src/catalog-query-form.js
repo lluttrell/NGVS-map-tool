@@ -48,7 +48,7 @@ class CatalogQueryForm {
     for (let principleColumn of this.catalog.principleColumns) {
       refineFieldDiv.appendChild(this._createRefineField(principleColumn))
     }
-    M.updateTextFields();
+    M.updateTextFields()
     return refineFieldDiv
   }
 

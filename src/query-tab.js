@@ -52,14 +52,14 @@ class QueryTab {
     defaultSelect.setAttribute('disabled',true)
     defaultSelect.setAttribute('selected', true)
     defaultSelect.setAttribute('value','')
-    defaultSelect.innerText = 'Select Catalog';
+    defaultSelect.innerText = 'Select Catalog'
     catalogSelectMenu.appendChild(defaultSelect)
 
     for (let catalog of this.catalogList) {
-      let optionElement = document.createElement('option');
-      optionElement.setAttribute('value', catalog.name);
-      optionElement.innerHTML = catalog.name;
-      catalogSelectMenu.appendChild(optionElement);
+      let optionElement = document.createElement('option')
+      optionElement.setAttribute('value', catalog.name)
+      optionElement.innerHTML = catalog.name
+      catalogSelectMenu.appendChild(optionElement)
     }
     return catalogSelectMenu
   }
