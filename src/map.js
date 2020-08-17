@@ -12,7 +12,16 @@ import TilesetFilter from './tileset-filter'
 import './styles/map.css'
 
 
+/**
+ * The Map object represents the actual 'map' in for the application. It contains a single instance
+ * of a leaflet map, as well as other leaflet/custom objects that render on top of the map. 
+ */
 class Map {
+
+  /**
+   * @constructor
+   * Creates an instance of Map
+   */
   constructor() {
     this.fieldOutlines = new FieldOutlines();
     this.tilesetFilter = new TilesetFilter();
@@ -44,7 +53,11 @@ class Map {
       })
   }
 
-  
+
+  /**
+   * Initializes the Map object. Adds a variety of layers to the layerControl. Adds the mouse control
+   * and adds the area select functionality to the map
+   */
   init() {
     for (let tileSet of this.tileSets) {
       if (tileSet.exclusive) {
@@ -73,6 +86,11 @@ class Map {
   }
 
 
+  /**
+   * Adjusts a property for this map's tileset filter object
+   * @param {string} property Filter property to adjust
+   * @param {Number} value Numerical value to set it to
+   */
   adjustTilesetFilter(property, value) {
     this.tilesetFilter.adjustFilterProperty(property, value)
     for (let tileSet of this.tileSets) {
@@ -80,7 +98,11 @@ class Map {
     }
   }
 
-
+  /**
+   * Returns a leaflet mouseposition object
+   * @param {function} lngFormatter Javascript function to format leaflet longitude coordinates to RA
+   * @param {function} latFormatter Javascript function to format leaflet latitude coordiates to DEC
+   */
   _createMousePositionControl(lngFormatter, latFormatter) {
     return L.control.mousePosition({
       position: 'bottomright',
