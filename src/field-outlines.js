@@ -1,18 +1,67 @@
-import longOutlineSingleCSV from './assets/field_outlines_long_single.csv'
-import shortOutlineSingleCSV from './assets/field_outlines_short_single.csv'
-import longOutlineStackedCSV from './assets/field_outlines_long_stacked.csv'
-import shortOutlineStackedCSV from './assets/field_outlines_short_stacked.csv'
-import pointingCSV from './assets/ngvs_pointings.csv'
+import Papa from 'papaparse'
 import { config } from '../app.config'
 
+/**
+ * @todo This class is still quite a bit of a mess because the filters are no longer fetched from bundled csv files
+ * I am running out of time and this is messy code (can be simplified a lot) but there is other stuff to do
+ */
 class FieldOutlines {
 
-  constructor() {
-    this.longSingle = this._parseFilterOutlineCSV(longOutlineSingleCSV,'single')
-    this.shortSingle = this._parseFilterOutlineCSV(shortOutlineSingleCSV,'single')
-    this.longStacked = this._parseFilterOutlineCSV(longOutlineStackedCSV,'stacked')
-    this.shortStacked = this._parseFilterOutlineCSV(shortOutlineStackedCSV,'stacked')
-    this.pointings = this._parsePointingCSV(pointingCSV)
+  async init() {
+    await this._fetchFieldOutlines()
+    await this._fetchPointings()
+  }
+
+  async _fetchPointings() {
+    let queryString = ` SELECT DISTINCT target_name, position_bounds
+      FROM caom2.Observation as o JOIN caom2.Plane p on o.obsID=p.obsID
+      WHERE o.proposal_project='NGVS' AND o.type='OBJECT' AND provenance_name='MEGAPIPE'`
+
+    let response = await fetch(config.endpoints.argus + encodeURIComponent(queryString))
+    let csvText = await response.text()
+    let csvArray = Papa.parse(csvText).data.slice(0, -1)
+    this.pointings = this._parsePointingCSV(csvArray)
+  }
+
+  async _fetchFieldOutlines() {
+    const maxShortExposureTime = 255
+    let fieldOutlineQueryParameters = [
+      {
+        groupName: 'longSingle',
+        exposure: 'single',
+        timeExposure: `>${maxShortExposureTime}`,
+        provenanceName: `='ELIXIR'`
+      },
+      {
+        groupName: 'shortSingle',
+        exposure: 'single',
+        timeExposure: `<${maxShortExposureTime}`,
+        provenanceName: `='ELIXIR'`
+      },
+      {
+        groupName: 'longStacked',
+        exposure: 'stacked',
+        timeExposure: `>${maxShortExposureTime}`,
+        provenanceName: `='MEGAPIPE'`
+      },
+      {
+        groupName: 'shortStacked',
+        exposure: 'stacked',
+        timeExposure: `<${maxShortExposureTime}`,
+        provenanceName: `='MEGAPIPE'`
+      }
+    ]
+
+    await Promise.allSettled(fieldOutlineQueryParameters.map(async (obj) => {
+      let queryString = `SELECT DISTINCT position_bounds, energy_bandpassName
+      FROM caom2.Observation as o JOIN caom2.Plane p on o.obsID=p.obsID
+      WHERE o.proposal_project='NGVS' AND o.type='OBJECT' AND provenance_name${obj.provenanceName} AND time_exposure${obj.timeExposure}`
+
+      let response = await fetch(config.endpoints.argus + encodeURIComponent(queryString))
+      let csvText = await response.text()
+      let csvArray = Papa.parse(csvText).data.slice(0, -1)
+      this[obj.groupName] = this._parseFilterOutlineCSV(csvArray, obj.exposure)
+    }))
   }
 
   getPointingLayerGroup() {
@@ -48,7 +97,6 @@ class FieldOutlines {
     if (this.shortStacked[filterName]) layerGroup.addLayer(this._createFieldOutlinePolygon(this.shortStacked[filterName]))
     return layerGroup
   }
-
 
   /**
  * Returns a L.polygon object for outline objects in FieldOutline class

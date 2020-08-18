@@ -13,7 +13,7 @@ const config = {
         'exclusive' : false
       },
       {
-        'name' : 'NGVS',
+        'name' : 'Color (Visible)',
         'url' : 'https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/data/pub/GSKY/M.{x}.{y}.{z}.png',
         'attribution' : 'NGVS',
         'initiallyOpen' : true,
@@ -53,7 +53,14 @@ const config = {
         'attribution' : 'NGVS',
         'initiallyOpen' : false,
         'exclusive' : true
-      }
+      },
+      {
+        'name' : 'Simulation',
+        'url' : 'https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/files/vault/sgwyn/gsky/NGVS_SIM.{x}.{y}.{z}.png',
+        'attribution' : 'NGVS',
+        'initiallyOpen' : false,
+        'exclusive' : true
+      },
     ],
   'catalogs' : [
     {
@@ -106,7 +113,7 @@ const config = {
     'z' : 'darkred',
     'k' : 'dimgray'
   },
-  'fitsImageCategoriesstudy music': {
+  'fitsImageCategories': {
     'filters' : {
       'title' : 'Filters',  
       'parameters' : ['u','g','r','i','z','k'],
