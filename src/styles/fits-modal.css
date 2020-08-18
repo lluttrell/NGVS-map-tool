@@ -5,3 +5,9 @@
 .fits-selection-dl-btn {
   margin-left: 2rem;
 }
+
+#download-mgr-iframe {
+  border: none;
+  width: 100%;
+  height: 95%;
+}
