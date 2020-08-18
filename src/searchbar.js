@@ -2,6 +2,7 @@ import 'leaflet'
 import 'leaflet/dist/leaflet.css'
 import './styles/searchbar.css'
 import { config } from '../app.config'
+import { createCircularLoader } from './utils/loader'
 
 /**
  * This class is used to render a search bar that allows a user to search
@@ -25,6 +26,7 @@ class SearchBar {
    */
   render(node) {
     let searchBar = document.createElement('div')
+    searchBar.id = 'searchbar'
     searchBar.classList.add('input-field','col','s10')
 
     let searchBoxInput = document.createElement('textarea')
@@ -51,6 +53,7 @@ class SearchBar {
     searchBar.appendChild(searchBoxInput)
     
     let searchBoxImage = document.createElement('i')
+    searchBoxImage.id = 'searchbox-image'
     searchBoxImage.classList.add('material-icons','prefix')
     searchBoxImage.innerText = 'add_location_alt'
     searchBar.appendChild(searchBoxImage)
@@ -75,25 +78,39 @@ class SearchBar {
     this.searchHistoryPosition = 0
   }
 
+  _loaderOn() {
+    let searchbarImage = document.getElementById('searchbox-image')
+    searchbarImage.innerHTML = ''
+    searchbarImage.appendChild(createCircularLoader())
+  }
+
+  _loaderOff() {
+    let searchbarImage = document.getElementById('searchbox-image')
+    searchbarImage.innerHTML = 'add_location_alt'
+  }
+
   /**
   * Method used when user searches for an object. If a search is succesful it updates
   * the searchMarker in the map object. Otherwise notifies the user with a toast. 
   */
   async _performSearch() {
+    this._loaderOn()
     this.layerGroup.clearLayers()
     // splits text area along newlines and filters out blank lines
     let searchArray = this.searchBoxContent
       .split(/\r?\n/)
       .filter(s => /\S/.test(s))
-    console.log(searchArray)  
-    searchArray.forEach(async (searchString) => {
+    console.log(searchArray)
+    
+    await Promise.allSettled(searchArray.map(async (searchString) => {
       try {
         let queryResults = await this._queryTargetResolver(searchString)
         this.layerGroup.addLayer(this._createSearchMarker(queryResults))
       } catch (e) {
         M.toast({html: e.message, classes:'red lighten-2'})
       }
-    })
+    }))
+    this._loaderOff()
   }
 
   /**
@@ -141,6 +158,8 @@ class SearchBar {
         shadowSize: [41, 41]
     })
   }
+
+
 
 }
 
