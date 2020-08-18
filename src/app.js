@@ -69,7 +69,7 @@ class App {
     const adjustTab = new AdjustTab(this.mapObj)
     adjustTab.render(document.getElementById('adjustment-tab-body'))
 
-    const fitsTab = new FITSTab(this.mapObj, this.fitsmgr, this.catalogList)
+    const fitsTab = new FITSTab(this.mapObj, this.fitsmgr)
     fitsTab.render(document.getElementById('fits-tab-body'))
 
     const helpTab = new HelpTab()
