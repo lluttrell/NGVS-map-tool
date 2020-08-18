@@ -58,7 +58,8 @@ class Map {
    * Initializes the Map object. Adds a variety of layers to the layerControl. Adds the mouse control
    * and adds the area select functionality to the map
    */
-  init() {
+  async init() {
+    await this.fieldOutlines.init()
     for (let tileSet of this.tileSets) {
       if (tileSet.exclusive) {
         this.layerControl.addOverlay(tileSet.tileLayer,tileSet.name,'NGVS Base Maps')
