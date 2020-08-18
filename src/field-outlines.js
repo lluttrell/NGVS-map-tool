@@ -1,11 +1,11 @@
 import Papa from 'papaparse'
 import { config } from '../app.config'
 
+/**
+ * @todo This class is still quite a bit of a mess because the filters are no longer fetched from bundled csv files
+ * I am running out of time and this is messy code (can be simplified a lot) but there is other stuff to do
+ */
 class FieldOutlines {
-
-  constructor() {
-    this.pointings = this._parsePointingCSV(pointingCSV)
-  }
 
   async init() {
     await this._fetchFieldOutlines()
