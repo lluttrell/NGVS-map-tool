@@ -54,6 +54,7 @@ class ObjectDetailModal extends Modal {
     tableHead.innerHTML = '<tr><th>Property</th><th>Value</th></tr>'
     let tableBody = document.createElement('tbody')
     for(let [key,value] of Object.entries(this.catalog.currentObjectQuery)) {
+      if (value != '-100') {
         let row = document.createElement('tr')
         let property = document.createElement('td')
         property.innerHTML = key
@@ -62,6 +63,7 @@ class ObjectDetailModal extends Modal {
         row.appendChild(property)
         row.appendChild(propertyValue)
         tableBody.appendChild(row)
+      }
     }
     table.append(tableHead,tableBody)
     return table

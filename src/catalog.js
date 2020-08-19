@@ -45,6 +45,7 @@ class Catalog {
       .filter((attributeName) => attributeName.includes('principle'))
   }
 
+
   /**
    * Sets currentObjectQuery to be an object containing all of the information about a particular
    * astronomical object by querying the database

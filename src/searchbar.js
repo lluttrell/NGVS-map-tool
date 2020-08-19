@@ -100,15 +100,16 @@ class SearchBar {
     let searchArray = this.searchBoxContent
       .split(/\r?\n/)
       .filter(s => /\S/.test(s))
-    console.log(searchArray)
     
     await Promise.allSettled(searchArray.map(async (searchString) => {
-      try {
-        let queryResults = await this._queryTargetResolver(searchString)
-        this.layerGroup.addLayer(this._createSearchMarker(queryResults))
-      } catch (e) {
-        M.toast({html: e.message, classes:'red lighten-2'})
-      }
+      let exactGalaxyMatch = await this._queryGalaxyCatalogByName(searchString)
+      let queryResults = await this._queryTargetResolver(searchString)
+      let nearbyGalaxy = await this._queryGalaxyCatalogByCoordinates(queryResults.ra, queryResults.dec)
+      console.log(exactGalaxyMatch)
+      console.log(queryResults)
+      console.log(nearbyGalaxy)
+      this.layerGroup.addLayer(this._createSearchMarker(queryResults))
+      M.toast({html: 'Search Failed', classes:'red lighten-2'})
     }))
     this._loaderOff()
   }
@@ -123,8 +124,35 @@ class SearchBar {
     let searchURIComponent = encodeURIComponent(searchString.replace(/\s\s+/g,' '))
     let response = await fetch(`https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/cadc-target-resolver/find?target=${searchURIComponent}&service=all&format=json`)
     let result = await response.json()
-    if (result.error) throw new Error(`Search for ${searchString} failed`)
+    if (result.error) return null
     return result
+  }
+
+  async _queryGalaxyCatalogByCoordinates(ra, dec) {
+    let queryString = 
+      `SELECT Official_name 
+       FROM cfht.ngvsCatalog as ngvs
+       WHERE 1 = CONTAINS(
+         POINT('ICRS',${this._convertRA(ra)},${dec}),
+         CIRCLE('ICRS',ngvs.principleRA,ngvs.principleDec,0.00001)
+       )`
+    let queryURI = config.endpoints.youcat + encodeURIComponent(queryString)   
+    let response = await fetch(queryURI, {credentials: 'include'})
+    let csvText = await response.text()
+    if (csvText.split('Official_name\n').length != 2) return null
+    return csvText.split('Official_name\n')[1]
+  }
+
+  async _queryGalaxyCatalogByName(name) {
+    let queryString = 
+      `SELECT Official_name from cfht.ngvsCatalog
+       WHERE Official_name='${name}' OR Old_name='${name}'`
+    let queryURI = config.endpoints.youcat + encodeURIComponent(queryString)   
+    let response = await fetch(queryURI, {credentials: 'include'})
+    let csvText = await response.text()
+    console.log(csvText)
+    if (csvText.split('Official_name\n').length != 2) return null
+    return csvText.split('Official_name\n')[1]
   }
 
 
@@ -137,10 +165,14 @@ class SearchBar {
     return searchMarker
   }
 
+  _convertRA(ra) {
+    if (ra > 180) { ra = 180 - ra }
+    return ra
+  }
+
   _toLatLng(coordinates) {
     let dec = coordinates[0]
-    let ra = coordinates[1]
-    if (ra > 180) { ra = 180 - ra }
+    let ra = this._convertRA(coordinates[1])
     return L.latLng([dec,ra])
   }
 
