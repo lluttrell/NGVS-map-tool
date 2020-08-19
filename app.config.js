@@ -59,7 +59,8 @@ const config = {
         'url' : 'https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/files/vault/sgwyn/gsky/NGVS_SIM.{x}.{y}.{z}.png',
         'attribution' : 'NGVS',
         'initiallyOpen' : false,
-        'exclusive' : true
+        'exclusive' : true,
+        'maxNativeZoom': 9
       },
     ],
   'catalogs' : [

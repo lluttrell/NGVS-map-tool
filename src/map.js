@@ -30,7 +30,9 @@ class Map {
     for (let tileSet of this.tileSets) {
       tileSet['tileLayer'] = L.tileLayer.colorFilter(tileSet.url, {
         attribution: tileSet.attribution,
-        filter: this.tilesetFilter.stringList
+        filter: this.tilesetFilter.stringList,
+        maxZoom: config.maxZoom,
+        maxNativeZoom: tileSet.maxNativeZoom
       })
     }
 
