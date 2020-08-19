@@ -60,7 +60,8 @@ class App {
       })
     }
     
-    const searchBar = new SearchBar(this.mapObj)
+    let galaxyCatalog = this.catalogList.filter(c => c.name === 'cfht.ngvsCatalog')[0]
+    const searchBar = new SearchBar(this.mapObj, galaxyCatalog)
     searchBar.render(document.getElementById('search'))
 
     const queryTab = new QueryTab(this.catalogList)

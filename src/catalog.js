@@ -190,6 +190,40 @@ class Catalog {
   getResultsLength() {
     return this.currentQuery.length
   }
+
+  async queryGalaxyCatalogByCoordinates(ra, dec) {
+    let queryString = 
+      `SELECT Official_name, principleRA, principleDec
+       FROM cfht.ngvsCatalog as ngvs
+       WHERE 1 = CONTAINS(
+         POINT('ICRS',${ra},${dec}),
+         CIRCLE('ICRS',ngvs.principleRA,ngvs.principleDec,0.00001)
+       )`
+    let queryURI = config.endpoints.youcat + encodeURIComponent(queryString)   
+    let response = await fetch(queryURI, {credentials: 'include'})
+    let csvText = await response.text()
+    let csvArray = Papa.parse(csvText, {dynamicTyping: true}).data[1]
+    if (csvArray[1]) {
+       return { 'target' : csvArray[0],'ra' : csvArray[1], 'dec' : csvArray[2] }
+    } else {
+      return null
+    }
+  }
+
+  async queryGalaxyCatalogByName(name) {
+    let queryString = 
+      `SELECT Official_name, principleRA, principleDec from cfht.ngvsCatalog
+       WHERE Official_name='${name}' OR Old_name='${name}'`
+    let queryURI = config.endpoints.youcat + encodeURIComponent(queryString)   
+    let response = await fetch(queryURI, {credentials: 'include'})
+    let csvText = await response.text()
+    let csvArray = Papa.parse(csvText, {dynamicTyping: true}).data[1]
+    if (csvArray[1]) {
+       return { 'target' : csvArray[0],'ra' : csvArray[1], 'dec' : csvArray[2] }
+    } else {
+      return null
+    }
+  }
 }
 
 export default Catalog

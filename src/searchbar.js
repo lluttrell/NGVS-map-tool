@@ -11,8 +11,9 @@ import { createCircularLoader } from './utils/loader'
  * coordinate pairs in a reasonable format into a location that can be plotted.
  */
 class SearchBar {
-  constructor(lMap) {
-    this.mapObj = lMap
+  constructor(mapObj, catalog) {
+    this.mapObj = mapObj
+    this.catalog = catalog
     this.searchBoxContent = ''
     this.layerGroup = L.layerGroup()
     this.layerGroup.addTo(this.mapObj.lMap)
@@ -102,14 +103,23 @@ class SearchBar {
       .filter(s => /\S/.test(s))
     
     await Promise.allSettled(searchArray.map(async (searchString) => {
-      let exactGalaxyMatch = await this._queryGalaxyCatalogByName(searchString)
-      let queryResults = await this._queryTargetResolver(searchString)
-      let nearbyGalaxy = await this._queryGalaxyCatalogByCoordinates(queryResults.ra, queryResults.dec)
-      console.log(exactGalaxyMatch)
-      console.log(queryResults)
-      console.log(nearbyGalaxy)
-      this.layerGroup.addLayer(this._createSearchMarker(queryResults))
-      M.toast({html: 'Search Failed', classes:'red lighten-2'})
+      let [catalogNameMatch, targetResolverMatch] = await Promise.allSettled([
+        this.catalog.queryGalaxyCatalogByName(searchString),
+        this._queryTargetResolver(searchString)
+      ])
+      catalogNameMatch = catalogNameMatch.value
+      targetResolverMatch = targetResolverMatch.value
+      if (catalogNameMatch) {
+        this.layerGroup.addLayer(this._createClickableSearchMarker(searchString, catalogNameMatch, true))
+      } else if (targetResolverMatch) {
+        this.layerGroup.addLayer(this._createSearchMarker(targetResolverMatch))
+        let nearbyGalaxy = await this.catalog.queryGalaxyCatalogByCoordinates(this._convertRA(targetResolverMatch.ra), targetResolverMatch.dec)
+        if (nearbyGalaxy) {
+          this.layerGroup.addLayer(this._createClickableSearchMarker(searchString, nearbyGalaxy, false))
+        }
+      } else {
+        M.toast({html: `Search for ${searchString} Failed`, classes:'red lighten-2'})
+      }
     }))
     this._loaderOff()
   }
@@ -128,39 +138,25 @@ class SearchBar {
     return result
   }
 
-  async _queryGalaxyCatalogByCoordinates(ra, dec) {
-    let queryString = 
-      `SELECT Official_name 
-       FROM cfht.ngvsCatalog as ngvs
-       WHERE 1 = CONTAINS(
-         POINT('ICRS',${this._convertRA(ra)},${dec}),
-         CIRCLE('ICRS',ngvs.principleRA,ngvs.principleDec,0.00001)
-       )`
-    let queryURI = config.endpoints.youcat + encodeURIComponent(queryString)   
-    let response = await fetch(queryURI, {credentials: 'include'})
-    let csvText = await response.text()
-    if (csvText.split('Official_name\n').length != 2) return null
-    return csvText.split('Official_name\n')[1]
-  }
-
-  async _queryGalaxyCatalogByName(name) {
-    let queryString = 
-      `SELECT Official_name from cfht.ngvsCatalog
-       WHERE Official_name='${name}' OR Old_name='${name}'`
-    let queryURI = config.endpoints.youcat + encodeURIComponent(queryString)   
-    let response = await fetch(queryURI, {credentials: 'include'})
-    let csvText = await response.text()
-    console.log(csvText)
-    if (csvText.split('Official_name\n').length != 2) return null
-    return csvText.split('Official_name\n')[1]
-  }
-
-
   _createSearchMarker(queryResults) {
     let coordinates = [queryResults.dec, queryResults.ra]
     let searchMarker = L.marker(this._toLatLng(coordinates), {
       title: queryResults.target,
-      icon: this._createMarkerIcon(config.searchMarkerColor)
+      icon: this._createMarkerIcon(config.searchMarkerColors.locationOnly)
+    })
+    return searchMarker
+  }
+
+  _createClickableSearchMarker(searchString, queryResults, exactMatch) {
+    let title = (searchString === queryResults.target) ? searchString : `${searchString} (${queryResults.target})` 
+    let markerColor = exactMatch ? config.searchMarkerColors.nameMatch : config.searchMarkerColors.nearbyGalaxy
+    let coordinates = [queryResults.dec, queryResults.ra]
+    let searchMarker = L.marker(this._toLatLng(coordinates), {
+      title: title,
+      icon: this._createMarkerIcon(markerColor)
+    })
+    searchMarker.addEventListener('click', () => {
+      this.catalog.displayObjectInformation(queryResults.target)
     })
     return searchMarker
   }

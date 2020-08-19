@@ -101,7 +101,11 @@ const config = {
       'opacity' : 1.0
     },
   },
-  'searchMarkerColor' : 'orange', // options: blue, gold, red, green, orange, yellow, violet, grey, black
+  'searchMarkerColors' : { // options: blue, gold, red, green, orange, yellow, violet, grey, black
+    'locationOnly' : 'orange',
+    'nameMatch' : 'blue',
+    'nearbyGalaxy' : 'green'
+  }, 
   'searchHistoryLength' : 100,
   'pointingOutlineColor' : 'gray',
   'fieldColors' : {
