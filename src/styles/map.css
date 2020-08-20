@@ -10,3 +10,6 @@
 .leaflet-catalog-pane {
   z-index: 1000;
 }
+.leaflet-search-pane {
+  z-index: 1000;
+}

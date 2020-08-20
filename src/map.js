@@ -72,6 +72,7 @@ class Map {
     this.lMap.selectArea.setShiftKey(true)
     this.lMap.createPane('pointingPane')
     this.lMap.createPane('catalogPane')
+    this.lMap.createPane('searchPane')
     
     this.layerControl.addOverlay(this.fieldOutlines.getPointingLayerGroup(),'NGVS','Pointings')
     for (let filterName of config.fitsImageCategories.filters.parameters) {
