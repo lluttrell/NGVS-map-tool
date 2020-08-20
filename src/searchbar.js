@@ -11,8 +11,9 @@ import { createCircularLoader } from './utils/loader'
  * coordinate pairs in a reasonable format into a location that can be plotted.
  */
 class SearchBar {
-  constructor(lMap) {
-    this.mapObj = lMap
+  constructor(mapObj, catalog) {
+    this.mapObj = mapObj
+    this.catalog = catalog
     this.searchBoxContent = ''
     this.layerGroup = L.layerGroup()
     this.layerGroup.addTo(this.mapObj.lMap)
@@ -100,14 +101,24 @@ class SearchBar {
     let searchArray = this.searchBoxContent
       .split(/\r?\n/)
       .filter(s => /\S/.test(s))
-    console.log(searchArray)
     
     await Promise.allSettled(searchArray.map(async (searchString) => {
-      try {
-        let queryResults = await this._queryTargetResolver(searchString)
-        this.layerGroup.addLayer(this._createSearchMarker(queryResults))
-      } catch (e) {
-        M.toast({html: e.message, classes:'red lighten-2'})
+      let [catalogNameMatch, targetResolverMatch] = await Promise.allSettled([
+        this.catalog.queryGalaxyCatalogByName(searchString),
+        this._queryTargetResolver(searchString)
+      ])
+      catalogNameMatch = catalogNameMatch.value
+      targetResolverMatch = targetResolverMatch.value
+      if (catalogNameMatch) {
+        this.layerGroup.addLayer(this._createClickableSearchMarker(searchString, catalogNameMatch, true))
+      } else if (targetResolverMatch) {
+        this.layerGroup.addLayer(this._createSearchMarker(targetResolverMatch))
+        let nearbyGalaxy = await this.catalog.queryGalaxyCatalogByCoordinates(this._convertRA(targetResolverMatch.ra), targetResolverMatch.dec)
+        if (nearbyGalaxy) {
+          this.layerGroup.addLayer(this._createClickableSearchMarker(searchString, nearbyGalaxy, false))
+        }
+      } else {
+        M.toast({html: `Search for ${searchString} Failed`, classes:'red lighten-2'})
       }
     }))
     this._loaderOff()
@@ -123,24 +134,41 @@ class SearchBar {
     let searchURIComponent = encodeURIComponent(searchString.replace(/\s\s+/g,' '))
     let response = await fetch(`https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/cadc-target-resolver/find?target=${searchURIComponent}&service=all&format=json`)
     let result = await response.json()
-    if (result.error) throw new Error(`Search for ${searchString} failed`)
+    if (result.error) return null
     return result
   }
-
 
   _createSearchMarker(queryResults) {
     let coordinates = [queryResults.dec, queryResults.ra]
     let searchMarker = L.marker(this._toLatLng(coordinates), {
       title: queryResults.target,
-      icon: this._createMarkerIcon(config.searchMarkerColor)
+      icon: this._createMarkerIcon(config.searchMarkerColors.locationOnly)
     })
     return searchMarker
   }
 
+  _createClickableSearchMarker(searchString, queryResults, exactMatch) {
+    let title = (searchString === queryResults.target) ? searchString : `${searchString} (${queryResults.target})` 
+    let markerColor = exactMatch ? config.searchMarkerColors.nameMatch : config.searchMarkerColors.nearbyGalaxy
+    let coordinates = [queryResults.dec, queryResults.ra]
+    let searchMarker = L.marker(this._toLatLng(coordinates), {
+      title: title,
+      icon: this._createMarkerIcon(markerColor)
+    })
+    searchMarker.addEventListener('click', () => {
+      this.catalog.displayObjectInformation(queryResults.target)
+    })
+    return searchMarker
+  }
+
+  _convertRA(ra) {
+    if (ra > 180) { ra = 180 - ra }
+    return ra
+  }
+
   _toLatLng(coordinates) {
     let dec = coordinates[0]
-    let ra = coordinates[1]
-    if (ra > 180) { ra = 180 - ra }
+    let ra = this._convertRA(coordinates[1])
     return L.latLng([dec,ra])
   }
 

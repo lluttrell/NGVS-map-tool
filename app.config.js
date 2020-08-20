@@ -59,7 +59,8 @@ const config = {
         'url' : 'https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/files/vault/sgwyn/gsky/NGVS_SIM.{x}.{y}.{z}.png',
         'attribution' : 'NGVS',
         'initiallyOpen' : false,
-        'exclusive' : true
+        'exclusive' : true,
+        'maxNativeZoom': 9
       },
     ],
   'catalogs' : [
@@ -165,7 +166,11 @@ const config = {
       'description' : 'add description'
     },
   ],
-  'searchMarkerColor' : 'orange', // options: blue, gold, red, green, orange, yellow, violet, grey, black
+  'searchMarkerColors' : { // options: blue, gold, red, green, orange, yellow, violet, grey, black
+    'locationOnly' : 'red',
+    'nameMatch' : 'green',
+    'nearbyGalaxy' : 'yellow'
+  },
   'searchHistoryLength' : 100,
   'pointingOutlineColor' : 'gray',
   'fieldColors' : {
