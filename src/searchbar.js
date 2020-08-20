@@ -153,7 +153,8 @@ class SearchBar {
     let coordinates = [queryResults.dec, queryResults.ra]
     let searchMarker = L.marker(this._toLatLng(coordinates), {
       title: title,
-      icon: this._createMarkerIcon(markerColor)
+      icon: this._createMarkerIcon(markerColor),
+      pane: 'catalogPane'
     })
     searchMarker.addEventListener('click', () => {
       this.catalog.displayObjectInformation(queryResults.target)
@@ -186,9 +187,6 @@ class SearchBar {
         shadowSize: [41, 41]
     })
   }
-
-
-
 }
 
 export default SearchBar
