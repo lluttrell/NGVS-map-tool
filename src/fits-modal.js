@@ -192,7 +192,7 @@ class FITSModal extends Modal {
     table.classList.add('highlight')
     const tableHead = document.createElement('thead')
     const row = document.createElement('tr')
-    for (const title of ['Filter','Exposure','Stacked','Proccesing','Pointing','Link']) {
+    for (const title of ['Filter','Exposure','Stacked','Proccesing','Pointing','FileType','Link']) {
         const titleColumn = document.createElement('th')
         titleColumn.innerText = title
         row.appendChild(titleColumn)
@@ -212,9 +212,11 @@ class FITSModal extends Modal {
         pointingCol.innerText = link.pointing
         const stackedCol = document.createElement('td')
         stackedCol.innerText = link.stacked
+        const filetypeCol = document.createElement('td')
+        filetypeCol.innerText = link.fileype
         const linkCol = document.createElement('td')
         linkCol.innerHTML = `<a href='${link.url}'>${link.productID}</a>`
-        row.append(filterCol, exposureCol, stackedCol, processingCol, pointingCol, linkCol)
+        row.append(filterCol, exposureCol, stackedCol, processingCol, pointingCol, filetypeCol, linkCol)
         tableBody.appendChild(row)
     }
     table.appendChild(tableBody)

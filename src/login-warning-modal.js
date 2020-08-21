@@ -85,7 +85,7 @@ class LoginWarningModal extends Modal {
   _createLoginButton() {
     let loginButton = document.createElement('a')
     let currentURL = encodeURIComponent(window.location)
-    let loginURL = `http://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/en/login.html?target=${currentURL}`
+    let loginURL = `https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/en/login.html?target=${currentURL}`
     loginButton.setAttribute('href',loginURL)
     loginButton.classList.add('btn')
     loginButton.innerText = 'Go to CADC Login'

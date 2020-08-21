@@ -190,16 +190,20 @@ const config = {
     },
     'exposures' : {
       'title' : 'Filters',
-      'parameters' : ['short','long']
+      'parameters' : ['Short','Long']
     },
     'individualPipelines' : {
       'title' : 'Single Images',
-      'parameters' : ['raw', 'elixir', 'elixir-lsb']
+      'parameters' : ['Raw', 'ELIXIR', 'ElixirLSB']
     },
     'stackedPipelines' : {
       'title' : 'Stacked Images',
-      'parameters' : ['l128','g002','g004']
-    }
+      'parameters' : ['Ml128','Mg002','Mg004']
+    },
+    // 'filetypes' : {
+    //   'title' : 'FITS File Types',
+    //   'parameters' : ['fits','sig','mask','res','cat']
+    // },
   },
   'tilesetFilters' : {
     'saturation' : {
