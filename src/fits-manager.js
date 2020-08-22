@@ -76,7 +76,7 @@ class FITSManager {
       })
   }
 
-  /**
+  /**v0.3
    * Opens a download link containing urls the current download list
    */
   downloadSelectionURLList() {

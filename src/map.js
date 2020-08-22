@@ -17,7 +17,6 @@ import './styles/map.css'
  * of a leaflet map, as well as other leaflet/custom objects that render on top of the map. 
  */
 class Map {
-
   /**
    * @constructor
    * Creates an instance of Map
@@ -25,6 +24,10 @@ class Map {
   constructor() {
     this.fieldOutlines = new FieldOutlines()
     this.tilesetFilter = new TilesetFilter()
+
+    // hide some stuff on mobile, just for fun
+   
+    this.isMobile = /Mobi/.test(navigator.userAgent)
     
     this.tileSets = config.baseTileSets
     for (let tileSet of this.tileSets) {
@@ -32,7 +35,7 @@ class Map {
         attribution: tileSet.attribution,
         filter: this.tilesetFilter.stringList,
         maxZoom: config.maxZoom,
-        maxNativeZoom: tileSet.maxNativeZoom
+        maxNativeZoom: tileSet.maxNativeZoom,
       })
     }
 
@@ -49,8 +52,10 @@ class Map {
       attributionControl: false
     })
 
+    if (this.isMobile) this.lMap.removeControl(this.lMap.zoomControl)
+
     this.layerControl = L.control.groupedLayers(null, null, {
-      collapsed: false,
+      collapsed: this.isMobile,
       exclusiveGroups: ['NGVS Base Maps']
       })
   }
@@ -83,10 +88,7 @@ class Map {
     this._createMousePositionControl(decimal_ra_formatter, decimal_dec_formatter).addTo(this.lMap)
     this._createMousePositionControl(hms_formatter, dms_formatter).addTo(this.lMap)
     
-    L.control.attribution({
-      position: 'bottomleft'
-    }).addTo(this.lMap)
-
+    if (!this.isMobile) L.control.attribution({position: 'bottomleft'}).addTo(this.lMap)
   }
 
 
