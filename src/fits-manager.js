@@ -15,20 +15,22 @@ import Papa from 'papaparse'
  */
 class FITSManager {
   constructor() {
-    this.baseQuery = `SELECT time_exposure, energy_bandpassName, target_name, provenance_name, provenance_version,
-       a.accessURL, target_name, productID, contentLength, publisherID
+    this.baseQuery = `SELECT energy_bandpassName, calibrationLevel, time_exposure, target_name, provenance_name,
+       a.accessURL, target_name, productID, contentLength, publisherID, uri
       FROM caom2.Observation as o JOIN caom2.Plane p on o.obsID=p.obsID JOIN caom2.Artifact a on a.planeID=p.planeID
-      WHERE o.proposal_project='NGVS' AND o.type='OBJECT' AND a.productType='science'`
+      WHERE (o.collection='NGVS' OR o.proposal_project='NGVS') AND a.productType='science'`
     this.currentQuery = []
     this.downloadList = []
     this.availableFilters = new Set()
     this.availableExposures = new Set()
     this.availableIndividualPipelines = new Set()
     this.availableStackedPipelines = new Set()
+    this.availableFiletypes = new Set()
     this.filters = config.fitsImageCategories.filters.parameters
     this.exposures = config.fitsImageCategories.exposures.parameters
     this.individualPipelines = config.fitsImageCategories.individualPipelines.parameters
     this.stackedPipelines = config.fitsImageCategories.stackedPipelines.parameters
+    this.filetypes  = config.fitsImageCategories.filetypes.parameters
   }
 
   /**
@@ -67,6 +69,7 @@ class FITSManager {
     this.downloadList = this.currentQuery
       .filter(link => this.filters.includes(link.filter))
       .filter(link => this.exposures.includes(link.exposure))
+      .filter((link) => this.filetypes.includes(link.filetype))
       .filter((link) => {
         return this.individualPipelines.includes(link.pipeline) 
           || this.stackedPipelines.includes(link.pipeline)
@@ -118,6 +121,7 @@ class FITSManager {
    * currently available sets, and returns an object representing the category  
    * @param {Object} fitsImageData 
    * @returns {Object} Returns object containing information about a single fits image
+   * @todo This all changed on my last day of work and I mega-scrambled to get it working. If images are not showing up it's probably because of this
    */
   _buildAssetObject(fitsImageData) {
     let url = fitsImageData.accessURL
@@ -125,29 +129,47 @@ class FITSManager {
     let productID = fitsImageData.productID
     let publisherID = fitsImageData.publisherID
     let contentLength = fitsImageData.contentLength
+    
     let filter = fitsImageData.energy_bandpassName.slice(0,1)
     this.availableFilters.add(filter)
+    
     let exposure
     if (Number(fitsImageData.time_exposure) < 400) {
-      exposure = 'short'
+      exposure = 'Short'
     } else {
-      exposure = 'long'
+      exposure = 'Long'
     }
     this.availableExposures.add(exposure)
+
+    // could write this better with map and assignment with ternary but i'm rushing. not even sure if this is correct
+    let filetype
+    if (fitsImageData.uri.includes('cat')) {
+      filetype = 'cat'
+    } else if (fitsImageData.uri.includes('sig')) {
+      filetype = 'sig'
+    } else if (fitsImageData.uri.includes('mask')) {
+      filetype = 'mask'
+    } else if (fitsImageData.uri.includes('cat')) {
+      filetype = 'cat'
+    } else {
+      filetype = 'fits'
+    }
+    this.availableFiletypes.add(filetype)
+
     let pipeline
     let stacked = false
-    if (fitsImageData.provenance_name === 'MEGAPIPE') {
-      pipeline = 'l128'
+    if (fitsImageData.calibrationLevel == 3) {
+      pipeline = fitsImageData.provenance_name.split('_')[1] 
       stacked = true
-      this.availableStackedPipelines.add('l128')
-    } else if (fitsImageData.provenance_version == 2) {
-      pipeline = 'elixir'
+      this.availableStackedPipelines.add(pipeline)
+    } else if (fitsImageData.calibrationLevel == 2) {
+      pipeline = fitsImageData.provenance_name
       this.availableIndividualPipelines.add(pipeline)
     } else {
-      pipeline = 'raw'
+      pipeline = 'Raw'
       this.availableIndividualPipelines.add(pipeline)
     }
-    return {filter, exposure, pipeline, url, pointing, productID, publisherID, stacked, contentLength}
+    return {filter, exposure, pipeline, url, pointing, productID, publisherID, stacked, contentLength, filetype}
   }
 
   /**
@@ -161,8 +183,12 @@ class FITSManager {
     this.availableExposures.clear()
     this.availableIndividualPipelines.clear()
     this.availableStackedPipelines.clear()
+    this.availableFiletypes.clear()
     let encodedQuery = encodeURIComponent(queryString)
-    const queryResult = await fetch(config.endpoints.argus + encodedQuery)
+    const queryResult = await fetch(config.endpoints.argus + encodedQuery, {
+      mode: 'cors',
+      credentials: 'include'
+    })
     const response = await queryResult.text()
     const responseArray = Papa.parse(response, {header: true})
     responseArray.data.pop()

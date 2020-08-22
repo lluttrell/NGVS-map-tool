@@ -154,7 +154,7 @@ class SearchBar {
     let searchMarker = L.marker(this._toLatLng(coordinates), {
       title: title,
       icon: this._createMarkerIcon(markerColor),
-      pane: 'catalogPane'
+      pane: 'searchPane'
     })
     searchMarker.addEventListener('click', () => {
       this.catalog.displayObjectInformation(queryResults.target)

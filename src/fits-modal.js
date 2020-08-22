@@ -192,7 +192,7 @@ class FITSModal extends Modal {
     table.classList.add('highlight')
     const tableHead = document.createElement('thead')
     const row = document.createElement('tr')
-    for (const title of ['Filter','Exposure','Stacked','Proccesing','Pointing','Link']) {
+    for (const title of ['Filter','Exposure','Stacked','Proccesing','Pointing','File Type','Link']) {
         const titleColumn = document.createElement('th')
         titleColumn.innerText = title
         row.appendChild(titleColumn)
@@ -201,21 +201,23 @@ class FITSModal extends Modal {
     table.appendChild(tableHead)
     const tableBody = document.createElement('tbody')
     for (let link of this.fitsmgr.downloadList) {
-        const row = document.createElement('tr')
-        const filterCol = document.createElement('td')
-        filterCol.innerText = link.filter
-        const processingCol = document.createElement('td')
-        processingCol.innerText = link.pipeline
-        const exposureCol = document.createElement('td')
-        exposureCol.innerText = link.exposure
-        const pointingCol = document.createElement('td')
-        pointingCol.innerText = link.pointing
-        const stackedCol = document.createElement('td')
-        stackedCol.innerText = link.stacked
-        const linkCol = document.createElement('td')
-        linkCol.innerHTML = `<a href='${link.url}'>${link.productID}</a>`
-        row.append(filterCol, exposureCol, stackedCol, processingCol, pointingCol, linkCol)
-        tableBody.appendChild(row)
+      const row = document.createElement('tr')
+      const filterCol = document.createElement('td')
+      filterCol.innerText = link.filter
+      const processingCol = document.createElement('td')
+      processingCol.innerText = link.pipeline
+      const exposureCol = document.createElement('td')
+      exposureCol.innerText = link.exposure
+      const pointingCol = document.createElement('td')
+      pointingCol.innerText = link.pointing
+      const stackedCol = document.createElement('td')
+      stackedCol.innerText = link.stacked
+      const filetypeCol = document.createElement('td')
+      filetypeCol.innerText = link.filetype
+      const linkCol = document.createElement('td')
+      linkCol.innerHTML = `<a href='${link.url}'>${link.productID}</a>`
+      row.append(filterCol, exposureCol, stackedCol, processingCol, pointingCol, filetypeCol, linkCol)
+      tableBody.appendChild(row)
     }
     table.appendChild(tableBody)
     return table
