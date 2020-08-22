@@ -189,7 +189,7 @@ const config = {
       'parameters' : ['u','g','r','i','z','k'],
     },
     'exposures' : {
-      'title' : 'Filters',
+      'title' : 'Exposure Length',
       'parameters' : ['Short','Long']
     },
     'individualPipelines' : {
@@ -200,10 +200,10 @@ const config = {
       'title' : 'Stacked Images',
       'parameters' : ['Ml128','Mg002','Mg004']
     },
-    // 'filetypes' : {
-    //   'title' : 'FITS File Types',
-    //   'parameters' : ['fits','sig','mask','res','cat']
-    // },
+    'filetypes' : {
+      'title' : 'FITS File Types',
+      'parameters' : ['fits','sig','mask','res','cat']
+    }
   },
   'tilesetFilters' : {
     'saturation' : {
